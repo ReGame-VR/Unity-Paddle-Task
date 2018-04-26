@@ -717,7 +717,7 @@ PlayerSettings:
   facebookSdkVersion: 7.9.4
   apiCompatibilityLevel: 2
   cloudProjectId: 1144831d-6fae-4bee-9e88-d1cb21ef439a
-  projectName: 
+  projectName: Unity Paddle Task
   organizationId: regamevrlab
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0

@@ -30,17 +30,6 @@ public class ViveControllerInput : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        /*
-        if (Controller.GetHairTriggerDown())
-        {
-            GrabObject();            
-        }
-
-        if (Controller.GetHairTriggerUp())
-        {
-            ReleaseObject();            
-        }
-        */
 
         if (Controller.GetHairTrigger())
         {
@@ -54,42 +43,5 @@ public class ViveControllerInput : MonoBehaviour {
             ball.GetComponent<Rigidbody>().velocity = Controller.velocity;
             ball.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
-    }
-
-    // Grab the ball and hold it on the designated point on the controller
-    private void GrabObject()
-    {
-        ball.transform.position = holdPoint.transform.position;
-        objectInHand = ball;
-        
-        // Add a joint between grabbed ball and controller 
-        var joint = AddFixedJoint();
-        joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
-    }
-
-    // Generate a joint for use between the ball and controller
-    private FixedJoint AddFixedJoint()
-    {
-        FixedJoint fx = gameObject.AddComponent<FixedJoint>();
-        fx.breakForce = 20000;
-        fx.breakTorque = 20000;
-        return fx;
-    }
-
-    // Release the ball being held
-    private void ReleaseObject()
-    {
-        // Make sure there is joint attached to this controller
-        if (GetComponent<FixedJoint>())
-        {
-            // Destroy the joint
-            GetComponent<FixedJoint>().connectedBody = null;
-            Destroy(GetComponent<FixedJoint>());
-            // Add controller velocity to the object's velocity
-            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
-            objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
-        }
-        // No longer holding anything
-        objectInHand = null;
     }
 }

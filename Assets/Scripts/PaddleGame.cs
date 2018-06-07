@@ -8,9 +8,13 @@ public class PaddleGame : MonoBehaviour {
     [SerializeField]
     private GameObject hmd;
 
-    [Tooltip("The main paddle in the single-paddle game")]
+    [Tooltip("The left paddle in the game")]
     [SerializeField]
-    private GameObject paddle;
+    private GameObject leftPaddle;
+
+    [Tooltip("The right paddle in the game")]
+    [SerializeField]
+    private GameObject rightPaddle;
 
     [Tooltip("The ball being bounced")]
     [SerializeField]
@@ -55,6 +59,12 @@ public class PaddleGame : MonoBehaviour {
         Vector3 targetPos = targetLine.transform.position;
         targetLine.transform.position = new Vector3(targetPos.x, hmd.transform.position.y, targetPos.z);
         GetComponent<ExplorationMode>().CalibrateEyeLevel(targetLine.transform.position.y);
+
+        if (GlobalControl.Instance.numPaddles > 1)
+        {
+            rightPaddle.GetComponent<Paddle>().EnablePaddle();
+            leftPaddle.GetComponent<Paddle>().DisablePaddle();
+        }
     }
 
     void Update()
@@ -101,6 +111,12 @@ public class PaddleGame : MonoBehaviour {
             SetUpPaddleData();
         }
         numBounces++;
+
+        // If there are two paddles, switch the active one
+        if (GlobalControl.Instance.numPaddles > 1)
+        {
+            StartCoroutine(WaitToSwitchPaddles());
+        }
     }
 
     // The ball was picked up and reset by the controller. Reset bounce and score.
@@ -156,11 +172,14 @@ public class PaddleGame : MonoBehaviour {
     // Initialize paddle information to be recorded upon next bounce
     private void SetUpPaddleData()
     {
+        GameObject paddle = GetActivePaddle();
+
         paddleBounceHeight = paddle.transform.position.y;
-        paddleBounceVelocity = paddle.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude;
-        paddleBounceAccel = paddle.GetComponent<VelocityNoRigidBody>().GetAcceleration();
+        paddleBounceVelocity = paddle.GetComponent<Paddle>().GetVelocity().magnitude;
+        paddleBounceAccel = paddle.GetComponent<Paddle>().GetAcceleration();
     }
 
+    // If 5 trials or so have passed, make a change to the game and reset the group.
     private void ResetTrialGroup()
     {
         if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.TASK)
@@ -177,7 +196,41 @@ public class PaddleGame : MonoBehaviour {
         {
             // Don't do anything, there is no exploration mode set
         }
+    }
 
+    // In order to prevent bugs, wait a little bit for the paddles to switch
+    IEnumerator WaitToSwitchPaddles()
+    {
+        yield return new WaitForSeconds(0.1f);
+        SwitchPaddles();
+    }
+
+    // Switch the active paddles
+    private void SwitchPaddles()
+    {
+        if (leftPaddle.GetComponent<Paddle>().ColliderIsActive())
+        {
+            leftPaddle.GetComponent<Paddle>().DisablePaddle();
+            rightPaddle.GetComponent<Paddle>().EnablePaddle();
+        }
+        else
+        {
+            leftPaddle.GetComponent<Paddle>().EnablePaddle();
+            rightPaddle.GetComponent<Paddle>().DisablePaddle();
+        }
+     }
+
+    // Finds the currently active paddle (in the case of two paddles)
+    private GameObject GetActivePaddle()
+    {
+        if (leftPaddle.GetComponent<Paddle>().ColliderIsActive())
+        {
+            return leftPaddle;
+        }
+        else
+        {
+            return rightPaddle;
+        }
     }
 
     void OnApplicationQuit()

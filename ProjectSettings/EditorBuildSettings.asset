@@ -11,3 +11,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/Paddle.unity
     guid: 8cf683647c2793645a2867c4d022a497
+  - enabled: 1
+    path: Assets/_Scenes/Paddle 2.unity
+    guid: 702ffd67ce1b8dc4686eeb43fffdf1f4

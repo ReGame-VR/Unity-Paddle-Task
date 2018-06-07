@@ -147,7 +147,7 @@ public class DataHandler : MonoBehaviour
         Directory.CreateDirectory(@"Data/" + pid);
         using (CsvFileWriter writer = new CsvFileWriter(@"Data/" + pid + "/" + pid + "Bounce.csv"))
         {
-            Debug.Log("Writing trial data to file");
+            Debug.Log("Writing bounce data to file");
 
             // write header
             CsvRow header = new CsvRow();

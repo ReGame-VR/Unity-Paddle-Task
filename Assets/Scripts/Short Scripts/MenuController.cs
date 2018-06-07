@@ -73,7 +73,7 @@ public class MenuController : MonoBehaviour {
         }
         else
         {
-            // two paddles???
+            SceneManager.LoadScene("Paddle 2");
         }  
     }
 

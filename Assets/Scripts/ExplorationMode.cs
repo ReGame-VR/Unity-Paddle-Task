@@ -24,7 +24,7 @@ public class ExplorationMode : MonoBehaviour {
     [Tooltip("The list of target height ratios (compared to eye height) that the line may be moved to.")]
     public List<float> targetHeightRatios;
 
-    [Tooltip("The list of target height ratios (compared to eye height) that the line may be moved to.")]
+    [Tooltip("The list of vectors that will affect the bounce height of the ball in a forced exploration game.")]
     public List<Vector3> bounceModifications;
 
     void Start()

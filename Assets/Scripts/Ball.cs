@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour {
 
+    // 0.31f is a good value !
     [Tooltip("The force at which the ball will bounce upon collisions")]
     [SerializeField]
     private float bounceForce = 0.31f;
@@ -84,7 +85,7 @@ public class Ball : MonoBehaviour {
         {
             bounceVelocity = c.contacts[0].normal * bounceForce * paddleVelocity;
             isBouncing = true;
-            DeclareBounce();
+            DeclareBounce(c);
 
             // If physics are being changed mid game, change them!
             if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)
@@ -116,7 +117,7 @@ public class Ball : MonoBehaviour {
     // Try to declare that the ball has been bounced. If the ball
     // was bounced too recently, then this declaration will fail.
     // This is to ensure that bounces are only counted once.
-    public void DeclareBounce()
+    public void DeclareBounce(Collision c)
     {
         if (justBounced)
         {
@@ -126,8 +127,8 @@ public class Ball : MonoBehaviour {
         else
         {
             justBounced = true;
-            gameScript.BallBounced();
-            GetComponent<ParticleSpawner>().SpawnParticles();
+            gameScript.BallBounced(c);
+            GetComponent<BallParticleSpawner>().SpawnBounceParticles();
             StartCoroutine(FinishBounceDeclaration());
         }
     }
@@ -150,5 +151,11 @@ public class Ball : MonoBehaviour {
     public void SetBounceModification(Vector3 modification)
     {
         currentBounceModification = modification;
+    }
+
+    // Modifies the bounce for this forced exploration game
+    public Vector3 GetBounceModification()
+    {
+        return currentBounceModification;
     }
 }

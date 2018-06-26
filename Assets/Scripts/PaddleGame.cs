@@ -42,7 +42,7 @@ public class PaddleGame : MonoBehaviour {
 
     // A group of trials. The current group number will tick up every trial.
     // When curGroupNum reaches trialGroupSize, it will reset back to 1.
-    private int trialGroupSize = 5;
+    private int bounceGroupSize = 10;
     private int curGroupNum = 1;
 
     // The paddle bounce height, velocity, and acceleration to be recorded on each bounce.
@@ -63,7 +63,10 @@ public class PaddleGame : MonoBehaviour {
         if (GlobalControl.Instance.numPaddles > 1)
         {
             rightPaddle.GetComponent<Paddle>().EnablePaddle();
-            leftPaddle.GetComponent<Paddle>().DisablePaddle();
+            rightPaddle.GetComponent<Paddle>().SetPaddleIdentifier(Paddle.PaddleIdentifier.RIGHT);
+
+            leftPaddle.GetComponent<Paddle>().EnablePaddle();
+            leftPaddle.GetComponent<Paddle>().SetPaddleIdentifier(Paddle.PaddleIdentifier.LEFT);
         }
     }
 
@@ -99,7 +102,7 @@ public class PaddleGame : MonoBehaviour {
     }
 
     // This will be called when the ball successfully bounces on the paddle.
-    public void BallBounced()
+    public void BallBounced(Collision c)
     {
         if (numBounces < 1)
         {
@@ -112,10 +115,19 @@ public class PaddleGame : MonoBehaviour {
         }
         numBounces++;
 
+        // If the user bounced enough times, kick in an exploration
+        // effect (if turned on).
+        curGroupNum++;
+        if (curGroupNum > bounceGroupSize)
+        {
+            ResetBounceGroup();
+            curGroupNum = 1;
+        }
+
         // If there are two paddles, switch the active one
         if (GlobalControl.Instance.numPaddles > 1)
         {
-            StartCoroutine(WaitToSwitchPaddles());
+            StartCoroutine(WaitToSwitchPaddles(c));
         }
     }
 
@@ -140,12 +152,7 @@ public class PaddleGame : MonoBehaviour {
         numBounces = 0;
         curScore = 0f;
 
-        curGroupNum++;
-        if (curGroupNum > trialGroupSize)
-        {
-            ResetTrialGroup();
-            curGroupNum = 1;
-        }
+
     }
 
     // Determine data for recording a bounce and finally, record it.
@@ -160,11 +167,13 @@ public class PaddleGame : MonoBehaviour {
         if (apexSuccess)
         {
             curScore = curScore + 10;
+            ball.GetComponent<BallParticleSpawner>().SpawnSuccessParticles();
         }
 
         //Record Data from last bounce
         GetComponent<DataHandler>().recordBounce(Time.time, trialNum, numBounces, apexHeight, apexTargetDistance,
-            apexSuccess, paddleBounceHeight, paddleBounceVelocity, paddleBounceAccel);
+            apexSuccess, paddleBounceHeight, paddleBounceVelocity, paddleBounceAccel, targetLine.transform.position.y,
+            ball.GetComponent<Ball>().GetBounceModification());
 
         bounceHeightList = new List<float>();
     }
@@ -180,7 +189,7 @@ public class PaddleGame : MonoBehaviour {
     }
 
     // If 5 trials or so have passed, make a change to the game and reset the group.
-    private void ResetTrialGroup()
+    private void ResetBounceGroup()
     {
         if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.TASK)
         {
@@ -199,16 +208,17 @@ public class PaddleGame : MonoBehaviour {
     }
 
     // In order to prevent bugs, wait a little bit for the paddles to switch
-    IEnumerator WaitToSwitchPaddles()
+    IEnumerator WaitToSwitchPaddles(Collision c)
     {
         yield return new WaitForSeconds(0.1f);
-        SwitchPaddles();
+        // We need the paddle identifier. This is the second parent of the collider in the heirarchy.
+        SwitchPaddles(c.gameObject.transform.parent.transform.parent.GetComponent<Paddle>().GetPaddleIdentifier());
     }
 
     // Switch the active paddles
-    private void SwitchPaddles()
+    private void SwitchPaddles(Paddle.PaddleIdentifier paddleId)
     {
-        if (leftPaddle.GetComponent<Paddle>().ColliderIsActive())
+        if (paddleId == Paddle.PaddleIdentifier.LEFT)
         {
             leftPaddle.GetComponent<Paddle>().DisablePaddle();
             rightPaddle.GetComponent<Paddle>().EnablePaddle();

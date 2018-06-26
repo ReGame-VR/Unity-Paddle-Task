@@ -34,10 +34,11 @@ public class DataHandler : MonoBehaviour
 
     // Records bounce data into the data list
     public void recordBounce(float time, int trialNum, int bounceNum, float apexHeight, float apexTargetDistance,
-            bool apexInTargetArea, float paddleHeight, float paddleVelocity, float paddleAccel)
+            bool apexInTargetArea, float paddleHeight, float paddleVelocity, float paddleAccel, float targetHeight,
+            Vector3 bounceMod)
     {
         bounceData.Add(new BounceData(time, trialNum, bounceNum, apexHeight, apexTargetDistance, apexInTargetArea,
-            paddleHeight, paddleVelocity, paddleAccel));
+            paddleHeight, paddleVelocity, paddleAccel, targetHeight, bounceMod));
     }
 
     /// <summary>
@@ -77,9 +78,12 @@ public class DataHandler : MonoBehaviour
         public readonly float paddleHeight;
         public readonly float paddleVelocity;
         public readonly float paddleAccel;
+        public readonly float targetHeight;
+        public readonly Vector3 bounceMod;
 
         public BounceData(float time, int trialNum, int bounceNum, float apexHeight, float apexTargetDistance,
-            bool apexInTargetArea, float paddleHeight, float paddleVelocity, float paddleAccel)
+            bool apexInTargetArea, float paddleHeight, float paddleVelocity, float paddleAccel, float targetHeight,
+            Vector3 bounceMod)
         {
             this.time = time;
             this.trialNum = trialNum;
@@ -90,6 +94,8 @@ public class DataHandler : MonoBehaviour
             this.paddleHeight = paddleHeight;
             this.paddleVelocity = paddleVelocity;
             this.paddleAccel = paddleAccel;
+            this.targetHeight = targetHeight;
+            this.bounceMod = bounceMod;
         }
     }
 
@@ -161,6 +167,10 @@ public class DataHandler : MonoBehaviour
             header.Add("Paddle height at hit");
             header.Add("Paddle velocity at hit");
             header.Add("Paddle acceleration at hit");
+            header.Add("Target Height");
+            header.Add("Bounce Modification Vector X");
+            header.Add("Bounce Modification Vector Y");
+            header.Add("Bounce Modification Vector Z");
 
             writer.WriteRow(header);
 
@@ -186,6 +196,10 @@ public class DataHandler : MonoBehaviour
                 row.Add(d.paddleHeight.ToString());
                 row.Add(d.paddleVelocity.ToString());
                 row.Add(d.paddleAccel.ToString());
+                row.Add(d.targetHeight.ToString());
+                row.Add(d.bounceMod.x.ToString());
+                row.Add(d.bounceMod.y.ToString());
+                row.Add(d.bounceMod.z.ToString());
 
                 writer.WriteRow(row);
             }

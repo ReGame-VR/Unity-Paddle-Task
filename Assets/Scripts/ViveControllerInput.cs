@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ViveControllerInput : MonoBehaviour {
-
+    /*
     // This controller being tracked by Vive system
-    private SteamVR_TrackedObject trackedObj;
+    //private SteamVR_TrackedObject trackedObj;
 
     // The object that the controller is currently holding
     private GameObject objectInHand;
@@ -18,15 +18,15 @@ public class ViveControllerInput : MonoBehaviour {
     [SerializeField]
     private GameObject ball;
 
-    private SteamVR_Controller.Device Controller
+     SteamVR_Controller.Device Controller
     {
-        get { return SteamVR_Controller.Input((int)trackedObj.index); }
-    }
+      get { return SteamVR_Controller.Input((int)trackedObj.index); }
+  }
 
-    void Awake()
-    {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
-    }
+  void Awake()
+  {
+       trackedObj = GetComponent<SteamVR_TrackedObject>();
+   }
 
     // Update is called once per frame
     void Update () {
@@ -57,4 +57,5 @@ public class ViveControllerInput : MonoBehaviour {
             ball.GetComponent<Ball>().ResetBall();
         }
     }
+    */
 }

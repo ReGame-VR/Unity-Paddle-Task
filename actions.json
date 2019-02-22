@@ -36,6 +36,11 @@
       "requirement": "optional"
     },
     {
+      "name": "/actions/default/in/Reset",
+      "type": "boolean",
+      "requirement": "mandatory"
+    },
+    {
       "name": "/actions/default/out/Haptic",
       "type": "vibration"
     },

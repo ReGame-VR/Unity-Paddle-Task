@@ -1,61 +1,80 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
+using Valve.VR.InteractionSystem;
 
-public class ViveControllerInput : MonoBehaviour {
-    /*
+public class ViveControllerInput : MonoBehaviour
+{
     // This controller being tracked by Vive system
     //private SteamVR_TrackedObject trackedObj;
-
+    public SteamVR_Action_Boolean resetAction;
     // The object that the controller is currently holding
     private GameObject objectInHand;
+
+    public SteamVR_Input_Sources left, right;
+    public GameObject leftController, rightController;
 
     // The 3D point at which the ball will be held when the trigger is pressed
     [SerializeField]
     private GameObject holdPoint;
 
     // The ball that will be grabbed by this controller
-    [SerializeField]
-    private GameObject ball;
+    //[SerializeField]
+    //private GameObject ball;
 
-     SteamVR_Controller.Device Controller
+    private VelocityEstimator velocity;
+    //   SteamVR_Controller.Device Controller
+    //  {
+    //    get { return SteamVR_Controller.Input((int)trackedObj.index); }
+    //}
+
+    void Awake()
     {
-      get { return SteamVR_Controller.Input((int)trackedObj.index); }
-  }
-
-  void Awake()
-  {
-       trackedObj = GetComponent<SteamVR_TrackedObject>();
-   }
+        // trackedObj = GetComponent<SteamVR_TrackedObject>();
+        velocity = GetComponent<VelocityEstimator>();
+    }
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
 
-        if (Controller.GetHairTriggerDown())
+        // if (resetAction.GetState(left) || resetAction.GetState(right))
+        //// if (Controller.GetHairTriggerDown())
+        // {
+        //     // Ball is being reset; it is not bouncing yet.
+        //     ball.GetComponent<Ball>().isBouncing = false;
+
+        //     // Disable the ball collider while it is being reset
+        //     ball.GetComponent<SphereCollider>().enabled = false;
+        // }
+
+
+        if (resetAction.GetState(left) || resetAction.GetState(right))
+        // if (Controller.GetHairTrigger())
         {
-            // Ball is being reset; it is not bouncing yet.
-            ball.GetComponent<Ball>().isBouncing = false;
+            GetComponent<SphereCollider>().enabled = false;
+            transform.position = holdPoint.transform.position;
+            GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+            // Throwable t= ball.GetComponent<Throwable>();
+           // VelocityEstimator velocity = GetComponent<VelocityEstimator>();
+           // Debug.Log("release vel " + velocity.GetVelocityEstimate() + ", angular " + velocity.GetAngularVelocityEstimate());
 
-            // Disable the ball collider while it is being reset
-            ball.GetComponent<SphereCollider>().enabled = false;
         }
 
-        if (Controller.GetHairTrigger())
+        if (resetAction.GetStateUp(left) || resetAction.GetStateUp(right))
+        // if (Controller.GetHairTriggerUp())
         {
-            ball.transform.position = holdPoint.transform.position;
-            ball.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
-        }
+            //VelocityEstimator velocity = resetAction.GetStateUp(left) ? leftController.GetComponent<VelocityEstimator>() : rightController.GetComponent<VelocityEstimator>();
+           // Debug.Log("release vel " + velocity.GetVelocityEstimate() + ", angular " + velocity.GetAngularVelocityEstimate());
 
-        if (Controller.GetHairTriggerUp())
-        {
             //Enable the ball's collider so it can be paddled.
-            ball.GetComponent<SphereCollider>().enabled = true;
+            GetComponent<SphereCollider>().enabled = true;
 
             // Give the ball the controller's velocity so that it is thrown realistically
-            ball.GetComponent<Rigidbody>().velocity = Controller.velocity;
-            ball.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
-            ball.GetComponent<Ball>().ResetBall();
+            GetComponent<Rigidbody>().velocity = velocity.GetVelocityEstimate();
+            GetComponent<Rigidbody>().angularVelocity = velocity.GetAngularVelocityEstimate();
+            GetComponent<Ball>().ResetBall();
         }
     }
-    */
 }

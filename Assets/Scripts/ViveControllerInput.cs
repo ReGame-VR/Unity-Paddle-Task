@@ -56,6 +56,7 @@ public class ViveControllerInput : MonoBehaviour
             GetComponent<SphereCollider>().enabled = false;
             transform.position = holdPoint.transform.position;
             GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+            
             // Throwable t= ball.GetComponent<Throwable>();
            // VelocityEstimator velocity = GetComponent<VelocityEstimator>();
            // Debug.Log("release vel " + velocity.GetVelocityEstimate() + ", angular " + velocity.GetAngularVelocityEstimate());

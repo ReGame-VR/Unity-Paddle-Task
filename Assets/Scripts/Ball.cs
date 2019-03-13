@@ -65,7 +65,7 @@ public class Ball : MonoBehaviour {
     private void BounceBall(Collision c)
     {
         // Get velocity of paddle
-        float paddleVelocity = c.gameObject.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude;
+        float paddleVelocity = c.gameObject.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude; // c.gameObject.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude;
 
         // Create a bounce velocity based on collision with paddle. Also include paddle velocity
         // so that this bounce is proportional to movement of paddle

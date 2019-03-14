@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR.InteractionSystem;
 
 public class Ball : MonoBehaviour {
 
@@ -56,6 +57,8 @@ public class Ball : MonoBehaviour {
 
     void OnCollisionStay(Collision c)
     {
+
+        // return; // EW seems to go very high sometimes.
         if (c.gameObject.tag == "Paddle")
         {
             BounceBall(c);
@@ -65,8 +68,9 @@ public class Ball : MonoBehaviour {
     private void BounceBall(Collision c)
     {
         // Get velocity of paddle
-        float paddleVelocity = c.gameObject.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude; // c.gameObject.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude;
-
+        float paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate().magnitude;
+        // float paddleVelocity = c.gameObject.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude;
+        Debug.Log("paddle velovity: " + paddleVelocity.ToString("F4"));
         // Create a bounce velocity based on collision with paddle. Also include paddle velocity
         // so that this bounce is proportional to movement of paddle
 
@@ -96,6 +100,7 @@ public class Ball : MonoBehaviour {
 
         // reset the velocity of the ball
         rigidBody.velocity = new Vector3(0, 0, 0);
+        rigidBody.angularVelocity = Vector3.zero;
 
         // Exert the new velocity on the ball
         rigidBody.AddForce(bounceVelocity, ForceMode.Impulse);

@@ -13,6 +13,7 @@ public class DataHandler : MonoBehaviour
     // stores the data for writing to file at end of task
     List<TrialData> trialData = new List<TrialData>();
     List<BounceData> bounceData = new List<BounceData>();
+    List<ContinuousData> continuousData = new List<ContinuousData>();
 
     private string pid = GlobalControl.Instance.participantID;
 
@@ -23,6 +24,7 @@ public class DataHandler : MonoBehaviour
     {
         WriteTrialFile();
         WriteBounceFile();
+        WriteContinuousFile();
     }
 
     // Records trial data into the data list
@@ -39,6 +41,14 @@ public class DataHandler : MonoBehaviour
     {
         bounceData.Add(new BounceData(time, trialNum, bounceNum, apexHeight, apexTargetDistance, apexInTargetArea,
             paddleHeight, paddleVelocity, paddleAccel, targetHeight, bounceMod));
+    }
+
+    // Records continuous ball and paddle data into the data list
+    public void recordContinuous(int condition, int visit, float time, float ballPosX,
+            float ballPosY, float ballPosZ, float paddleVelocity, float paddleAccel)
+    {
+        continuousData.Add(new ContinuousData(condition, visit, time,
+            ballPosX, ballPosY, ballPosZ, paddleVelocity, paddleAccel));
     }
 
     /// <summary>
@@ -96,6 +106,31 @@ public class DataHandler : MonoBehaviour
             this.paddleAccel = paddleAccel;
             this.targetHeight = targetHeight;
             this.bounceMod = bounceMod;
+        }
+    }
+
+    class ContinuousData
+    {
+        public readonly int condition;
+        public readonly int visit;
+        public readonly float time;
+        public readonly float ballPosX;
+        public readonly float ballPosY;
+        public readonly float ballPosZ;
+        public readonly float paddleVelocity;
+        public readonly float paddleAccel;
+
+        public ContinuousData(int condition, int visit, float time, float ballPosX, 
+            float ballPosY, float ballPosZ, float paddleVelocity, float paddleAccel)
+        {
+            this.condition = condition;
+            this.visit = visit;
+            this.time = time;
+            this.ballPosX = ballPosX;
+            this.ballPosY = ballPosY;
+            this.ballPosZ = ballPosZ;
+            this.paddleVelocity = paddleVelocity;
+            this.paddleAccel = paddleAccel;
         }
     }
 
@@ -200,6 +235,52 @@ public class DataHandler : MonoBehaviour
                 row.Add(d.bounceMod.x.ToString());
                 row.Add(d.bounceMod.y.ToString());
                 row.Add(d.bounceMod.z.ToString());
+
+                writer.WriteRow(row);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Writes the Trial File to a CSV
+    /// </summary>
+    private void WriteContinuousFile()
+    {
+
+        // Write all entries in data list to file
+        Directory.CreateDirectory(@"Data/" + pid);
+        using (CsvFileWriter writer = new CsvFileWriter(@"Data/" + pid + "/" + pid + "Continuous.csv"))
+        {
+            Debug.Log("Writing continuous data to file");
+
+            // write header
+            CsvRow header = new CsvRow();
+            header.Add("Participant ID");
+            header.Add("Condition");
+            header.Add("Visit");
+            header.Add("Timestamp");
+            header.Add("Ball Position X");
+            header.Add("Ball Position Y");
+            header.Add("Ball Position Z");
+            header.Add("Paddle Velocity");
+            header.Add("Paddle Acceleration");
+
+            writer.WriteRow(header);
+
+            // write each line of data
+            foreach (ContinuousData d in continuousData)
+            {
+                CsvRow row = new CsvRow();
+
+                row.Add(pid);
+                row.Add(d.condition.ToString());
+                row.Add(d.visit.ToString());
+                row.Add(d.time.ToString());
+                row.Add(d.ballPosX.ToString());
+                row.Add(d.ballPosY.ToString());
+                row.Add(d.ballPosZ.ToString());
+                row.Add(d.paddleVelocity.ToString());
+                row.Add(d.paddleAccel.ToString());
 
                 writer.WriteRow(row);
             }

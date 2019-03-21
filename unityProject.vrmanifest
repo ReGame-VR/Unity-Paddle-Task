@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.unitypaddletask.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "C:\\Users\\Rehabilitation Games\\Desktop\\Murray Sandmeyer\\Projects\\Unity-Paddle-Task\\Unity Paddle Task\\actions.json",
+      "action_manifest_path": "C:\\Users\\ReGameVR\\Desktop\\Alan Zhou\\Unity-Paddle-Task-DataCollection-Update\\actions.json",
       "strings": {
         "en_us": {
           "name": "Unity Paddle Task [Testing]"

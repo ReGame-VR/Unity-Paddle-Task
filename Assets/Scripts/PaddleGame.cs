@@ -82,6 +82,7 @@ public class PaddleGame : MonoBehaviour {
             ball.GetComponent<Ball>().TurnBallWhite();
         }
 
+        // Update Canvas display
         feedbackCanvas.UpdateScoreText(curScore, numBounces);
 
         // Record list of heights for bounce data analysis
@@ -89,6 +90,9 @@ public class PaddleGame : MonoBehaviour {
         {
             bounceHeightList.Add(ball.transform.position.y);
         }
+
+        // Record continuous ball & paddle info
+        GatherContinuousData();
     }
 
     // Returns true if the ball is within the target line boundaries.
@@ -176,6 +180,28 @@ public class PaddleGame : MonoBehaviour {
             ball.GetComponent<Ball>().GetBounceModification());
 
         bounceHeightList = new List<float>();
+    }
+
+    // Grab ball and paddle info and record it. Should be called once per frame
+    private void GatherContinuousData()
+    {
+        GameObject paddle = GetActivePaddle();
+        
+        float paddleVelocity = paddle.GetComponent<Paddle>().GetVelocity().magnitude;
+        float paddleAccel = paddle.GetComponent<Paddle>().GetAcceleration();
+
+        Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
+
+        GetComponent<DataHandler>().recordContinuous(
+            0, // TEMPORARY use these --> //condition,          // what is this?
+            0, // TEMPORARY use these --> //visit,              // what is this?
+            Time.time,  
+            ballVelocity.x,
+            ballVelocity.y,
+            ballVelocity.z,
+            paddleVelocity, 
+            paddleAccel 
+        );
     }
 
     // Initialize paddle information to be recorded upon next bounce

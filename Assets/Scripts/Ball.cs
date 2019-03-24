@@ -32,12 +32,17 @@ public class Ball : MonoBehaviour {
     // If the ball just bounced, this will be true (momentarily)
     private bool justBounced = false;
 
+    // Degrees of freedom (in radians), how many rads in x-z directions ball can bounce after hitting paddle
+    // 0 rad: ball can only bounce in y direction, pi/2 rad: no reduction in range
+    public float radiansOfFreedom; 
+
     // A reference to this ball's rigidbody
     private Rigidbody rigidBody;
 
     void Awake()
     {
         rigidBody = GetComponent<Rigidbody>();
+        radiansOfFreedom = GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad;
     }
 
     void OnCollisionEnter(Collision c)
@@ -96,6 +101,9 @@ public class Ball : MonoBehaviour {
             {
                 bounceVelocity = bounceVelocity + currentBounceModification;
             }
+
+            // Restrict bounce velocity in the X and Z directions based on DoF 
+
         }
 
         // reset the velocity of the ball

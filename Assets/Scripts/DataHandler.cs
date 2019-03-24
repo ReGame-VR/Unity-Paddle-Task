@@ -9,7 +9,6 @@ using System.IO;
 /// </summary>
 public class DataHandler : MonoBehaviour
 {
-
     // stores the data for writing to file at end of task
     List<TrialData> trialData = new List<TrialData>();
     List<BounceData> bounceData = new List<BounceData>();
@@ -28,26 +27,23 @@ public class DataHandler : MonoBehaviour
     }
 
     // Records trial data into the data list
-    public void recordTrial(float time, int trialNum, int numBounces, float score, float targetHeight,
-            float targetRadius)
+    public void recordTrial(Condition condition, Visit visit, float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
     {
-        trialData.Add(new TrialData(time, trialNum, numBounces, score, targetHeight, targetRadius));
+        trialData.Add(new TrialData(condition, visit, degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces));
     }
 
     // Records bounce data into the data list
-    public void recordBounce(float time, int trialNum, int bounceNum, float apexHeight, float apexTargetDistance,
-            bool apexInTargetArea, float paddleHeight, float paddleVelocity, float paddleAccel, float targetHeight,
-            Vector3 bounceMod)
+    public void recordBounce(Condition condition, Visit visit, float degreesOfFreedom, int trialNum, int bounceNum, float apexTargetError,
+            float paddleVelocity, float paddleAccel)
     {
-        bounceData.Add(new BounceData(time, trialNum, bounceNum, apexHeight, apexTargetDistance, apexInTargetArea,
-            paddleHeight, paddleVelocity, paddleAccel, targetHeight, bounceMod));
+        bounceData.Add(new BounceData(condition, visit, degreesOfFreedom, trialNum, bounceNum, apexTargetError, paddleVelocity, paddleAccel));
     }
 
     // Records continuous ball and paddle data into the data list
-    public void recordContinuous(int condition, int visit, float time, float ballPosX,
+    public void recordContinuous(Condition condition, Visit visit, float degreesOfFreedom, float time, float ballPosX,
             float ballPosY, float ballPosZ, float paddleVelocity, float paddleAccel)
     {
-        continuousData.Add(new ContinuousData(condition, visit, time,
+        continuousData.Add(new ContinuousData(condition, visit, degreesOfFreedom, time,
             ballPosX, ballPosY, ballPosZ, paddleVelocity, paddleAccel));
     }
 
@@ -58,6 +54,7 @@ public class DataHandler : MonoBehaviour
     /// </summary>
     class TrialData
     {
+        /*
         public readonly float time;
         public readonly int trialNum;
         public readonly int numBounces;
@@ -75,10 +72,27 @@ public class DataHandler : MonoBehaviour
             this.targetHeight = targetHeight;
             this.targetRadius = targetRadius;
         }
+        */
+        public readonly Condition condition;
+        public readonly Visit visit;
+        public readonly float degreesOfFreedom;
+        public readonly float time;
+        public readonly int trialNum;
+        public readonly int numBounces;
+        public readonly int numAccurateBounces;
+
+        public TrialData(Condition condition, Visit visit, float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
+        {
+            this.time = time;
+            this.trialNum = trialNum;
+            this.numBounces = numBounces;
+            this.numAccurateBounces = numAccurateBounces;
+        }
     }
 
     class BounceData
     {
+        /*
         public readonly float time;
         public readonly int trialNum;
         public readonly int bounceNum;
@@ -107,12 +121,34 @@ public class DataHandler : MonoBehaviour
             this.targetHeight = targetHeight;
             this.bounceMod = bounceMod;
         }
+        */
+        public readonly Condition condition;
+        public readonly Visit visit;
+        public readonly float degreesOfFreedom;
+        public readonly int trialNum;
+        public readonly int bounceNum;
+        public readonly float apexTargetError;
+        public readonly float paddleVelocity;
+        public readonly float paddleAccel;
+
+        public BounceData(Condition condition, Visit visit, float degreesOfFreedom, int trialNum, int bounceNum, float apexTargetError, float paddleVelocity, float paddleAccel)
+        {
+            this.condition = condition;
+            this.visit = visit;
+            this.trialNum = trialNum;
+            this.bounceNum = bounceNum;
+            this.apexTargetError = apexTargetError;
+            this.paddleVelocity = paddleVelocity;
+            this.paddleAccel = paddleAccel;
+        }
+
     }
 
     class ContinuousData
     {
-        public readonly int condition;
-        public readonly int visit;
+        public readonly Condition condition;
+        public readonly Visit visit;
+        public readonly float degreesOfFreedom;
         public readonly float time;
         public readonly float ballPosX;
         public readonly float ballPosY;
@@ -120,11 +156,12 @@ public class DataHandler : MonoBehaviour
         public readonly float paddleVelocity;
         public readonly float paddleAccel;
 
-        public ContinuousData(int condition, int visit, float time, float ballPosX, 
-            float ballPosY, float ballPosZ, float paddleVelocity, float paddleAccel)
+        public ContinuousData(Condition condition, Visit visit, float degreesOfFreedom, float time, 
+            float ballPosX, float ballPosY, float ballPosZ, float paddleVelocity, float paddleAccel)
         {
             this.condition = condition;
             this.visit = visit;
+            this.degreesOfFreedom = degreesOfFreedom;
             this.time = time;
             this.ballPosX = ballPosX;
             this.ballPosY = ballPosY;
@@ -150,12 +187,12 @@ public class DataHandler : MonoBehaviour
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
             header.Add("Time");
-            header.Add("Trial Number");
-            header.Add("Number of Bounces");
-            header.Add("Score");
-            header.Add("Target Height");
-            header.Add("Target Radius");
-            header.Add("Number of Paddles");
+            header.Add("Condition");      
+            header.Add("Degrees of Freedom");
+            header.Add("Visit");
+            header.Add("Trial #");
+            header.Add("# of Consecutive Bounces");
+            header.Add("# of Accurate Bounces");
 
             writer.WriteRow(header);
 
@@ -166,12 +203,12 @@ public class DataHandler : MonoBehaviour
 
                 row.Add(pid);
                 row.Add(d.time.ToString());
+                row.Add(d.condition.ToString());
+                //row.Add(d.degreesOfFreedom.ToString());
+                row.Add(d.visit.ToString());
                 row.Add(d.trialNum.ToString());
                 row.Add(d.numBounces.ToString());
-                row.Add(d.score.ToString());
-                row.Add(d.targetHeight.ToString());
-                row.Add(d.targetRadius.ToString());
-                row.Add(GlobalControl.Instance.numPaddles.ToString());
+                row.Add(d.numAccurateBounces.ToString());
 
                 writer.WriteRow(row);
             }
@@ -193,19 +230,14 @@ public class DataHandler : MonoBehaviour
             // write header
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
-            header.Add("Time");
+            header.Add("Condition");  
+            header.Add("Degrees of Freedom");
+            header.Add("Visit");
             header.Add("Trial Number");
             header.Add("Bounce Number");
-            header.Add("Apex Height");
-            header.Add("Apex-Target Distance");
-            header.Add("Apex In Target Area?");
-            header.Add("Paddle height at hit");
+            header.Add("Bounce Error");
             header.Add("Paddle velocity at hit");
             header.Add("Paddle acceleration at hit");
-            header.Add("Target Height");
-            header.Add("Bounce Modification Vector X");
-            header.Add("Bounce Modification Vector Y");
-            header.Add("Bounce Modification Vector Z");
 
             writer.WriteRow(header);
 
@@ -215,26 +247,14 @@ public class DataHandler : MonoBehaviour
                 CsvRow row = new CsvRow();
 
                 row.Add(pid);
-                row.Add(d.time.ToString());
+                row.Add(d.condition.ToString());
+                //row.Add(d.degreesOfFreedom.ToString());
+                row.Add(d.visit.ToString());
                 row.Add(d.trialNum.ToString());
                 row.Add(d.bounceNum.ToString());
-                row.Add(d.apexHeight.ToString());
-                row.Add(d.apexTargetDistance.ToString());
-                if (d.apexInTargetArea)
-                {
-                    row.Add("YES");
-                }
-                else
-                {
-                    row.Add("NO");
-                }
-                row.Add(d.paddleHeight.ToString());
+                row.Add(d.apexTargetError.ToString());
                 row.Add(d.paddleVelocity.ToString());
                 row.Add(d.paddleAccel.ToString());
-                row.Add(d.targetHeight.ToString());
-                row.Add(d.bounceMod.x.ToString());
-                row.Add(d.bounceMod.y.ToString());
-                row.Add(d.bounceMod.z.ToString());
 
                 writer.WriteRow(row);
             }
@@ -256,7 +276,8 @@ public class DataHandler : MonoBehaviour
             // write header
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
-            header.Add("Condition");
+            header.Add("Condition");     
+            header.Add("Degrees of Freedom");
             header.Add("Visit");
             header.Add("Timestamp");
             header.Add("Ball Position X");
@@ -274,6 +295,7 @@ public class DataHandler : MonoBehaviour
 
                 row.Add(pid);
                 row.Add(d.condition.ToString());
+                //row.Add(d.degreesOfFreedom.ToString());
                 row.Add(d.visit.ToString());
                 row.Add(d.time.ToString());
                 row.Add(d.ballPosX.ToString());

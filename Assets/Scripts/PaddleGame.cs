@@ -34,6 +34,7 @@ public class PaddleGame : MonoBehaviour {
 
     // Current number of bounces that the player has acheieved in this trial
     private int numBounces = 0;
+    private int numAccurateBounces = 0;
     // Current score during this trial
     private float curScore = 0f;
 
@@ -51,10 +52,24 @@ public class PaddleGame : MonoBehaviour {
     private float paddleBounceVelocity;
     private float paddleBounceAccel;
 
+    // Degrees of freedom, how many degrees in x-z directions ball can bounce after hitting paddle
+    // 0 degrees: ball can only bounce in y direction, 90 degrees: no reduction in range
+    public float degreesOfFreedom;
+
+    // Trial Condition and Visit type
+    private Condition condition;
+    private Visit visit;
+
+
     private List<float> bounceHeightList = new List<float>();
 
     void Start()
     {
+        // Initialize Condition and Visit types
+        condition = GlobalControl.Instance.condition;
+        visit = GlobalControl.Instance.visit;
+        degreesOfFreedom = GlobalControl.Instance.degreesOfFreedom;
+
         // Calibrate the target line to be at the player's eye level
         Vector3 targetPos = targetLine.transform.position;
         targetLine.transform.position = new Vector3(targetPos.x, hmd.transform.position.y, targetPos.z);
@@ -70,7 +85,7 @@ public class PaddleGame : MonoBehaviour {
         }
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // Turn ball green if it is within target area
         if (HeightInsideTargetWindow(ball.transform.position.y) && ball.GetComponent<Ball>().isBouncing)
@@ -149,21 +164,19 @@ public class PaddleGame : MonoBehaviour {
         GatherBounceData();
 
         // Record Trial Data from last trial
-        GetComponent<DataHandler>().recordTrial(Time.time, trialNum, numBounces, curScore,
-            targetLine.transform.position.y, targetRadius);
+        GetComponent<DataHandler>().recordTrial(condition, visit, degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces);
 
         trialNum++;
         numBounces = 0;
+        numAccurateBounces = 0;
         curScore = 0f;
-
-
     }
 
     // Determine data for recording a bounce and finally, record it.
     private void GatherBounceData()
     {
         float apexHeight = Mathf.Max(bounceHeightList.ToArray());
-        float apexTargetDistance = Mathf.Abs(targetLine.transform.position.y - apexHeight);
+        float apexTargetError = Mathf.Abs(targetLine.transform.position.y - apexHeight);
 
         bool apexSuccess = HeightInsideTargetWindow(apexHeight);
 
@@ -171,13 +184,13 @@ public class PaddleGame : MonoBehaviour {
         if (apexSuccess)
         {
             curScore = curScore + 10;
+            numAccurateBounces++;
             ball.GetComponent<BallParticleSpawner>().SpawnSuccessParticles();
         }
 
         //Record Data from last bounce
-        GetComponent<DataHandler>().recordBounce(Time.time, trialNum, numBounces, apexHeight, apexTargetDistance,
-            apexSuccess, paddleBounceHeight, paddleBounceVelocity, paddleBounceAccel, targetLine.transform.position.y,
-            ball.GetComponent<Ball>().GetBounceModification());
+        GetComponent<DataHandler>().recordBounce(condition, visit, degreesOfFreedom, trialNum, numBounces, apexTargetError,
+            paddleBounceVelocity, paddleBounceAccel);
 
         bounceHeightList = new List<float>();
     }
@@ -192,16 +205,8 @@ public class PaddleGame : MonoBehaviour {
 
         Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
 
-        GetComponent<DataHandler>().recordContinuous(
-            0, // TEMPORARY use these --> //condition,          // what is this?
-            0, // TEMPORARY use these --> //visit,              // what is this?
-            Time.time,  
-            ballVelocity.x,
-            ballVelocity.y,
-            ballVelocity.z,
-            paddleVelocity, 
-            paddleAccel 
-        );
+        GetComponent<DataHandler>().recordContinuous(condition, visit, degreesOfFreedom,
+            Time.time, ballVelocity.x, ballVelocity.y, ballVelocity.z, paddleVelocity, paddleAccel);
     }
 
     // Initialize paddle information to be recorded upon next bounce

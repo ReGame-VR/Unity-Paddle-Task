@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 
 
-public enum Condition { REGULAR, ENHANCED, REDUCED };
-public enum Visit { ACQUISITION, RETENTION, TRANSFER };
+public enum Condition { REGULAR, ENHANCED, REDUCED, TARGETLINE };
+public enum Session { BASELINE, ACQUISITION, RETENTION, TRANSFER };
+public enum TargetHeight { DEFAULT, LOWERED, RAISED };
 
 /// <summary>
 /// Stores calibration data for trial use in a single place.
@@ -22,8 +23,11 @@ public class GlobalControl : MonoBehaviour {
     // The condition of this instance
     public Condition condition = Condition.REGULAR;
 
+    // Target Line Height
+    public TargetHeight targetHeightPreference = TargetHeight.DEFAULT;
+
     // Test period of this instance
-    public Visit visit = Visit.ACQUISITION;
+    public Session session = Session.BASELINE;
 
     // Degrees of Freedom for ball bounce for this instance
     public float degreesOfFreedom = 90;
@@ -36,6 +40,11 @@ public class GlobalControl : MonoBehaviour {
     /// </summary>
     void Awake()
     {
+        if (condition == Condition.ENHANCED)
+        {
+            explorationMode = ExplorationMode.FORCED;
+        }
+
         if (Instance == null)
         {
             DontDestroyOnLoad(gameObject);

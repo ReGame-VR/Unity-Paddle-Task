@@ -1,6 +1,1 @@
-Participant ID,Condition,Degrees of Freedom,Visit,Trial Number,Bounce Number,Bounce Error,Paddle velocity at hit,Paddle acceleration at hit
-,REGULAR,acquisition,1,1,0.1930516,6.211229,526.882
-,REGULAR,acquisition,2,1,0.4899897,0.7804263,12.1237
-,REGULAR,acquisition,2,2,0.4017373,0.6317104,9.741774
-,REGULAR,acquisition,2,3,0.0431903,0.2017771,-14.94462
-,REGULAR,acquisition,2,4,0.1531256,0.6333004,0.05878675
+Participant ID,Condition,Visit,Trial Number,Bounce Number,Bounce Error,Paddle velocity at hit,Paddle acceleration at hit

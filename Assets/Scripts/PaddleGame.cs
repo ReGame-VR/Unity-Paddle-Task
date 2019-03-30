@@ -58,7 +58,7 @@ public class PaddleGame : MonoBehaviour {
 
     // Trial Condition and Visit type
     private Condition condition;
-    private Visit visit;
+    private Session session;
 
 
     private List<float> bounceHeightList = new List<float>();
@@ -67,7 +67,7 @@ public class PaddleGame : MonoBehaviour {
     {
         // Initialize Condition and Visit types
         condition = GlobalControl.Instance.condition;
-        visit = GlobalControl.Instance.visit;
+        session = GlobalControl.Instance.session;
         degreesOfFreedom = GlobalControl.Instance.degreesOfFreedom;
 
         // Calibrate the target line to be at the player's eye level
@@ -164,7 +164,7 @@ public class PaddleGame : MonoBehaviour {
         GatherBounceData();
 
         // Record Trial Data from last trial
-        GetComponent<DataHandler>().recordTrial(condition, visit, degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces);
+        GetComponent<DataHandler>().recordTrial(condition, session, degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces);
 
         trialNum++;
         numBounces = 0;
@@ -189,7 +189,7 @@ public class PaddleGame : MonoBehaviour {
         }
 
         //Record Data from last bounce
-        GetComponent<DataHandler>().recordBounce(condition, visit, degreesOfFreedom, trialNum, numBounces, apexTargetError,
+        GetComponent<DataHandler>().recordBounce(condition, session, degreesOfFreedom, trialNum, numBounces, apexTargetError,
             paddleBounceVelocity, paddleBounceAccel);
 
         bounceHeightList = new List<float>();
@@ -205,7 +205,7 @@ public class PaddleGame : MonoBehaviour {
 
         Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
 
-        GetComponent<DataHandler>().recordContinuous(condition, visit, degreesOfFreedom,
+        GetComponent<DataHandler>().recordContinuous(condition, session, degreesOfFreedom,
             Time.time, ballVelocity.x, ballVelocity.y, ballVelocity.z, paddleVelocity, paddleAccel);
     }
 

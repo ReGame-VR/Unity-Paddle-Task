@@ -75,6 +75,7 @@ public class Ball : MonoBehaviour {
         // Get velocity of paddle
         float paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate().magnitude;
         // float paddleVelocity = c.gameObject.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude;
+
         Debug.Log("paddle velovity: " + paddleVelocity.ToString("F4"));
         // Create a bounce velocity based on collision with paddle. Also include paddle velocity
         // so that this bounce is proportional to movement of paddle
@@ -106,6 +107,12 @@ public class Ball : MonoBehaviour {
 
         }
 
+        // Adjust bounce velocity for reduced degree of freedom
+        if (GlobalControl.Instance.condition == Condition.REDUCED)
+        {
+            bounceVelocity = ReduceBounceDeviation(bounceVelocity);
+        }
+
         // reset the velocity of the ball
         rigidBody.velocity = new Vector3(0, 0, 0);
         rigidBody.angularVelocity = Vector3.zero;
@@ -115,6 +122,25 @@ public class Ball : MonoBehaviour {
 
         GetComponent<BounceSoundPlayer>().PlayBounceSound();
 
+    }
+
+    public Vector3 ReduceBounceDeviation(Vector3 v)
+    {
+        if (Vector3.Angle(Vector3.up, v) <= GlobalControl.Instance.degreesOfFreedom)
+        {
+            return v;
+        }
+
+        float bounceMagnitude = v.magnitude;
+        
+        float yReduced = v.y * Mathf.Cos( GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
+
+        float xzReducedMagnitude = bounceMagnitude * Mathf.Sin( GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
+        Vector3 xzReduced = new Vector3(v.x, 0, v.z) * xzReducedMagnitude;
+        
+        Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z) * bounceMagnitude;
+
+        return modifiedBounceVelocity;
     }
 
     public void TurnBallGreen()

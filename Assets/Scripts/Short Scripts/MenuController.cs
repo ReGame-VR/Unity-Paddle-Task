@@ -36,17 +36,69 @@ public class MenuController : MonoBehaviour {
     // Records which exploration mode the user chose
     public void RecordExplorationMode(int arg0)
     {
-        if (arg0 == 0)
+        if (arg0 == 1)
         {
-            GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.NONE;
-        }
-        else if (arg0 == 1)
-        {
-            GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.TASK;
+            GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.FORCED;
         }
         else
         {
-            GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.FORCED;
+            GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.NONE;
+        }
+    }
+
+    public void RecordCondition(int arg0)
+    {
+        if (arg0 == 0)
+        {
+            GlobalControl.Instance.condition = Condition.REGULAR;
+        }
+        else if (arg0 == 1)
+        {
+            GlobalControl.Instance.condition = Condition.ENHANCED;
+        }
+        else if (arg0 == 2)
+        {
+            GlobalControl.Instance.condition = Condition.REDUCED;
+        }
+        else if (arg0 == 3)
+        {
+            GlobalControl.Instance.condition = Condition.TARGETLINE;
+        }
+    }
+
+    public void RecordSession(int arg0)
+    {
+        if (arg0 == 0)
+        {
+            GlobalControl.Instance.session = Session.BASELINE;
+        }
+        if (arg0 == 1)
+        {
+            GlobalControl.Instance.session = Session.ACQUISITION;
+        }
+        if (arg0 == 2)
+        {
+            GlobalControl.Instance.session = Session.RETENTION;
+        }
+        if (arg0 == 3)
+        {
+            GlobalControl.Instance.session = Session.TRANSFER;
+        }
+    }
+
+    public void RecordTargetHeight(int arg0)
+    {
+        if (arg0 == 0)
+        {
+            GlobalControl.Instance.targetHeightPreference = TargetHeight.DEFAULT;
+        }
+        if (arg0 == 1)
+        {
+            GlobalControl.Instance.targetHeightPreference = TargetHeight.LOWERED;
+        }
+        if (arg0 == 2)
+        {
+            GlobalControl.Instance.targetHeightPreference = TargetHeight.RAISED;
         }
     }
 

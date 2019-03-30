@@ -35,7 +35,18 @@ public class ExplorationMode : MonoBehaviour {
     // Set up where the eye level for this game is
     public void CalibrateEyeLevel(float eyeLevel)
     {
-        this.eyeLevel = eyeLevel;
+        if (GlobalControl.Instance.targetHeightPreference == TargetHeight.DEFAULT)
+        {
+            this.eyeLevel = eyeLevel;
+        }
+        else if (GlobalControl.Instance.targetHeightPreference == TargetHeight.RAISED)
+        {
+            this.eyeLevel = 1.1f * eyeLevel;
+        }
+        else if (GlobalControl.Instance.targetHeightPreference == TargetHeight.LOWERED)
+        {
+            this.eyeLevel = 0.9f * eyeLevel;
+        }
     }
 
     // Move the target line to a different position in the task exploration mode

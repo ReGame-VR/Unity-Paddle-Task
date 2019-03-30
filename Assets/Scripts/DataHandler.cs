@@ -27,23 +27,23 @@ public class DataHandler : MonoBehaviour
     }
 
     // Records trial data into the data list
-    public void recordTrial(Condition condition, Visit visit, float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
+    public void recordTrial(Condition condition, Session session, float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
     {
-        trialData.Add(new TrialData(condition, visit, degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces));
+        trialData.Add(new TrialData(condition, session, degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces));
     }
 
     // Records bounce data into the data list
-    public void recordBounce(Condition condition, Visit visit, float degreesOfFreedom, int trialNum, int bounceNum, float apexTargetError,
+    public void recordBounce(Condition condition, Session session, float degreesOfFreedom, int trialNum, int bounceNum, float apexTargetError,
             float paddleVelocity, float paddleAccel)
     {
-        bounceData.Add(new BounceData(condition, visit, degreesOfFreedom, trialNum, bounceNum, apexTargetError, paddleVelocity, paddleAccel));
+        bounceData.Add(new BounceData(condition, session, degreesOfFreedom, trialNum, bounceNum, apexTargetError, paddleVelocity, paddleAccel));
     }
 
     // Records continuous ball and paddle data into the data list
-    public void recordContinuous(Condition condition, Visit visit, float degreesOfFreedom, float time, float ballPosX,
+    public void recordContinuous(Condition condition, Session session, float degreesOfFreedom, float time, float ballPosX,
             float ballPosY, float ballPosZ, float paddleVelocity, float paddleAccel)
     {
-        continuousData.Add(new ContinuousData(condition, visit, degreesOfFreedom, time,
+        continuousData.Add(new ContinuousData(condition, session, degreesOfFreedom, time,
             ballPosX, ballPosY, ballPosZ, paddleVelocity, paddleAccel));
     }
 
@@ -74,14 +74,14 @@ public class DataHandler : MonoBehaviour
         }
         */
         public readonly Condition condition;
-        public readonly Visit visit;
+        public readonly Session session;
         public readonly float degreesOfFreedom;
         public readonly float time;
         public readonly int trialNum;
         public readonly int numBounces;
         public readonly int numAccurateBounces;
 
-        public TrialData(Condition condition, Visit visit, float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
+        public TrialData(Condition condition, Session session, float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
         {
             this.time = time;
             this.trialNum = trialNum;
@@ -123,7 +123,7 @@ public class DataHandler : MonoBehaviour
         }
         */
         public readonly Condition condition;
-        public readonly Visit visit;
+        public readonly Session session;
         public readonly float degreesOfFreedom;
         public readonly int trialNum;
         public readonly int bounceNum;
@@ -131,10 +131,10 @@ public class DataHandler : MonoBehaviour
         public readonly float paddleVelocity;
         public readonly float paddleAccel;
 
-        public BounceData(Condition condition, Visit visit, float degreesOfFreedom, int trialNum, int bounceNum, float apexTargetError, float paddleVelocity, float paddleAccel)
+        public BounceData(Condition condition, Session session, float degreesOfFreedom, int trialNum, int bounceNum, float apexTargetError, float paddleVelocity, float paddleAccel)
         {
             this.condition = condition;
-            this.visit = visit;
+            this.session = session;
             this.trialNum = trialNum;
             this.bounceNum = bounceNum;
             this.apexTargetError = apexTargetError;
@@ -147,7 +147,7 @@ public class DataHandler : MonoBehaviour
     class ContinuousData
     {
         public readonly Condition condition;
-        public readonly Visit visit;
+        public readonly Session session;
         public readonly float degreesOfFreedom;
         public readonly float time;
         public readonly float ballPosX;
@@ -156,11 +156,11 @@ public class DataHandler : MonoBehaviour
         public readonly float paddleVelocity;
         public readonly float paddleAccel;
 
-        public ContinuousData(Condition condition, Visit visit, float degreesOfFreedom, float time, 
+        public ContinuousData(Condition condition, Session session, float degreesOfFreedom, float time, 
             float ballPosX, float ballPosY, float ballPosZ, float paddleVelocity, float paddleAccel)
         {
             this.condition = condition;
-            this.visit = visit;
+            this.session = session;
             this.degreesOfFreedom = degreesOfFreedom;
             this.time = time;
             this.ballPosX = ballPosX;
@@ -188,7 +188,6 @@ public class DataHandler : MonoBehaviour
             header.Add("Participant ID");
             header.Add("Time");
             header.Add("Condition");      
-            header.Add("Degrees of Freedom");
             header.Add("Visit");
             header.Add("Trial #");
             header.Add("# of Consecutive Bounces");
@@ -203,9 +202,8 @@ public class DataHandler : MonoBehaviour
 
                 row.Add(pid);
                 row.Add(d.time.ToString());
-                row.Add(d.condition.ToString());
-                //row.Add(d.degreesOfFreedom.ToString());
-                row.Add(d.visit.ToString());
+                row.Add( FormatConditionString(d.condition, d.degreesOfFreedom) );
+                row.Add(d.session.ToString());
                 row.Add(d.trialNum.ToString());
                 row.Add(d.numBounces.ToString());
                 row.Add(d.numAccurateBounces.ToString());
@@ -213,6 +211,19 @@ public class DataHandler : MonoBehaviour
                 writer.WriteRow(row);
             }
         }
+    }
+
+    /// <summary>
+    /// Formats the condition to reflect reduced degrees of freedom, if applicable
+    ///
+    private string FormatConditionString(Condition c, float d)
+    {
+        string buffer = c.ToString();
+        if (c == Condition.REDUCED)
+        {
+            buffer += " " + d + " degrees";
+        }
+        return buffer;
     }
 
     /// <summary>
@@ -231,7 +242,6 @@ public class DataHandler : MonoBehaviour
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
             header.Add("Condition");  
-            header.Add("Degrees of Freedom");
             header.Add("Visit");
             header.Add("Trial Number");
             header.Add("Bounce Number");
@@ -247,9 +257,8 @@ public class DataHandler : MonoBehaviour
                 CsvRow row = new CsvRow();
 
                 row.Add(pid);
-                row.Add(d.condition.ToString());
-                //row.Add(d.degreesOfFreedom.ToString());
-                row.Add(d.visit.ToString());
+                row.Add( FormatConditionString(d.condition, d.degreesOfFreedom) );
+                row.Add(d.session.ToString());
                 row.Add(d.trialNum.ToString());
                 row.Add(d.bounceNum.ToString());
                 row.Add(d.apexTargetError.ToString());
@@ -277,7 +286,6 @@ public class DataHandler : MonoBehaviour
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
             header.Add("Condition");     
-            header.Add("Degrees of Freedom");
             header.Add("Visit");
             header.Add("Timestamp");
             header.Add("Ball Position X");
@@ -295,8 +303,8 @@ public class DataHandler : MonoBehaviour
 
                 row.Add(pid);
                 row.Add(d.condition.ToString());
-                //row.Add(d.degreesOfFreedom.ToString());
-                row.Add(d.visit.ToString());
+                row.Add( FormatConditionString(d.condition, d.degreesOfFreedom) );
+                row.Add(d.session.ToString());
                 row.Add(d.time.ToString());
                 row.Add(d.ballPosX.ToString());
                 row.Add(d.ballPosY.ToString());

@@ -302,7 +302,6 @@ public class DataHandler : MonoBehaviour
                 CsvRow row = new CsvRow();
 
                 row.Add(pid);
-                row.Add(d.condition.ToString());
                 row.Add( FormatConditionString(d.condition, d.degreesOfFreedom) );
                 row.Add(d.session.ToString());
                 row.Add(d.time.ToString());

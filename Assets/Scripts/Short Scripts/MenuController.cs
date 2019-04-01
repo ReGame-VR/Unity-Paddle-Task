@@ -33,6 +33,11 @@ public class MenuController : MonoBehaviour {
         GlobalControl.Instance.participantID = arg0;
     }
 
+    public void RecordDegrees(string arg0)
+    {
+        GlobalControl.Instance.degreesOfFreedom = (float)int.Parse(arg0);
+    }
+
     // Records which exploration mode the user chose
     public void RecordExplorationMode(int arg0)
     {

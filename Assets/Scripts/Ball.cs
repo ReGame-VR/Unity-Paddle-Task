@@ -94,6 +94,13 @@ public class Ball : MonoBehaviour {
         else
         {
             bounceVelocity = c.contacts[0].normal * bounceForce * paddleVelocity;
+
+            // Adjust bounce velocity for reduced degree of freedom
+            if (GlobalControl.Instance.condition == Condition.REDUCED)
+            {
+                bounceVelocity = ReduceBounceDeviation(bounceVelocity);
+            }
+
             isBouncing = true;
             DeclareBounce(c);
 
@@ -102,16 +109,11 @@ public class Ball : MonoBehaviour {
             {
                 bounceVelocity = bounceVelocity + currentBounceModification;
             }
-
-            // Restrict bounce velocity in the X and Z directions based on DoF 
+        
 
         }
 
-        // Adjust bounce velocity for reduced degree of freedom
-        if (GlobalControl.Instance.condition == Condition.REDUCED)
-        {
-            bounceVelocity = ReduceBounceDeviation(bounceVelocity);
-        }
+        Debug.DrawRay(c.transform.position, bounceVelocity, Color.red, 1f);
 
         // reset the velocity of the ball
         rigidBody.velocity = new Vector3(0, 0, 0);
@@ -133,12 +135,12 @@ public class Ball : MonoBehaviour {
 
         float bounceMagnitude = v.magnitude;
         
-        float yReduced = v.y * Mathf.Cos( GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
+        float yReduced = bounceMagnitude * Mathf.Cos( GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
 
         float xzReducedMagnitude = bounceMagnitude * Mathf.Sin( GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
-        Vector3 xzReduced = new Vector3(v.x, 0, v.z) * xzReducedMagnitude;
+        Vector3 xzReduced = new Vector3(v.x, 0, v.z).normalized * xzReducedMagnitude;
         
-        Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z) * bounceMagnitude;
+        Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z);
 
         return modifiedBounceVelocity;
     }

@@ -32,17 +32,12 @@ public class Ball : MonoBehaviour {
     // If the ball just bounced, this will be true (momentarily)
     private bool justBounced = false;
 
-    // Degrees of freedom (in radians), how many rads in x-z directions ball can bounce after hitting paddle
-    // 0 rad: ball can only bounce in y direction, pi/2 rad: no reduction in range
-    public float radiansOfFreedom; 
-
     // A reference to this ball's rigidbody
     private Rigidbody rigidBody;
 
     void Awake()
     {
         rigidBody = GetComponent<Rigidbody>();
-        radiansOfFreedom = GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad;
     }
 
     void OnCollisionEnter(Collision c)
@@ -109,11 +104,7 @@ public class Ball : MonoBehaviour {
             {
                 bounceVelocity = bounceVelocity + currentBounceModification;
             }
-        
-
         }
-
-        Debug.DrawRay(c.transform.position, bounceVelocity, Color.red, 1f);
 
         // reset the velocity of the ball
         rigidBody.velocity = new Vector3(0, 0, 0);
@@ -124,25 +115,6 @@ public class Ball : MonoBehaviour {
 
         GetComponent<BounceSoundPlayer>().PlayBounceSound();
 
-    }
-
-    public Vector3 ReduceBounceDeviation(Vector3 v)
-    {
-        if (Vector3.Angle(Vector3.up, v) <= GlobalControl.Instance.degreesOfFreedom)
-        {
-            return v;
-        }
-
-        float bounceMagnitude = v.magnitude;
-        
-        float yReduced = bounceMagnitude * Mathf.Cos( GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
-
-        float xzReducedMagnitude = bounceMagnitude * Mathf.Sin( GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
-        Vector3 xzReduced = new Vector3(v.x, 0, v.z).normalized * xzReducedMagnitude;
-        
-        Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z);
-
-        return modifiedBounceVelocity;
     }
 
     public void TurnBallGreen()
@@ -186,6 +158,27 @@ public class Ball : MonoBehaviour {
     public void ResetBall()
     {
         gameScript.ResetTrial();
+    }
+
+    // If in Reduced condition, returns the vector of the same original magnitude and same x-z direction
+    // but with adjusted height so that the angle does not exceed the desired degrees of freedom
+    public Vector3 ReduceBounceDeviation(Vector3 v)
+    {
+        if (Vector3.Angle(Vector3.up, v) <= GlobalControl.Instance.degreesOfFreedom)
+        {
+            return v;
+        }
+
+        float bounceMagnitude = v.magnitude;
+
+        float yReduced = bounceMagnitude * Mathf.Cos(GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
+
+        float xzReducedMagnitude = bounceMagnitude * Mathf.Sin(GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
+        Vector3 xzReduced = new Vector3(v.x, 0, v.z).normalized * xzReducedMagnitude;
+
+        Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z);
+
+        return modifiedBounceVelocity;
     }
 
     // Modifies the bounce for this forced exploration game

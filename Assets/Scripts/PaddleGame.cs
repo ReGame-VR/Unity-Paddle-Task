@@ -60,11 +60,20 @@ public class PaddleGame : MonoBehaviour {
     private Condition condition;
     private Session session;
 
+    // Variables to keep track of resetting the ball after dropping to the ground
+    GameObject paddle;
+    private bool inHoverMode = false;
+    private bool inHoverResetCoroutine = false;
+    private bool inPlayDropSoundRoutine = false;
+
 
     private List<float> bounceHeightList = new List<float>();
 
     void Start()
     {
+        // Get reference to Paddle
+        paddle = GetActivePaddle();
+
         // Initialize Condition and Visit types
         condition = GlobalControl.Instance.condition;
         session = GlobalControl.Instance.session;
@@ -72,7 +81,11 @@ public class PaddleGame : MonoBehaviour {
 
         // Calibrate the target line to be at the player's eye level
         Vector3 targetPos = targetLine.transform.position;
-        targetLine.transform.position = new Vector3(targetPos.x, hmd.transform.position.y, targetPos.z);
+        targetLine.transform.position = new Vector3(
+            targetPos.x, 
+            AdjustTargetHeightPreference(hmd.transform.position.y), 
+            targetPos.z
+        );
         GetComponent<ExplorationMode>().CalibrateEyeLevel(targetLine.transform.position.y);
 
         if (GlobalControl.Instance.numPaddles > 1)
@@ -85,8 +98,27 @@ public class PaddleGame : MonoBehaviour {
         }
     }
 
-    void FixedUpdate()
+    private float AdjustTargetHeightPreference(float y)
     {
+        switch(GlobalControl.Instance.targetHeightPreference)
+        {
+            case TargetHeight.DEFAULT:
+                return y;
+            case TargetHeight.RAISED:
+                return 1.1f * y;
+            case TargetHeight.LOWERED:
+                return 0.9f * y;
+            default:
+                Debug.Log("Error: Invalid Target Height Preference");
+                return y;
+        }
+    }
+
+    void FixedUpdate()
+    {        
+        // Record continuous ball & paddle info
+        GatherContinuousData();
+
         // Turn ball green if it is within target area
         if (HeightInsideTargetWindow(ball.transform.position.y) && ball.GetComponent<Ball>().isBouncing)
         {
@@ -106,8 +138,74 @@ public class PaddleGame : MonoBehaviour {
             bounceHeightList.Add(ball.transform.position.y);
         }
 
-        // Record continuous ball & paddle info
-        GatherContinuousData();
+        // Reset ball if it drops 
+        HoverOnReset();
+    }
+
+    // Holds the ball over the paddle at Target Height for 0.5 seconds, then releases
+    public void HoverOnReset()
+    {
+        if (!inHoverMode)
+        {
+            Debug.Log("Ball hit the ground");
+
+            // Check if ball is on ground
+            if (ball.transform.position.y < ball.transform.localScale.y)
+            {
+                inHoverMode = true;
+            }
+        }
+        else // if hovering
+        {
+            Debug.Log("Ball is hovering");
+
+            Vector3 paddlePosition = new Vector3(
+                paddle.transform.position.x, 
+                targetLine.transform.position.y, 
+                paddle.transform.position.z
+            );
+
+
+            // Hover ball at target line for a second
+            StartCoroutine(PlayDropSound(0.9f));
+            StartCoroutine(ReleaseHoverOnReset(1.0f));
+
+            ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            ball.transform.position = paddlePosition;
+        }
+    }
+
+    // Drops ball after reset
+    IEnumerator ReleaseHoverOnReset(float time)
+    {
+        if (inHoverResetCoroutine)
+        {
+            yield break;
+        }
+        inHoverResetCoroutine = true;
+
+        yield return new WaitForSeconds(time);
+        
+        // Stop hovering
+        inHoverMode = false;
+        inHoverResetCoroutine = false;
+        inPlayDropSoundRoutine = false;
+
+        // Reset ball
+        ball.GetComponent<Ball>().ResetBall();
+    }
+
+    // Play drop sound
+    IEnumerator PlayDropSound(float time)
+    {
+        if (inPlayDropSoundRoutine)
+        {
+            yield break;
+        }
+        inPlayDropSoundRoutine = true;
+        yield return new WaitForSeconds(time);
+
+        GetComponent<DropSoundPlayer>().PlayDropSound();
     }
 
     // Returns true if the ball is within the target line boundaries.
@@ -197,9 +295,7 @@ public class PaddleGame : MonoBehaviour {
 
     // Grab ball and paddle info and record it. Should be called once per frame
     private void GatherContinuousData()
-    {
-        GameObject paddle = GetActivePaddle();
-        
+    {        
         float paddleVelocity = paddle.GetComponent<Paddle>().GetVelocity().magnitude;
         float paddleAccel = paddle.GetComponent<Paddle>().GetAcceleration();
 

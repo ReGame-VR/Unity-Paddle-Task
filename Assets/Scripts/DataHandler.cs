@@ -83,6 +83,8 @@ public class DataHandler : MonoBehaviour
 
         public TrialData(Condition condition, Session session, float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
         {
+            this.condition = condition;
+            this.degreesOfFreedom = degreesOfFreedom;
             this.time = time;
             this.trialNum = trialNum;
             this.numBounces = numBounces;
@@ -135,6 +137,7 @@ public class DataHandler : MonoBehaviour
         {
             this.condition = condition;
             this.session = session;
+            this.degreesOfFreedom = degreesOfFreedom;
             this.trialNum = trialNum;
             this.bounceNum = bounceNum;
             this.apexTargetError = apexTargetError;
@@ -199,7 +202,7 @@ public class DataHandler : MonoBehaviour
             foreach (TrialData d in trialData)
             {
                 CsvRow row = new CsvRow();
-
+                
                 row.Add(pid);
                 row.Add(d.time.ToString());
                 row.Add( FormatConditionString(d.condition, d.degreesOfFreedom) );

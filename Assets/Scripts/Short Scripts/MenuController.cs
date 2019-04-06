@@ -33,24 +33,25 @@ public class MenuController : MonoBehaviour {
         GlobalControl.Instance.participantID = arg0;
     }
 
+    /// <summary>
+    /// Records an float representing degrees of freedom in the xz plane.
+    /// </summary>
+    /// <param name="arg0"></param>
     public void RecordDegrees(string arg0)
     {
-        GlobalControl.Instance.degreesOfFreedom = (float)int.Parse(arg0);
+        GlobalControl.Instance.degreesOfFreedom = float.Parse(arg0);
     }
 
-    // Records which exploration mode the user chose
-    public void RecordExplorationMode(int arg0)
+    /// <summary>
+    /// Records an int representing max number of trials allowed for this instance.
+    /// </summary>
+    /// <param name="arg0"></param>
+    public void RecordMaxTrials(string arg0)
     {
-        if (arg0 == 1)
-        {
-            GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.FORCED;
-        }
-        else
-        {
-            GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.NONE;
-        }
+        GlobalControl.Instance.maxTrialCount = ((arg0 == "") ? 0 : int.Parse(arg0));
     }
 
+    // Records the Condition from the dropdown menu
     public void RecordCondition(int arg0)
     {
         if (arg0 == 0)
@@ -71,6 +72,20 @@ public class MenuController : MonoBehaviour {
         }
     }
 
+    // Records the functional Exploration mode, tied to Condition dropdown menu
+    public void RecordExplorationMode(int arg0)
+    {
+        if (arg0 == 1)
+        {
+            GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.FORCED;
+        }
+        else
+        {
+            GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.NONE;
+        }
+    }
+
+    // Records the Session from the dropdown menu
     public void RecordSession(int arg0)
     {
         if (arg0 == 0)
@@ -91,6 +106,7 @@ public class MenuController : MonoBehaviour {
         }
     }
 
+    // Records the Target Line height preference from the dropdown menu
     public void RecordTargetHeight(int arg0)
     {
         if (arg0 == 0)
@@ -107,6 +123,7 @@ public class MenuController : MonoBehaviour {
         }
     }
 
+    // Records the number of paddles from the dropdown nmenu
     public void RecordNumPaddles(int choice)
     {
         if (choice == 0)
@@ -133,9 +150,6 @@ public class MenuController : MonoBehaviour {
             SceneManager.LoadScene("Paddle 2");
         }  
     }
-
-
-
 
     /// <summary>
     /// Re-enable VR when this script is disabled (since it is disabled on moving into next scene).

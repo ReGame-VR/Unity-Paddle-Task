@@ -16,18 +16,14 @@ public class ShowDegreeInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("test");
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
-            Debug.Log("condition is reduced");
             inputBox.SetActive(true);
         }
         else
         {
-            Debug.Log("condition is else");
             if (inputBox.activeSelf)
             {
-                Debug.Log("condition was active, disabling");
                 inputBox.SetActive(false);
             }
         }

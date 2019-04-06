@@ -32,6 +32,9 @@ public class GlobalControl : MonoBehaviour {
     // Degrees of Freedom for ball bounce for this instance
     public float degreesOfFreedom = 90;
 
+    // Number of trials allowed, after which the game will end
+    public int maxTrialCount = 0;
+
     // The single instance of this class
     public static GlobalControl Instance;
 

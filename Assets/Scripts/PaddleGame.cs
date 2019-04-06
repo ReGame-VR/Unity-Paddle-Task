@@ -39,7 +39,7 @@ public class PaddleGame : MonoBehaviour {
     private float curScore = 0f;
 
     // The current trial number. This is increased by one every time the ball is reset.
-    private int trialNum = 0;
+    public int trialNum = 0;
 
     // A group of trials. The current group number will tick up every trial.
     // When curGroupNum reaches trialGroupSize, it will reset back to 1.
@@ -66,6 +66,8 @@ public class PaddleGame : MonoBehaviour {
     private bool inHoverResetCoroutine = false;
     private bool inPlayDropSoundRoutine = false;
 
+    // Keep track of max number of trials allowed for this instance
+    private int maxTrials = 0;
 
     private List<float> bounceHeightList = new List<float>();
 
@@ -87,6 +89,8 @@ public class PaddleGame : MonoBehaviour {
             targetPos.z
         );
         GetComponent<ExplorationMode>().CalibrateEyeLevel(targetLine.transform.position.y);
+
+        maxTrials = GlobalControl.Instance.maxTrialCount;
 
         if (GlobalControl.Instance.numPaddles > 1)
         {
@@ -140,6 +144,13 @@ public class PaddleGame : MonoBehaviour {
 
         // Reset ball if it drops 
         HoverOnReset();
+
+        // Check if game should end
+        if ((maxTrials > 0) && (trialNum > maxTrials))
+        {
+            Debug.Log("Max trials exceeded, quitting");
+            Application.Quit();
+        }
     }
 
     // Holds the ball over the paddle at Target Height for 0.5 seconds, then releases
@@ -147,8 +158,6 @@ public class PaddleGame : MonoBehaviour {
     {
         if (!inHoverMode)
         {
-            Debug.Log("Ball hit the ground");
-
             // Check if ball is on ground
             if (ball.transform.position.y < ball.transform.localScale.y)
             {
@@ -157,8 +166,6 @@ public class PaddleGame : MonoBehaviour {
         }
         else // if hovering
         {
-            Debug.Log("Ball is hovering");
-
             Vector3 paddlePosition = new Vector3(
                 paddle.transform.position.x, 
                 targetLine.transform.position.y, 
@@ -191,8 +198,8 @@ public class PaddleGame : MonoBehaviour {
         inHoverResetCoroutine = false;
         inPlayDropSoundRoutine = false;
 
-        // Reset ball
-        ball.GetComponent<Ball>().ResetBall();
+        // Reset trial
+        ResetTrial();
     }
 
     // Play drop sound
@@ -248,7 +255,7 @@ public class PaddleGame : MonoBehaviour {
         }
     }
 
-    // The ball was picked up and reset by the controller. Reset bounce and score.
+    // The ball was reset after hitting the ground. Reset bounce and score.
     public void ResetTrial()
     {
         // Don't run this code the first time the ball is reset or when there are 0 bounces

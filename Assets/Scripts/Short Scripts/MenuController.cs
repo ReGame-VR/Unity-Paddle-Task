@@ -52,6 +52,16 @@ public class MenuController : MonoBehaviour {
         GlobalControl.Instance.maxTrialCount = ((arg0 == "") ? 0 : int.Parse(arg0));
     }
 
+    // Record how many seconds the ball should hover for upon reset
+    public void UpdateHoverTime(float sValue)
+    {
+        Slider s = GameObject.Find("Ball Respawn Time Slider").GetComponent<Slider>();
+        Text sliderText = GameObject.Find("Time Indicator").GetComponent<Text>();
+
+        sliderText.text = (sValue + " seconds");
+        GlobalControl.Instance.ballResetHoverSeconds = (int)sValue;
+    }
+
     // Records the Condition from the dropdown menu
     public void RecordCondition(int arg0)
     {

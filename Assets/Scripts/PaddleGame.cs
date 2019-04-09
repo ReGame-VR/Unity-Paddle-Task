@@ -65,6 +65,7 @@ public class PaddleGame : MonoBehaviour {
     private bool inHoverMode = false;
     private bool inHoverResetCoroutine = false;
     private bool inPlayDropSoundRoutine = false;
+    private int ballResetHoverSeconds = 3;
 
     // Keep track of max number of trials allowed for this instance
     private int maxTrials = 0;
@@ -80,6 +81,7 @@ public class PaddleGame : MonoBehaviour {
         condition = GlobalControl.Instance.condition;
         session = GlobalControl.Instance.session;
         degreesOfFreedom = GlobalControl.Instance.degreesOfFreedom;
+        ballResetHoverSeconds = GlobalControl.Instance.ballResetHoverSeconds;
 
         // Calibrate the target line to be at the player's eye level
         Vector3 targetPos = targetLine.transform.position;
@@ -175,7 +177,7 @@ public class PaddleGame : MonoBehaviour {
 
             // Hover ball at target line for a second
             StartCoroutine(PlayDropSound(0.9f));
-            StartCoroutine(ReleaseHoverOnReset(1.0f));
+            StartCoroutine(ReleaseHoverOnReset(ballResetHoverSeconds));
 
             ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
             ball.transform.position = paddlePosition;

@@ -35,6 +35,9 @@ public class GlobalControl : MonoBehaviour {
     // Number of trials allowed, after which the game will end
     public int maxTrialCount = 0;
 
+    // Duration for which ball should be held before dropping upon reset
+    public int ballResetHoverSeconds = 3;
+
     // The single instance of this class
     public static GlobalControl Instance;
 

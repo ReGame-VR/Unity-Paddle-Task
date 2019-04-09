@@ -54,25 +54,6 @@ public class DataHandler : MonoBehaviour
     /// </summary>
     class TrialData
     {
-        /*
-        public readonly float time;
-        public readonly int trialNum;
-        public readonly int numBounces;
-        public readonly float score;
-        public readonly float targetHeight;
-        public readonly float targetRadius;
-
-        public TrialData(float time, int trialNum, int numBounces, float score, float targetHeight,
-            float targetRadius)
-        {
-            this.time = time;
-            this.trialNum = trialNum;
-            this.numBounces = numBounces;
-            this.score = score;
-            this.targetHeight = targetHeight;
-            this.targetRadius = targetRadius;
-        }
-        */
         public readonly Condition condition;
         public readonly Session session;
         public readonly float degreesOfFreedom;
@@ -94,36 +75,6 @@ public class DataHandler : MonoBehaviour
 
     class BounceData
     {
-        /*
-        public readonly float time;
-        public readonly int trialNum;
-        public readonly int bounceNum;
-        public readonly float apexHeight;
-        public readonly float apexTargetDistance;
-        public readonly bool apexInTargetArea;
-        public readonly float paddleHeight;
-        public readonly float paddleVelocity;
-        public readonly float paddleAccel;
-        public readonly float targetHeight;
-        public readonly Vector3 bounceMod;
-
-        public BounceData(float time, int trialNum, int bounceNum, float apexHeight, float apexTargetDistance,
-            bool apexInTargetArea, float paddleHeight, float paddleVelocity, float paddleAccel, float targetHeight,
-            Vector3 bounceMod)
-        {
-            this.time = time;
-            this.trialNum = trialNum;
-            this.bounceNum = bounceNum;
-            this.apexHeight = apexHeight;
-            this.apexTargetDistance = apexTargetDistance;
-            this.apexInTargetArea = apexInTargetArea;
-            this.paddleHeight = paddleHeight;
-            this.paddleVelocity = paddleVelocity;
-            this.paddleAccel = paddleAccel;
-            this.targetHeight = targetHeight;
-            this.bounceMod = bounceMod;
-        }
-        */
         public readonly Condition condition;
         public readonly Session session;
         public readonly float degreesOfFreedom;
@@ -159,8 +110,7 @@ public class DataHandler : MonoBehaviour
         public readonly float paddleVelocity;
         public readonly float paddleAccel;
 
-        public ContinuousData(Condition condition, Session session, float degreesOfFreedom, float time, 
-            float ballPosX, float ballPosY, float ballPosZ, float paddleVelocity, float paddleAccel)
+        public ContinuousData(Condition condition, Session session, float degreesOfFreedom, float time, float ballPosX, float ballPosY, float ballPosZ, float paddleVelocity, float paddleAccel)
         {
             this.condition = condition;
             this.session = session;
@@ -205,7 +155,7 @@ public class DataHandler : MonoBehaviour
                 
                 row.Add(pid);
                 row.Add(d.time.ToString());
-                row.Add( FormatConditionString(d.condition, d.degreesOfFreedom) );
+                row.Add(d.condition.ToString());
                 row.Add(d.session.ToString());
                 row.Add(d.trialNum.ToString());
                 row.Add(d.numBounces.ToString());
@@ -214,19 +164,6 @@ public class DataHandler : MonoBehaviour
                 writer.WriteRow(row);
             }
         }
-    }
-
-    /// <summary>
-    /// Formats the condition to reflect reduced degrees of freedom, if applicable
-    ///
-    private string FormatConditionString(Condition c, float d)
-    {
-        string buffer = c.ToString();
-        if (c == Condition.REDUCED)
-        {
-            buffer += " " + d + " degrees";
-        }
-        return buffer;
     }
 
     /// <summary>
@@ -260,7 +197,7 @@ public class DataHandler : MonoBehaviour
                 CsvRow row = new CsvRow();
 
                 row.Add(pid);
-                row.Add( FormatConditionString(d.condition, d.degreesOfFreedom) );
+                row.Add(d.condition.ToString());
                 row.Add(d.session.ToString());
                 row.Add(d.trialNum.ToString());
                 row.Add(d.bounceNum.ToString());
@@ -305,7 +242,7 @@ public class DataHandler : MonoBehaviour
                 CsvRow row = new CsvRow();
 
                 row.Add(pid);
-                row.Add( FormatConditionString(d.condition, d.degreesOfFreedom) );
+                row.Add(d.condition.ToString());
                 row.Add(d.session.ToString());
                 row.Add(d.time.ToString());
                 row.Add(d.ballPosX.ToString());
@@ -318,4 +255,19 @@ public class DataHandler : MonoBehaviour
             }
         }
     }
+
+/* TODO determine if DoF functionality should include angles between 0 and 90 deg
+    /// <summary>
+    /// Formats the condition to reflect reduced degrees of freedom, if applicable
+    ///
+    private string FormatConditionString(Condition c, float d)
+    {
+        string buffer = c.ToString();
+        if (c == Condition.REDUCED)
+        {
+            buffer += " " + d + " degrees";
+        }
+        return buffer;
+    }
+*/
 }

@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ShowDegreeInput : MonoBehaviour
 {
+    /// TODO remove this script
+    /// No longer being used in menu
+    
     GameObject inputBox;
 
     // Start is called before the first frame update

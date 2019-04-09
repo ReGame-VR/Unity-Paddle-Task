@@ -33,13 +33,14 @@ public class MenuController : MonoBehaviour {
         GlobalControl.Instance.participantID = arg0;
     }
 
+
     /// <summary>
     /// Records an float representing degrees of freedom in the xz plane.
     /// </summary>
     /// <param name="arg0"></param>
-    public void RecordDegrees(string arg0)
+    public void RecordDegrees()
     {
-        GlobalControl.Instance.degreesOfFreedom = float.Parse(arg0);
+        GlobalControl.Instance.degreesOfFreedom = (GlobalControl.Instance.condition == Condition.REDUCED) ? 0.0f : 90.0f;
     }
 
     /// <summary>

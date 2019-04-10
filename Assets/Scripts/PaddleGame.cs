@@ -176,7 +176,7 @@ public class PaddleGame : MonoBehaviour {
 
 
             // Hover ball at target line for a second
-            StartCoroutine(PlayDropSound(0.9f));
+            StartCoroutine(PlayDropSound(0.9f * ballResetHoverSeconds));
             StartCoroutine(ReleaseHoverOnReset(ballResetHoverSeconds));
 
             ball.GetComponent<Rigidbody>().velocity = Vector3.zero;

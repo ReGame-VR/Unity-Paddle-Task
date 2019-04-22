@@ -17,7 +17,7 @@ public class VelocityNoRigidBody : MonoBehaviour {
     // The velocity of the object at the beginning of the frame
     private Vector3 prevVelocity;
     // current acceleration of the object
-    private float currAccel;
+    private Vector3 currAccel;
 
 
     void Start()
@@ -50,7 +50,8 @@ public class VelocityNoRigidBody : MonoBehaviour {
         // Wait till it the end of the frame
         // Acceleration = DeltaVelocity / DeltaTime
         yield return new WaitForEndOfFrame();
-        currAccel = (currVel.magnitude - prevVelocity.magnitude) / Time.deltaTime;
+        //currAccel = (currVel.magnitude - prevVelocity.magnitude) / Time.deltaTime;
+        currAccel = (currVel - prevVelocity) / Time.deltaTime;
     }
 
     // Get the current velocity of the object
@@ -60,7 +61,7 @@ public class VelocityNoRigidBody : MonoBehaviour {
     }
 
     // Get the current velocity of the object
-    public float GetAcceleration()
+    public Vector3 GetAcceleration()
     {
         return currAccel;
     }

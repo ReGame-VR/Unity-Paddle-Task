@@ -49,8 +49,8 @@ public class PaddleGame : MonoBehaviour {
     // The paddle bounce height, velocity, and acceleration to be recorded on each bounce.
     // These are the values on the *paddle*, NOT the ball
     private float paddleBounceHeight;
-    private float paddleBounceVelocity;
-    private float paddleBounceAccel;
+    private Vector3 paddleBounceVelocity;
+    private Vector3 paddleBounceAccel;
 
     // Degrees of freedom, how many degrees in x-z directions ball can bounce after hitting paddle
     // 0 degrees: ball can only bounce in y direction, 90 degrees: no reduction in range
@@ -176,7 +176,7 @@ public class PaddleGame : MonoBehaviour {
 
 
             // Hover ball at target line for a second
-            StartCoroutine(PlayDropSound(0.9f * ballResetHoverSeconds));
+            StartCoroutine(PlayDropSound(ballResetHoverSeconds - 0.15f));
             StartCoroutine(ReleaseHoverOnReset(ballResetHoverSeconds));
 
             ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
@@ -296,8 +296,7 @@ public class PaddleGame : MonoBehaviour {
         }
 
         //Record Data from last bounce
-        GetComponent<DataHandler>().recordBounce(condition, session, degreesOfFreedom, trialNum, numBounces, apexTargetError,
-            paddleBounceVelocity, paddleBounceAccel);
+        GetComponent<DataHandler>().recordBounce(condition, session, degreesOfFreedom, trialNum, numBounces, apexTargetError, paddleBounceVelocity, paddleBounceAccel);
 
         bounceHeightList = new List<float>();
     }
@@ -305,13 +304,11 @@ public class PaddleGame : MonoBehaviour {
     // Grab ball and paddle info and record it. Should be called once per frame
     private void GatherContinuousData()
     {        
-        float paddleVelocity = paddle.GetComponent<Paddle>().GetVelocity().magnitude;
-        float paddleAccel = paddle.GetComponent<Paddle>().GetAcceleration();
-
+        Vector3 paddleVelocity = paddle.GetComponent<Paddle>().GetVelocity();
+        Vector3 paddleAccel = paddle.GetComponent<Paddle>().GetAcceleration();
         Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
 
-        GetComponent<DataHandler>().recordContinuous(condition, session, degreesOfFreedom,
-            Time.time, ballVelocity.x, ballVelocity.y, ballVelocity.z, paddleVelocity, paddleAccel);
+        GetComponent<DataHandler>().recordContinuous(condition, session, degreesOfFreedom, Time.time, ballVelocity, paddleVelocity, paddleAccel);
     }
 
     // Initialize paddle information to be recorded upon next bounce
@@ -320,7 +317,7 @@ public class PaddleGame : MonoBehaviour {
         GameObject paddle = GetActivePaddle();
 
         paddleBounceHeight = paddle.transform.position.y;
-        paddleBounceVelocity = paddle.GetComponent<Paddle>().GetVelocity().magnitude;
+        paddleBounceVelocity = paddle.GetComponent<Paddle>().GetVelocity();
         paddleBounceAccel = paddle.GetComponent<Paddle>().GetAcceleration();
     }
 

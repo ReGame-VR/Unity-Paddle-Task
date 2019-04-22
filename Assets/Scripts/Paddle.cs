@@ -61,7 +61,7 @@ public class Paddle : MonoBehaviour
     }
 
     // Gets acceleration of paddle
-    public float GetAcceleration()
+    public Vector3 GetAcceleration()
     {
         return paddleCollider.GetComponent<VelocityNoRigidBody>().GetAcceleration();
     }

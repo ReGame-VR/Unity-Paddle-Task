@@ -70,7 +70,7 @@ public class Ball : MonoBehaviour {
                 }
             }
         }
-        else // if (!enablePhysics)
+        else
         {
             // Hold ball still
             rigidBody.velocity = Vector3.zero;

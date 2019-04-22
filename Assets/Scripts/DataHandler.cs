@@ -33,9 +33,9 @@ public class DataHandler : MonoBehaviour
     }
 
     // Records bounce data into the data list
-    public void recordBounce(Condition condition, Session session, float degreesOfFreedom, int trialNum, int bounceNum, float apexTargetError, Vector3 paddleVelocity, Vector3 paddleAccel)
+    public void recordBounce(Condition condition, Session session, float degreesOfFreedom, float time, int trialNum, int bounceNum, float apexTargetError, Vector3 paddleVelocity, Vector3 paddleAccel)
     {
-        bounceData.Add(new BounceData(condition, session, degreesOfFreedom, trialNum, bounceNum, apexTargetError, paddleVelocity, paddleAccel));
+        bounceData.Add(new BounceData(condition, session, degreesOfFreedom, time, trialNum, bounceNum, apexTargetError, paddleVelocity, paddleAccel));
     }
 
     // Records continuous ball and paddle data into the data list
@@ -75,17 +75,19 @@ public class DataHandler : MonoBehaviour
         public readonly Condition condition;
         public readonly Session session;
         public readonly float degreesOfFreedom;
+        public readonly float time;
         public readonly int trialNum;
         public readonly int bounceNum;
         public readonly float apexTargetError;
         public readonly Vector3 paddleVelocity;
         public readonly Vector3 paddleAccel;
 
-        public BounceData(Condition condition, Session session, float degreesOfFreedom, int trialNum, int bounceNum, float apexTargetError, Vector3 paddleVelocity, Vector3 paddleAccel)
+        public BounceData(Condition condition, Session session, float degreesOfFreedom, float time, int trialNum, int bounceNum, float apexTargetError, Vector3 paddleVelocity, Vector3 paddleAccel)
         {
             this.condition = condition;
             this.session = session;
             this.degreesOfFreedom = degreesOfFreedom;
+            this.time = time;
             this.trialNum = trialNum;
             this.bounceNum = bounceNum;
             this.apexTargetError = apexTargetError;
@@ -174,12 +176,15 @@ public class DataHandler : MonoBehaviour
             header.Add("Participant ID");
             header.Add("Condition");  
             header.Add("Visit");
+            header.Add("Timestamp");
             header.Add("Trial Number");
-            header.Add("Bounce Number");
+            header.Add("# of Bounces");
             header.Add("Bounce Error");
+            header.Add("Paddle Velocity Magnitude");
             header.Add("Paddle Velocity X");
             header.Add("Paddle Velocity Y");
             header.Add("Paddle Velocity Z");
+            header.Add("Paddle Acceleration Magnitude");
             header.Add("Paddle Acceleration X");
             header.Add("Paddle Acceleration Y");
             header.Add("Paddle Acceleration Z");
@@ -194,12 +199,15 @@ public class DataHandler : MonoBehaviour
                 row.Add(pid);
                 row.Add(d.condition.ToString());
                 row.Add(d.session.ToString());
+                row.Add(d.time.ToString());
                 row.Add(d.trialNum.ToString());
                 row.Add(d.bounceNum.ToString());
                 row.Add(d.apexTargetError.ToString());
+                row.Add(d.paddleVelocity.magnitude.ToString());
                 row.Add(d.paddleVelocity.x.ToString());
                 row.Add(d.paddleVelocity.y.ToString());
                 row.Add(d.paddleVelocity.z.ToString());
+                row.Add(d.paddleAccel.magnitude.ToString());
                 row.Add(d.paddleAccel.x.ToString());
                 row.Add(d.paddleAccel.y.ToString());
                 row.Add(d.paddleAccel.z.ToString());
@@ -229,9 +237,11 @@ public class DataHandler : MonoBehaviour
             header.Add("Ball Position X");
             header.Add("Ball Position Y");
             header.Add("Ball Position Z");
+            header.Add("Paddle Velocity Magnitude");
             header.Add("Paddle Velocity X");
             header.Add("Paddle Velocity Y");
             header.Add("Paddle Velocity Z");
+            header.Add("Paddle Acceleration Magnitude");
             header.Add("Paddle Acceleration X");
             header.Add("Paddle Acceleration Y");
             header.Add("Paddle Acceleration Z");
@@ -250,9 +260,11 @@ public class DataHandler : MonoBehaviour
                 row.Add(d.ballPos.x.ToString());
                 row.Add(d.ballPos.y.ToString());
                 row.Add(d.ballPos.z.ToString());
+                row.Add(d.paddleVelocity.magnitude.ToString());
                 row.Add(d.paddleVelocity.x.ToString());
                 row.Add(d.paddleVelocity.y.ToString());
                 row.Add(d.paddleVelocity.z.ToString());
+                row.Add(d.paddleAccel.magnitude.ToString());
                 row.Add(d.paddleAccel.x.ToString());
                 row.Add(d.paddleAccel.y.ToString());
                 row.Add(d.paddleAccel.z.ToString());

@@ -296,7 +296,7 @@ public class PaddleGame : MonoBehaviour {
         }
 
         //Record Data from last bounce
-        GetComponent<DataHandler>().recordBounce(condition, session, degreesOfFreedom, trialNum, numBounces, apexTargetError, paddleBounceVelocity, paddleBounceAccel);
+        GetComponent<DataHandler>().recordBounce(condition, session, degreesOfFreedom, Time.time, trialNum, numBounces, apexTargetError, paddleBounceVelocity, paddleBounceAccel);
 
         bounceHeightList = new List<float>();
     }

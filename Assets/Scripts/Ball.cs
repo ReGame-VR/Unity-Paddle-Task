@@ -187,7 +187,6 @@ public class Ball : MonoBehaviour {
         {
             justBounced = true;
             gameScript.BallBounced(c);
-            GetComponent<BallParticleSpawner>().SpawnBounceParticles();
             StartCoroutine(FinishBounceDeclaration());
         }
     }

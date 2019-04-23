@@ -38,6 +38,9 @@ public class GlobalControl : MonoBehaviour {
     // Duration for which ball should be held before dropping upon reset
     public int ballResetHoverSeconds = 3;
 
+    // Allow game to be paused
+    public bool paused = true;
+
     // The single instance of this class
     public static GlobalControl Instance;
 

@@ -25,8 +25,7 @@ public class Ball : MonoBehaviour {
     // The current bounce effect in a forced exploration condition
     private Vector3 currentBounceModification = new Vector3(0,0,0);
 
-    // Start/Pause ball physics.
-    public bool enablePhysics = false;
+    // Store last position of ball for pause
     private Vector3 lastPosition = Vector3.up;
 
     // This is true when the player is currently paddling the ball. If the player stops paddling the ball,
@@ -52,12 +51,26 @@ public class Ball : MonoBehaviour {
     void Update()
     {
         // Handle pausing
-        if (enablePhysics)
+        if (GlobalControl.Instance.paused)
+        {
+            // Hold ball still
+            rigidBody.velocity = Vector3.zero;
+            rigidBody.position = lastPosition;
+
+            // Space == pause button
+            if (Input.GetKeyDown("space"))
+            {
+                GlobalControl.Instance.paused = false;
+                rigidBody.detectCollisions = true;
+                rigidBody.useGravity = true;
+            }
+        }
+        else
         {
             // Space == pause button
             if (Input.GetKeyDown("space"))
             {
-                enablePhysics = false;
+                GlobalControl.Instance.paused = true;
 
                 lastPosition = rigidBody.position;
                 rigidBody.detectCollisions = false;
@@ -70,20 +83,7 @@ public class Ball : MonoBehaviour {
                 }
             }
         }
-        else
-        {
-            // Hold ball still
-            rigidBody.velocity = Vector3.zero;
-            rigidBody.position = lastPosition;
 
-            // Space == pause button
-            if (Input.GetKeyDown("space"))
-            {
-                enablePhysics = true;
-                rigidBody.detectCollisions = true;
-                rigidBody.useGravity = true;
-            }
-        }
     }
 
     void OnCollisionEnter(Collision c)

@@ -214,7 +214,7 @@ public class PaddleGame : MonoBehaviour {
         inPlayDropSoundRoutine = true;
         yield return new WaitForSeconds(time);
 
-        GetComponent<DropSoundPlayer>().PlayDropSound();
+        GetComponent<BallSoundPlayer>().PlayDropSound();
     }
 
     // Returns true if the ball is within the target line boundaries.
@@ -292,7 +292,7 @@ public class PaddleGame : MonoBehaviour {
         {
             curScore = curScore + 10;
             numAccurateBounces++;
-            ball.GetComponent<BallParticleSpawner>().SpawnSuccessParticles();
+            GetComponent<BallSoundPlayer>().PlaySuccessSound();
         }
 
         //Record Data from last bounce

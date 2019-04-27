@@ -308,7 +308,8 @@ public class PaddleGame : MonoBehaviour {
         Vector3 paddleAccel = paddle.GetComponent<Paddle>().GetAcceleration();
         Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
 
-        GetComponent<DataHandler>().recordContinuous(condition, session, degreesOfFreedom, Time.time, ballVelocity, paddleVelocity, paddleAccel);
+        GetComponent<DataHandler>().recordContinuous(condition, session, degreesOfFreedom, Time.time, 
+            GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
     }
 
     // Initialize paddle information to be recorded upon next bounce

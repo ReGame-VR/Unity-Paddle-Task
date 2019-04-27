@@ -39,9 +39,9 @@ public class DataHandler : MonoBehaviour
     }
 
     // Records continuous ball and paddle data into the data list
-    public void recordContinuous(Condition condition, Session session, float degreesOfFreedom, float time, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
+    public void recordContinuous(Condition condition, Session session, float degreesOfFreedom, float time, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
     {
-        continuousData.Add(new ContinuousData(condition, session, degreesOfFreedom, time, ballPos, paddleVelocity, paddleAccel));
+        continuousData.Add(new ContinuousData(condition, session, degreesOfFreedom, time, paused, ballPos, paddleVelocity, paddleAccel));
     }
 
     /// <summary>
@@ -103,16 +103,19 @@ public class DataHandler : MonoBehaviour
         public readonly Session session;
         public readonly float degreesOfFreedom;
         public readonly float time;
+        public readonly bool paused;
         public readonly Vector3 ballPos;
         public readonly Vector3 paddleVelocity;
         public readonly Vector3 paddleAccel;
+        
 
-        public ContinuousData(Condition condition, Session session, float degreesOfFreedom, float time, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
+        public ContinuousData(Condition condition, Session session, float degreesOfFreedom, float time, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
         {
             this.condition = condition;
             this.session = session;
             this.degreesOfFreedom = degreesOfFreedom;
             this.time = time;
+            this.paused = paused;
             this.ballPos = ballPos;
             this.paddleVelocity = paddleVelocity;
             this.paddleAccel = paddleAccel;
@@ -234,6 +237,7 @@ public class DataHandler : MonoBehaviour
             header.Add("Condition");     
             header.Add("Visit");
             header.Add("Timestamp");
+            header.Add("Paused?");
             header.Add("Ball Position X");
             header.Add("Ball Position Y");
             header.Add("Ball Position Z");
@@ -257,6 +261,7 @@ public class DataHandler : MonoBehaviour
                 row.Add(d.condition.ToString());
                 row.Add(d.session.ToString());
                 row.Add(d.time.ToString());
+                row.Add(d.paused ? "PAUSED" : "");
                 row.Add(d.ballPos.x.ToString());
                 row.Add(d.ballPos.y.ToString());
                 row.Add(d.ballPos.z.ToString());

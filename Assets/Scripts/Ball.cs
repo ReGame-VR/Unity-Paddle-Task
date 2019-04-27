@@ -53,10 +53,13 @@ public class Ball : MonoBehaviour {
         // Handle pausing
         if (GlobalControl.Instance.paused)
         {
+            // Show pause indicator
+            GameObject.Find("Pause Indicator").GetComponent<PauseIndicator>().quad.SetActive(true);
+
             // Hold ball still
             rigidBody.velocity = Vector3.zero;
             rigidBody.position = lastPosition;
-
+            
             // Space == pause button
             if (Input.GetKeyDown("space"))
             {
@@ -67,6 +70,9 @@ public class Ball : MonoBehaviour {
         }
         else
         {
+            // Show pause indicator
+            GameObject.Find("Pause Indicator").GetComponent<PauseIndicator>().quad.SetActive(false);
+
             // Space == pause button
             if (Input.GetKeyDown("space"))
             {

@@ -38,6 +38,9 @@ public class PaddleGame : MonoBehaviour {
     // Current score during this trial
     private float curScore = 0f;
 
+    // Running total number of bounces this instance
+    private int numTotalBounces = 0;
+
     // The current trial number. This is increased by one every time the ball is reset.
     public int trialNum = 0;
 
@@ -240,6 +243,7 @@ public class PaddleGame : MonoBehaviour {
             SetUpPaddleData();
         }
         numBounces++;
+        numTotalBounces++;
 
         // If the user bounced enough times, kick in an exploration
         // effect (if turned on).
@@ -296,7 +300,7 @@ public class PaddleGame : MonoBehaviour {
         }
 
         //Record Data from last bounce
-        GetComponent<DataHandler>().recordBounce(condition, session, degreesOfFreedom, Time.time, trialNum, numBounces, apexTargetError, paddleBounceVelocity, paddleBounceAccel);
+        GetComponent<DataHandler>().recordBounce(condition, session, degreesOfFreedom, Time.time, trialNum, numBounces, numTotalBounces, apexTargetError, paddleBounceVelocity, paddleBounceAccel);
 
         bounceHeightList = new List<float>();
     }

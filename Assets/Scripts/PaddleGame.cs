@@ -107,24 +107,8 @@ public class PaddleGame : MonoBehaviour {
         }
     }
 
-    private float AdjustTargetHeightPreference(float y)
-    {
-        switch(GlobalControl.Instance.targetHeightPreference)
-        {
-            case TargetHeight.DEFAULT:
-                return y;
-            case TargetHeight.RAISED:
-                return 1.1f * y;
-            case TargetHeight.LOWERED:
-                return 0.9f * y;
-            default:
-                Debug.Log("Error: Invalid Target Height Preference");
-                return y;
-        }
-    }
-
     void FixedUpdate()
-    {        
+    {
         // Data handler. Record continuous ball & paddle info
         GatherContinuousData();
 
@@ -148,6 +132,23 @@ public class PaddleGame : MonoBehaviour {
         }
     }
 
+    // Sets target line height
+    private float AdjustTargetHeightPreference(float y)
+    {
+        switch(GlobalControl.Instance.targetHeightPreference)
+        {
+            case TargetHeight.DEFAULT:
+                return y;
+            case TargetHeight.RAISED:
+                return 1.1f * y;
+            case TargetHeight.LOWERED:
+                return 0.9f * y;
+            default:
+                Debug.Log("Error: Invalid Target Height Preference");
+                return y;
+        }
+    }
+
     // Holds the ball over the paddle at Target Height for 0.5 seconds, then releases
     public void HoverOnReset()
     {
@@ -167,6 +168,7 @@ public class PaddleGame : MonoBehaviour {
                 paddle.transform.position.z
             );
 
+            ball.GetComponent<SphereCollider>().enabled = false;
 
             // Hover ball at target line for a second
             StartCoroutine(PlayDropSound(ballResetHoverSeconds - 0.15f));
@@ -174,6 +176,7 @@ public class PaddleGame : MonoBehaviour {
 
             ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
             ball.transform.position = paddlePosition;
+            ball.transform.rotation = Quaternion.identity;
         }
     }
 
@@ -192,6 +195,8 @@ public class PaddleGame : MonoBehaviour {
         inHoverMode = false;
         inHoverResetCoroutine = false;
         inPlayDropSoundRoutine = false;
+
+        ball.GetComponent<SphereCollider>().enabled = true;
 
         // Reset trial
         ResetTrial();

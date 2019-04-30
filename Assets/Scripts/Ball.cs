@@ -38,6 +38,8 @@ public class Ball : MonoBehaviour {
     // A reference to this ball's rigidbody
     private Rigidbody rigidBody;
 
+    private float minVelocityThreshold = 0.15f;
+
     void Awake()
     {
         rigidBody = GetComponent<Rigidbody>();
@@ -129,11 +131,11 @@ public class Ball : MonoBehaviour {
 
         Vector3 bounceVelocity;
 
-        if (paddleVelocity < 0.3)
+        if (paddleVelocity < minVelocityThreshold)
         {
             // If the paddle isn't moving very much, add a default bounce. This is 
             // a bugfix so that the ball keeps bouncing.
-            bounceVelocity = c.contacts[0].normal * bounceForce * 0.3f;
+            bounceVelocity = c.contacts[0].normal * bounceForce * minVelocityThreshold;
 
             // The ball is not being actively paddled
             isBouncing = false;
@@ -165,8 +167,10 @@ public class Ball : MonoBehaviour {
         // Exert the new velocity on the ball
         rigidBody.AddForce(bounceVelocity, ForceMode.Impulse);
 
-        GetComponent<BounceSoundPlayer>().PlayBounceSound();
-
+        if (isBouncing)
+        {
+            GetComponent<BounceSoundPlayer>().PlayBounceSound();
+        }
     }
 
     public void TurnBallGreen()

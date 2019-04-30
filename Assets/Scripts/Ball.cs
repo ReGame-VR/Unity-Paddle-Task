@@ -174,8 +174,9 @@ public class Ball : MonoBehaviour {
         GetComponent<MeshRenderer>().material = greenBallMat;
     }
 
-    public void TurnBallWhite()
+    public IEnumerator TurnBallWhite()
     {
+        yield return new WaitForSeconds(0.5f);
         GetComponent<MeshRenderer>().material = ballMat;
     }
 

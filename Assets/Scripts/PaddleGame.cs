@@ -125,18 +125,8 @@ public class PaddleGame : MonoBehaviour {
 
     void FixedUpdate()
     {        
-        // Record continuous ball & paddle info
+        // Data handler. Record continuous ball & paddle info
         GatherContinuousData();
-
-        // Turn ball green if it is within target area
-        if (HeightInsideTargetWindow(ball.transform.position.y) && ball.GetComponent<Ball>().isBouncing)
-        {
-            ball.GetComponent<Ball>().TurnBallGreen();
-        }
-        else
-        {
-            ball.GetComponent<Ball>().TurnBallWhite();
-        }
 
         // Update Canvas display
         feedbackCanvas.UpdateScoreText(curScore, numBounces);
@@ -296,7 +286,10 @@ public class PaddleGame : MonoBehaviour {
         {
             curScore = curScore + 10;
             numAccurateBounces++;
-            GetComponent<BallSoundPlayer>().PlaySuccessSound();
+
+            ball.GetComponent<Ball>().TurnBallGreen();
+            StartCoroutine(GetComponent<BallSoundPlayer>().PlaySuccessSound());
+            StartCoroutine(ball.GetComponent<Ball>().TurnBallWhite());
         }
 
         //Record Data from last bounce

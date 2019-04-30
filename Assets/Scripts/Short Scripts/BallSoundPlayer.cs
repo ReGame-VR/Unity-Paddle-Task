@@ -16,8 +16,9 @@ public class BallSoundPlayer : MonoBehaviour {
     }
 
     // Play success sound when ball apex is within target window
-    public void PlaySuccessSound()
+    public IEnumerator PlaySuccessSound()
     {
+        yield return new WaitForSeconds(0.1f);
         successSound.Stop();
         successSound.PlayOneShot(successSound.clip);
     }

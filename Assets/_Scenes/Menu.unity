@@ -4956,6 +4956,7 @@ MonoBehaviour:
   degreesOfFreedom: 90
   maxTrialCount: 0
   ballResetHoverSeconds: 3
+  paused: 1
 --- !u!4 &1434758229
 Transform:
   m_ObjectHideFlags: 0

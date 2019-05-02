@@ -26,7 +26,7 @@ public class VelocityNoRigidBody : MonoBehaviour {
         currVel = new Vector3(0, 0, 0);
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // Position at frame start
         prevPosition = transform.position;

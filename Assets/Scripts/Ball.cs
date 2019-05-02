@@ -50,50 +50,6 @@ public class Ball : MonoBehaviour {
         rigidBody.detectCollisions = false;
     }
 
-    void Update()
-    {
-        // Handle pausing
-        if (GlobalControl.Instance.paused)
-        {
-            // Show pause indicator
-            GameObject.Find("Pause Indicator").GetComponent<PauseIndicator>().quad.SetActive(true);
-
-            // Hold ball still
-            rigidBody.velocity = Vector3.zero;
-            rigidBody.position = lastPosition;
-            
-            // Space == pause button
-            if (Input.GetKeyDown("space"))
-            {
-                GlobalControl.Instance.paused = false;
-                rigidBody.detectCollisions = true;
-                rigidBody.useGravity = true;
-            }
-        }
-        else
-        {
-            // Show pause indicator
-            GameObject.Find("Pause Indicator").GetComponent<PauseIndicator>().quad.SetActive(false);
-
-            // Space == pause button
-            if (Input.GetKeyDown("space"))
-            {
-                GlobalControl.Instance.paused = true;
-
-                lastPosition = rigidBody.position;
-                rigidBody.detectCollisions = false;
-                rigidBody.useGravity = false;
-
-                // try to avoid resetting ball constantly while paused
-                if (lastPosition.y < 0.05)
-                {
-                    lastPosition = new Vector3(lastPosition.x, 0.5f, lastPosition.y);
-                }
-            }
-        }
-
-    }
-
     void OnCollisionEnter(Collision c)
     {
         // On collision with paddle, ball should bounce

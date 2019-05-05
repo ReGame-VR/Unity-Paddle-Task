@@ -18,6 +18,12 @@ public class Ball : MonoBehaviour {
     [SerializeField]
     private Material greenBallMat;
 
+    // For debugging purposes only
+    [SerializeField]
+    private Material redBallMat;
+    [SerializeField]
+    private Material blueBallMat;
+
     [Tooltip("The script that handles the game logic")]
     [SerializeField]
     private PaddleGame gameScript;
@@ -35,8 +41,9 @@ public class Ball : MonoBehaviour {
     // If the ball just bounced, this will be true (momentarily)
     private bool justBounced = false;
 
-    // A reference to this ball's rigidbody
+    // A reference to this ball's rigidbody and collider
     private Rigidbody rigidBody;
+    private SphereCollider sCollider;
 
     private float minVelocityThreshold = 0.15f;
 
@@ -55,6 +62,7 @@ public class Ball : MonoBehaviour {
         // On collision with paddle, ball should bounce
         if (c.gameObject.tag == "Paddle")
         {
+            TurnBallBlue(); // debugging
             BounceBall(c);
         }
         else
@@ -65,18 +73,82 @@ public class Ball : MonoBehaviour {
         }
     }
 
+    // debugging
+    private void Update()
+    {
+        Debug.DrawRay(transform.position, rigidBody.velocity, Color.blue);
+    }
+
+
+    // debugging
+    private void OnCollisionExit(Collision c)
+    {
+        if (c.gameObject.tag == "Paddle")
+        {
+            TurnBallBlue(); // debugging
+        }
+    }
+
+    IEnumerator ReEnableCollider()
+    {
+        yield return new WaitForFixedUpdate();
+        sCollider.enabled = true;
+    }
+
     void OnCollisionStay(Collision c)
     {
 
         // return; // EW seems to go very high sometimes.
         if (c.gameObject.tag == "Paddle")
         {
-            BounceBall(c);
+            TurnBallRed(); // debugging
+            // BounceBall(c);
         }
     }
 
     private void BounceBall(Collision c)
     {
+        Vector3 paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate();
+        
+        // Get collision point
+        ContactPoint cp = c.GetContact(0);
+        Debug.DrawRay(cp.point, cp.normal, Color.yellow, 3f);           // draw contact normal
+
+        // Get velocity of ball just before hitting paddle
+        Vector3 iVelocity = GetComponent<Kinematics>().storedVelocity;
+        Debug.DrawRay(transform.position, -iVelocity, Color.red, 3f);   // draw in vector
+
+        // Get reflected bounce, with energy transfer
+        Vector3 rVelocity = GetComponent<Kinematics>().GetReflectionDamped(iVelocity, cp.normal);
+        Debug.DrawRay(transform.position, rVelocity, Color.green, 3f);  // draw reflected vector
+
+        isBouncing = true;
+        DeclareBounce(c);
+
+        // Account for paddle motion
+        Vector3 fVelocity = (rVelocity + paddleVelocity);
+
+        // Adjust bounce velocity for reduced degree of freedom
+        if (GlobalControl.Instance.condition == Condition.REDUCED)
+        {
+            fVelocity = ReduceBounceDeviation(rVelocity);
+        }
+
+        // If physics are being changed mid game, change them!
+        if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)
+        {
+            fVelocity += currentBounceModification;
+        }
+
+
+
+        // Apply new velocity to ball
+        rigidBody.velocity = fVelocity;
+
+
+
+        /*
+
         // Get velocity of paddle
         float paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate().magnitude;
         // float paddleVelocity = c.gameObject.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude;
@@ -127,11 +199,23 @@ public class Ball : MonoBehaviour {
         {
             GetComponent<BounceSoundPlayer>().PlayBounceSound();
         }
+
+    */
     }
 
     public void TurnBallGreen()
     {
         GetComponent<MeshRenderer>().material = greenBallMat;
+    }
+
+    public void TurnBallRed()
+    {
+        GetComponent<MeshRenderer>().material = redBallMat;
+    }
+
+    public void TurnBallBlue()
+    {
+        GetComponent<MeshRenderer>().material = blueBallMat;
     }
 
     public IEnumerator TurnBallWhite()

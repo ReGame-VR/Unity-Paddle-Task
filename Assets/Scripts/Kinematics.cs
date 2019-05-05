@@ -6,6 +6,8 @@ using UnityEngine;
 /// This script extends the physics engine to allow for kinematic calculations.
 /// It handles all the motion for the rigidbody this script is attached to
 /// except for its useGravity property.
+/// 
+/// This script must be used in conjunction with a RigidBody and Collider. 
 /// </summary>
 
 public class Kinematics : MonoBehaviour
@@ -13,10 +15,10 @@ public class Kinematics : MonoBehaviour
     // Reference to this GameObject's rigidbody
     private Rigidbody rb;
     
-    private Vector3 storedPosition;
-    private Vector3 storedVelocity;
-    private Vector3 storedAngularVelocity;
-    private Quaternion storedRotation;
+    public Vector3 storedPosition;
+    public Vector3 storedVelocity;
+    public Vector3 storedAngularVelocity;
+    public Quaternion storedRotation;
 
     // Start is called before the first frame update
     void Awake()
@@ -84,9 +86,14 @@ public class Kinematics : MonoBehaviour
         storedVelocity = rb.velocity;
         storedAngularVelocity = rb.angularVelocity;
         storedRotation = rb.rotation;
-            
-        // Look for collisions
     }
 
-
+    // Returns the reflected velocity vector of a given input vector and normal contact point.
+    // Efficiency represents the percentage (0.0-1.0) of energy dissipated from the impact.  
+    public Vector3 GetReflectionDamped(Vector3 inVector, Vector3 inNormal, float efficiency = 0.75f)
+    {
+        Vector3 reflected = Vector3.Reflect(inVector, inNormal);
+        reflected *= efficiency;
+        return reflected;
+    }
 }

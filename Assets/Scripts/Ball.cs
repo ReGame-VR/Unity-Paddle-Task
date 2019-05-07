@@ -62,30 +62,12 @@ public class Ball : MonoBehaviour {
         // On collision with paddle, ball should bounce
         if (c.gameObject.tag == "Paddle")
         {
-            TurnBallBlue(); // debugging
             BounceBall(c);
         }
         else
         {
-            // if ball collides with the floor or something random,
-            // it is no longer bouncing
+            // if ball collides with the floor or something random, it is no longer bouncing
             isBouncing = false;
-        }
-    }
-
-    // debugging
-    private void Update()
-    {
-        Debug.DrawRay(transform.position, rigidBody.velocity, Color.blue);
-    }
-
-
-    // debugging
-    private void OnCollisionExit(Collision c)
-    {
-        if (c.gameObject.tag == "Paddle")
-        {
-            TurnBallBlue(); // debugging
         }
     }
 
@@ -97,13 +79,14 @@ public class Ball : MonoBehaviour {
 
     void OnCollisionStay(Collision c)
     {
-
-        // return; // EW seems to go very high sometimes.
+        return;
+        
+        /*  TODO: add ability to "throw" ball up after it has stopped?
         if (c.gameObject.tag == "Paddle")
         {
-            TurnBallRed(); // debugging
-            // BounceBall(c);
+            //...
         }
+        */
     }
 
     private void BounceBall(Collision c)
@@ -112,20 +95,18 @@ public class Ball : MonoBehaviour {
         
         // Get collision point
         ContactPoint cp = c.GetContact(0);
-        Debug.DrawRay(cp.point, cp.normal, Color.yellow, 3f);           // draw contact normal
+        //Debug.DrawRay(cp.point, cp.normal, Color.yellow, 3f);           // draw contact normal
 
         // Get velocity of ball just before hitting paddle
         Vector3 iVelocity = GetComponent<Kinematics>().storedVelocity;
-        Debug.DrawRay(transform.position, -iVelocity, Color.red, 3f);   // draw in vector
+        //Debug.DrawRay(transform.position, -iVelocity, Color.red, 3f);   // draw in vector
 
         // Get reflected bounce, with energy transfer
         Vector3 rVelocity = GetComponent<Kinematics>().GetReflectionDamped(iVelocity, cp.normal);
-        Debug.DrawRay(transform.position, rVelocity, Color.green, 3f);  // draw reflected vector
-
-        isBouncing = true;
-        DeclareBounce(c);
+        //Debug.DrawRay(transform.position, rVelocity, Color.green, 3f);  // draw reflected vector
 
         // Account for paddle motion
+        // TODO: test paddleVelocity against real ping pong paddle motion
         Vector3 fVelocity = (rVelocity + paddleVelocity);
 
         // Adjust bounce velocity for reduced degree of freedom
@@ -140,67 +121,20 @@ public class Ball : MonoBehaviour {
             fVelocity += currentBounceModification;
         }
 
-
-
         // Apply new velocity to ball
         rigidBody.velocity = fVelocity;
 
-
-
-        /*
-
-        // Get velocity of paddle
-        float paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate().magnitude;
-        // float paddleVelocity = c.gameObject.GetComponent<VelocityNoRigidBody>().GetVelocity().magnitude;
-
-        // Debug.Log("paddle velovity: " + paddleVelocity.ToString("F4"));
-        // Create a bounce velocity based on collision with paddle. Also include paddle velocity
-        // so that this bounce is proportional to movement of paddle
-
-        Vector3 bounceVelocity;
-
-        if (paddleVelocity < minVelocityThreshold)
+        // Determine if collision should be counted as an active bounce
+        if (paddleVelocity.magnitude < 0.1f)
         {
-            // If the paddle isn't moving very much, add a default bounce. This is 
-            // a bugfix so that the ball keeps bouncing.
-            bounceVelocity = c.contacts[0].normal * bounceForce * minVelocityThreshold;
-
-            // The ball is not being actively paddled
             isBouncing = false;
         }
         else
         {
-            bounceVelocity = c.contacts[0].normal * bounceForce * paddleVelocity;
-
-            // Adjust bounce velocity for reduced degree of freedom
-            if (GlobalControl.Instance.condition == Condition.REDUCED)
-            {
-                bounceVelocity = ReduceBounceDeviation(bounceVelocity);
-            }
-
             isBouncing = true;
             DeclareBounce(c);
-
-            // If physics are being changed mid game, change them!
-            if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)
-            {
-                bounceVelocity = bounceVelocity + currentBounceModification;
-            }
-        }
-
-        // reset the velocity of the ball
-        rigidBody.velocity = new Vector3(0, 0, 0);
-        rigidBody.angularVelocity = Vector3.zero;
-
-        // Exert the new velocity on the ball
-        rigidBody.AddForce(bounceVelocity, ForceMode.Impulse);
-
-        if (isBouncing)
-        {
             GetComponent<BounceSoundPlayer>().PlayBounceSound();
         }
-
-    */
     }
 
     public void TurnBallGreen()

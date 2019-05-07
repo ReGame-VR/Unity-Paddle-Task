@@ -175,6 +175,7 @@ public class PaddleGame : MonoBehaviour {
             StartCoroutine(ReleaseHoverOnReset(ballResetHoverSeconds));
 
             ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
             ball.transform.position = paddlePosition;
             ball.transform.rotation = Quaternion.identity;
         }
@@ -216,7 +217,7 @@ public class PaddleGame : MonoBehaviour {
     }
 
     // Returns true if the ball is within the target line boundaries.
-    private bool HeightInsideTargetWindow(float height)
+    public bool HeightInsideTargetWindow(float height)
     {
         float targetHeight = targetLine.transform.position.y;
         float lowerLimit = targetHeight - targetRadius;
@@ -292,15 +293,24 @@ public class PaddleGame : MonoBehaviour {
             curScore = curScore + 10;
             numAccurateBounces++;
 
-            ball.GetComponent<Ball>().TurnBallGreen();
-            StartCoroutine(GetComponent<BallSoundPlayer>().PlaySuccessSound());
-            StartCoroutine(ball.GetComponent<Ball>().TurnBallWhite());
+            IndicateSuccessBall();
         }
 
         //Record Data from last bounce
         GetComponent<DataHandler>().recordBounce(condition, session, degreesOfFreedom, Time.time, trialNum, numBounces, numTotalBounces, apexTargetError, paddleBounceVelocity, paddleBounceAccel);
 
         bounceHeightList = new List<float>();
+    }
+
+    // Turns ball green briefly and plays success sound.
+    void IndicateSuccessBall()
+    {
+        Ball b = GameObject.Find("Ball").GetComponent<Ball>();
+        BallSoundPlayer bsp = GameObject.Find("[SteamVR]").GetComponent<BallSoundPlayer>();
+
+        StartCoroutine(bsp.PlaySuccessSound(0.1f));
+        StartCoroutine(b.TurnBallGreenCR(0.1f));
+        StartCoroutine(b.TurnBallWhiteCR(0.6f));
     }
 
     // Grab ball and paddle info and record it. Should be called once per frame

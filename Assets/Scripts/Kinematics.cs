@@ -90,7 +90,7 @@ public class Kinematics : MonoBehaviour
 
     // Returns the reflected velocity vector of a given input vector and normal contact point.
     // Efficiency represents the percentage (0.0-1.0) of energy dissipated from the impact.  
-    public Vector3 GetReflectionDamped(Vector3 inVector, Vector3 inNormal, float efficiency = 0.75f)
+    public Vector3 GetReflectionDamped(Vector3 inVector, Vector3 inNormal, float efficiency = 1.0f)
     {
         Vector3 reflected = Vector3.Reflect(inVector, inNormal);
         reflected *= efficiency;

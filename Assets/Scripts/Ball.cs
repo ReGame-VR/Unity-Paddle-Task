@@ -45,11 +45,12 @@ public class Ball : MonoBehaviour {
     private Rigidbody rigidBody;
     private SphereCollider sCollider;
 
-    private float minVelocityThreshold = 0.15f;
+    bool inTurnBallWhiteCR = false;
 
     void Awake()
     {
         rigidBody = GetComponent<Rigidbody>();
+        sCollider = GetComponent<SphereCollider>();
 
         // Physics for ball is disabled until Space is pressed
         rigidBody.velocity = Vector3.zero;
@@ -63,6 +64,13 @@ public class Ball : MonoBehaviour {
         if (c.gameObject.tag == "Paddle")
         {
             BounceBall(c);
+            /*
+            if (sCollider.enabled)
+            {
+                sCollider.enabled = false;
+            }
+            StartCoroutine(ReEnableCollider(3));
+            */
         }
         else
         {
@@ -71,22 +79,35 @@ public class Ball : MonoBehaviour {
         }
     }
 
-    IEnumerator ReEnableCollider()
+    // Re-enable the ball collider after n frames
+    bool test = false;
+    IEnumerator ReEnableCollider(int n)
     {
+        if (test) yield break;
+
         yield return new WaitForFixedUpdate();
+        test = true;
+
         sCollider.enabled = true;
+        test = false;
+
+        /*
+
+        if (n <= 1)
+        {
+            sCollider.enabled = true;
+            test = false;
+        }
+        else
+        {
+            StartCoroutine(ReEnableCollider(--n));
+        }
+        */
     }
 
     void OnCollisionStay(Collision c)
     {
         return;
-        
-        /*  TODO: add ability to "throw" ball up after it has stopped?
-        if (c.gameObject.tag == "Paddle")
-        {
-            //...
-        }
-        */
     }
 
     private void BounceBall(Collision c)
@@ -102,17 +123,16 @@ public class Ball : MonoBehaviour {
         //Debug.DrawRay(transform.position, -iVelocity, Color.red, 3f);   // draw in vector
 
         // Get reflected bounce, with energy transfer
-        Vector3 rVelocity = GetComponent<Kinematics>().GetReflectionDamped(iVelocity, cp.normal);
+        Vector3 rVelocity = GetComponent<Kinematics>().GetReflectionDamped(iVelocity, cp.normal, 0.75f);
         //Debug.DrawRay(transform.position, rVelocity, Color.green, 3f);  // draw reflected vector
 
         // Account for paddle motion
-        // TODO: test paddleVelocity against real ping pong paddle motion
-        Vector3 fVelocity = (rVelocity + paddleVelocity);
+        Vector3 fVelocity = (rVelocity + paddleVelocity); 
 
         // Adjust bounce velocity for reduced degree of freedom
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
-            fVelocity = ReduceBounceDeviation(rVelocity);
+            fVelocity = ReduceBounceDeviation(fVelocity);
         }
 
         // If physics are being changed mid game, change them!
@@ -125,7 +145,7 @@ public class Ball : MonoBehaviour {
         rigidBody.velocity = fVelocity;
 
         // Determine if collision should be counted as an active bounce
-        if (paddleVelocity.magnitude < 0.1f)
+        if (paddleVelocity.magnitude < 0.05f)
         {
             isBouncing = false;
         }
@@ -134,8 +154,12 @@ public class Ball : MonoBehaviour {
             isBouncing = true;
             DeclareBounce(c);
             GetComponent<BounceSoundPlayer>().PlayBounceSound();
+
+            //CheckApexSuccess(fVelocity, cp.point);
         }
     }
+
+
 
     public void TurnBallGreen()
     {
@@ -152,10 +176,28 @@ public class Ball : MonoBehaviour {
         GetComponent<MeshRenderer>().material = blueBallMat;
     }
 
-    public IEnumerator TurnBallWhite()
+    public void TurnBallWhite()
     {
-        yield return new WaitForSeconds(0.5f);
         GetComponent<MeshRenderer>().material = ballMat;
+    }
+
+    public IEnumerator TurnBallWhiteCR(float time)
+    {
+        if (inTurnBallWhiteCR)
+        {
+            yield break;
+        }
+        yield return new WaitForSeconds(time);
+        inTurnBallWhiteCR = true;
+
+        TurnBallWhite();
+        inTurnBallWhiteCR = false;
+    }
+
+    public IEnumerator TurnBallGreenCR(float time)
+    {
+        yield return new WaitForSeconds(time);
+        TurnBallGreen();
     }
 
     // Try to declare that the ball has been bounced. If the ball
@@ -187,6 +229,7 @@ public class Ball : MonoBehaviour {
     // Ball has been reset. Reset the trial as well.
     public void ResetBall()
     {
+        TurnBallWhite();
         gameScript.ResetTrial();
     }
 

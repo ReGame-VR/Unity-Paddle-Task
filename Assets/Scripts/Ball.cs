@@ -110,10 +110,15 @@ public class Ball : MonoBehaviour {
         return;
     }
 
+    void OnCollisionExit(Collision c)
+    {
+        //
+    }
+
     private void BounceBall(Collision c)
     {
-        Vector3 paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate();
-        
+        Vector3 paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate(); 
+
         // Get collision point
         ContactPoint cp = c.GetContact(0);
         //Debug.DrawRay(cp.point, cp.normal, Color.yellow, 3f);           // draw contact normal
@@ -127,7 +132,7 @@ public class Ball : MonoBehaviour {
         //Debug.DrawRay(transform.position, rVelocity, Color.green, 3f);  // draw reflected vector
 
         // Account for paddle motion
-        Vector3 fVelocity = (rVelocity + paddleVelocity); 
+        Vector3 fVelocity = (rVelocity + (1.25f * paddleVelocity));     // increase paddle vel to simulate conservation of momentum
 
         // Adjust bounce velocity for reduced degree of freedom
         if (GlobalControl.Instance.condition == Condition.REDUCED)

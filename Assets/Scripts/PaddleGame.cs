@@ -81,9 +81,9 @@ public class PaddleGame : MonoBehaviour {
         paddle = GetActivePaddle();
 
         // Initialize Condition and Visit types
-        condition = GlobalControl.Instance.condition;
-        session = GlobalControl.Instance.session;
-        degreesOfFreedom = GlobalControl.Instance.degreesOfFreedom;
+        condition             = GlobalControl.Instance.condition;
+        session               = GlobalControl.Instance.session;
+        degreesOfFreedom      = GlobalControl.Instance.degreesOfFreedom;
         ballResetHoverSeconds = GlobalControl.Instance.ballResetHoverSeconds;
 
         // Calibrate the target line to be at the player's eye level
@@ -137,16 +137,20 @@ public class PaddleGame : MonoBehaviour {
     {
         switch(GlobalControl.Instance.targetHeightPreference)
         {
-            case TargetHeight.DEFAULT:
-                return y;
             case TargetHeight.RAISED:
-                return 1.1f * y;
+                y *= 1.1f;
+                break;
             case TargetHeight.LOWERED:
-                return 0.9f * y;
+                y *= 0.9f;
+                break;
+            case TargetHeight.DEFAULT:
+                break;
             default:
                 Debug.Log("Error: Invalid Target Height Preference");
-                return y;
+                break;
         }
+
+        return y;
     }
 
     // Holds the ball over the paddle at Target Height for 0.5 seconds, then releases

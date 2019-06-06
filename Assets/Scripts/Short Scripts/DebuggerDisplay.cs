@@ -24,11 +24,6 @@ public class DebuggerDisplay : MonoBehaviour
 
         }
 
-        // test
-        if (dbgQuad.activeSelf)
-        {
-            // Display(Time.time.ToString());
-        }
     }
 
     public void Display(string msg)

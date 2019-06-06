@@ -132,7 +132,10 @@ public class Ball : MonoBehaviour {
         //Debug.DrawRay(transform.position, rVelocity, Color.green, 3f);  // draw reflected vector
 
         // Account for paddle motion
-        Vector3 fVelocity = (rVelocity + (1.25f * paddleVelocity));     // increase paddle vel to simulate conservation of momentum
+        float fx = rVelocity.x;
+        float fy = rVelocity.y + paddleVelocity.y;
+        float fz = rVelocity.z;
+        Vector3 fVelocity = new Vector3(fx, fy, fz); 
 
         // Adjust bounce velocity for reduced degree of freedom
         if (GlobalControl.Instance.condition == Condition.REDUCED)

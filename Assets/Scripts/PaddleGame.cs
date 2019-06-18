@@ -87,13 +87,7 @@ public class PaddleGame : MonoBehaviour {
         ballResetHoverSeconds = GlobalControl.Instance.ballResetHoverSeconds;
 
         // Calibrate the target line to be at the player's eye level
-        Vector3 targetPos = targetLine.transform.position;
-        targetLine.transform.position = new Vector3(
-            targetPos.x, 
-            AdjustTargetHeightPreference(hmd.transform.position.y), 
-            targetPos.z
-        );
-        GetComponent<ExplorationMode>().CalibrateEyeLevel(targetLine.transform.position.y);
+        SetTargetLineHeight();
 
         maxTrials = GlobalControl.Instance.maxTrialCount;
 
@@ -132,10 +126,29 @@ public class PaddleGame : MonoBehaviour {
         }
     }
 
-    // Sets target line height
-    private float AdjustTargetHeightPreference(float y)
+    // Sets Target Line height based on HMD eye level and target position preference
+    public void SetTargetLineHeight()
     {
-        switch(GlobalControl.Instance.targetHeightPreference)
+        Vector3 tlPosn = targetLine.transform.position;
+
+        float x = tlPosn.x;
+        float z = tlPosn.z;
+        float y = ApplyInstanceTargetHeightPref(GetHmdHeight());
+
+        targetLine.transform.position = new Vector3(x, y, z);
+
+        // Update Exploration Mode height calibration
+        GetComponent<ExplorationMode>().CalibrateEyeLevel(targetLine.transform.position.y);
+    }
+
+    private float GetHmdHeight()
+    {
+        return hmd.transform.position.y;
+    }
+
+    private float ApplyInstanceTargetHeightPref(float y)
+    {
+        switch (GlobalControl.Instance.targetHeightPreference)
         {
             case TargetHeight.RAISED:
                 y *= 1.1f;
@@ -149,7 +162,6 @@ public class PaddleGame : MonoBehaviour {
                 Debug.Log("Error: Invalid Target Height Preference");
                 break;
         }
-
         return y;
     }
 

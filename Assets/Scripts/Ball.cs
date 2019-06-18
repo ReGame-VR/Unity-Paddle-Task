@@ -117,7 +117,7 @@ public class Ball : MonoBehaviour {
 
     private void BounceBall(Collision c)
     {
-        Vector3 paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate(); 
+        Vector3 paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate();
 
         // Get collision point
         ContactPoint cp = c.GetContact(0);
@@ -165,9 +165,23 @@ public class Ball : MonoBehaviour {
 
             //CheckApexSuccess(fVelocity, cp.point);
         }
+
+
+
+        // DEBUGGING
+        debugvelocitycollision(paddleVelocity, fVelocity);
     }
 
+    // for debugging only. remove later.
+    void debugvelocitycollision(Vector3 paddlev, Vector3 outv)
+    {
+        DebuggerDisplay dd = GameObject.Find("Debugger Display").GetComponent<DebuggerDisplay>();
 
+        dd.Display("Paddle vy: " + paddlev.y.ToString(), 1);
+        dd.Display("Ball inv: " + GetComponent<Kinematics>().storedVelocity +
+            "  mag: " + GetComponent<Kinematics>().storedVelocity.magnitude, 2);
+        dd.Display("Ball outv: " + outv + "   mag: " + outv.magnitude, 3);
+    }
 
     public void TurnBallGreen()
     {

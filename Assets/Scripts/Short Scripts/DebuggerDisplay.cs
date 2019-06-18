@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class DebuggerDisplay : MonoBehaviour
 {
     public GameObject dbgQuad;
-    public Text dbgText;
+    public Text dbgLn1, dbgLn2, dbgLn3;
 
     // Start is called before the first frame update
     void Start()
@@ -14,25 +14,50 @@ public class DebuggerDisplay : MonoBehaviour
         dbgQuad.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    //--------------------------------------------------------------------------
+
+    public void ToggleDisplay()
     {
-        if (Input.GetKeyDown(KeyCode.D))
+        dbgQuad.SetActive(!dbgQuad.activeSelf);
+    }
+
+    public void Display(string msg, int register = 0)
+    {
+        switch(register)
         {
-            dbgQuad.SetActive(!dbgQuad.activeSelf);
+            case 1:
+                dbgLn1.text = msg;
+                break;
+            case 2:
+                dbgLn2.text = msg;
+                break;
+            case 3:
+                dbgLn3.text = msg;
+                break;
 
-
+            default:
+                dbgLn3.text = msg;
+                break;
         }
-
     }
 
-    public void Display(string msg)
+    public void Clear(int register = 0)
     {
-        dbgText.text = msg;
-    }
+        switch(register)
+        {
+            case 1:
+                dbgLn1.text = ">";
+                break;
+            case 2:
+                dbgLn2.text = ">";
+                break;
+            case 3:
+                dbgLn1.text = ">";
+                break;
 
-    public void Clear()
-    {
-        dbgText.text = "...";
+            default:
+                dbgLn1.text = dbgLn2.text = dbgLn3.text = ">";
+                break;
+        }
     }
 }

@@ -4,48 +4,32 @@ using UnityEngine;
 
 public class GlobalPauseHandler : MonoBehaviour
 {
-    // Handle pausing
-    void Update()
+    public void TogglePause()
     {
-        // Handle Paused and Playing states separately.
-        if (GlobalControl.Instance.paused)
+        if (GlobalControl.Instance.paused == true)
         {
-            // Show pause indicator
-            GameObject.Find("Pause Indicator").GetComponent<PauseIndicator>().quad.SetActive(true);
-
-            ListenForResume();
+            Resume();
         }
-        else 
+        else
         {
-            // Hide pause indicator
-            GameObject.Find("Pause Indicator").GetComponent<PauseIndicator>().quad.SetActive(false);
-
-            ListenForPause();
+            Pause();
         }
     }
 
-    void ListenForResume()
+    private void Pause()
     {
-        if (Input.GetKeyDown("space"))
-        {
-            GlobalControl.Instance.paused = false;
+        GlobalControl.Instance.paused = true;
 
-            // Trigger Ball physics resume listener
-            GameObject.Find("Ball").GetComponent<Kinematics>().TriggerResume();
-        }
+        // Trigger Ball physics pause listener
+        GameObject.Find("Ball").GetComponent<Kinematics>().TriggerPause();
     }
 
-    void ListenForPause()
+    private void Resume()
     {
-        if (Input.GetKeyDown("space"))
-        {
-            GlobalControl.Instance.paused = true;
+        GlobalControl.Instance.paused = false;
 
-            // Trigger Ball physics pause listener
-            GameObject.Find("Ball").GetComponent<Kinematics>().TriggerPause();
-        }
+        // Trigger Ball physics resume listener
+        GameObject.Find("Ball").GetComponent<Kinematics>().TriggerResume();
     }
-
-
 }
 

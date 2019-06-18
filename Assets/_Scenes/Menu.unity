@@ -4166,7 +4166,7 @@ MonoBehaviour:
   m_MinValue: 1
   m_MaxValue: 10
   m_WholeNumbers: 1
-  m_Value: 3
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -4559,7 +4559,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 3 seconds
+  m_Text: 1 seconds
 --- !u!222 &1343521786
 CanvasRenderer:
   m_ObjectHideFlags: 0

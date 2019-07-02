@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR.InteractionSystem;
+using Unity.Labs.SuperScience;
 
 public class Ball : MonoBehaviour {
 
@@ -47,6 +48,15 @@ public class Ball : MonoBehaviour {
 
     bool inTurnBallWhiteCR = false;
 
+    // Unity PhysicsTracker Configuration =======================================================
+    [SerializeField]
+    [Tooltip("The object to track in space and report physics data on.")]
+    Transform m_ToTrack;
+
+    PhysicsTracker m_MotionData = new PhysicsTracker();
+    Vector3 m_LastPosition;
+    // ==========================================================================================
+
     void Awake()
     {
         rigidBody = GetComponent<Rigidbody>();
@@ -56,6 +66,16 @@ public class Ball : MonoBehaviour {
         rigidBody.velocity = Vector3.zero;
         rigidBody.useGravity = false;
         rigidBody.detectCollisions = false;
+
+        // Use Unity PhysicsTracker
+        m_MotionData.Reset(m_ToTrack.position, m_ToTrack.rotation, Vector3.zero, Vector3.zero);
+        m_LastPosition = m_ToTrack.position;
+    }
+
+    private void Update()
+    {
+        // send updated information to physicstracker
+        m_MotionData.mUpdate(m_ToTrack.position, m_ToTrack.rotation, Time.smoothDeltaTime);
     }
 
     void OnCollisionEnter(Collision c)
@@ -117,40 +137,47 @@ public class Ball : MonoBehaviour {
 
     private void BounceBall(Collision c)
     {
-        Vector3 paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate();
-
-        // Get collision point
+        //Vector3 paddleVelocity = c.gameObject.GetComponent<VelocityEstimator>().GetVelocityEstimate();
+        Vector3 paddleVelocity = m_MotionData.Velocity;
+        Vector3 paddleAccel = m_MotionData.Acceleration;
+        
         ContactPoint cp = c.GetContact(0);
-        //Debug.DrawRay(cp.point, cp.normal, Color.yellow, 3f);           // draw contact normal
 
         // Get velocity of ball just before hitting paddle
         Vector3 iVelocity = GetComponent<Kinematics>().storedVelocity;
-        //Debug.DrawRay(transform.position, -iVelocity, Color.red, 3f);   // draw in vector
 
         // Get reflected bounce, with energy transfer
         Vector3 rVelocity = GetComponent<Kinematics>().GetReflectionDamped(iVelocity, cp.normal, 0.75f);
-        //Debug.DrawRay(transform.position, rVelocity, Color.green, 3f);  // draw reflected vector
 
-        // Account for paddle motion
-        float fx = rVelocity.x;
-        float fy = rVelocity.y + paddleVelocity.y;
-        float fz = rVelocity.z;
-        Vector3 fVelocity = new Vector3(fx, fy, fz); 
-
-        // Adjust bounce velocity for reduced degree of freedom
+        // Apply reflection
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
-            fVelocity = ReduceBounceDeviation(fVelocity);
+            rVelocity = LimitDeviationFromUp(rVelocity);
         }
+        rigidBody.velocity = rVelocity;
+
+        // Apply paddle acceleration
+        if (GlobalControl.Instance.condition == Condition.REDUCED)
+        {
+            Vector3 projectedUp = paddleAccel * Mathf.Cos(Mathf.Deg2Rad * Vector3.Angle(Vector3.up, paddleAccel));
+            projectedUp = Vector3.up * projectedUp.magnitude; // make sure it only goes up
+            rigidBody.AddForce(projectedUp);
+
+        }
+        else
+        {
+            Vector3 projectedNormal = paddleAccel * Mathf.Cos(Mathf.Deg2Rad * Vector3.Angle(cp.normal, paddleAccel));
+            // TODO: sometimes paddle accel is negative even when the intended motion is to go up.
+            // Makes re-bouncing the ball once it slows almost impossible. 
+            rigidBody.AddForce(projectedNormal);
+        }
+
 
         // If physics are being changed mid game, change them!
         if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)
         {
-            fVelocity += currentBounceModification;
+            rigidBody.velocity += currentBounceModification;
         }
-
-        // Apply new velocity to ball
-        rigidBody.velocity = fVelocity;
 
         // Determine if collision should be counted as an active bounce
         if (paddleVelocity.magnitude < 0.05f)
@@ -169,15 +196,15 @@ public class Ball : MonoBehaviour {
 
 
         // DEBUGGING
-        debugvelocitycollision(paddleVelocity, fVelocity);
+        debugvelocitycollision(paddleVelocity, rigidBody.velocity, paddleAccel);
     }
 
     // for debugging only. remove later.
-    void debugvelocitycollision(Vector3 paddlev, Vector3 outv)
+    void debugvelocitycollision(Vector3 paddlev, Vector3 outv, Vector3 paddlea)
     {
         DebuggerDisplay dd = GameObject.Find("Debugger Display").GetComponent<DebuggerDisplay>();
 
-        dd.Display("Paddle vy: " + paddlev.y.ToString(), 1);
+        dd.Display("Paddle vy: " + paddlev.y.ToString() + "\nPaddle ay: " + paddlea.y.ToString(), 1);
         dd.Display("Ball inv: " + GetComponent<Kinematics>().storedVelocity +
             "  mag: " + GetComponent<Kinematics>().storedVelocity.magnitude, 2);
         dd.Display("Ball outv: " + outv + "   mag: " + outv.magnitude, 3);
@@ -257,7 +284,7 @@ public class Ball : MonoBehaviour {
 
     // If in Reduced condition, returns the vector of the same original magnitude and same x-z direction
     // but with adjusted height so that the angle does not exceed the desired degrees of freedom
-    public Vector3 ReduceBounceDeviation(Vector3 v)
+    public Vector3 LimitDeviationFromUp(Vector3 v)
     {
         if (Vector3.Angle(Vector3.up, v) <= GlobalControl.Instance.degreesOfFreedom)
         {

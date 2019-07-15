@@ -155,7 +155,7 @@ public class Ball : MonoBehaviour {
             rVelocity = LimitDeviationFromUp(rVelocity);
         }
 
-        // Apply paddle acceleration
+        // Apply paddle velocity
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
             rVelocity = new Vector3(0, rVelocity.y + paddleVelocity.y, 0);
@@ -163,6 +163,11 @@ public class Ball : MonoBehaviour {
         else
         {
             rVelocity += new Vector3(0, paddleVelocity.y, 0);
+        }
+        // Apply loose approximation of paddle acceleration force
+        if (paddleAccel.y > 1.0f)
+        {
+            rVelocity += new Vector3(0, paddleAccel.y / 5, 0);
         }
         rigidBody.velocity = rVelocity;
         

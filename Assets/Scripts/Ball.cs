@@ -147,16 +147,27 @@ public class Ball : MonoBehaviour {
         Vector3 iVelocity = GetComponent<Kinematics>().storedVelocity;
 
         // Get reflected bounce, with energy transfer
-        Vector3 rVelocity = GetComponent<Kinematics>().GetReflectionDamped(iVelocity, cp.normal, 0.75f);
+        Vector3 rVelocity = GetComponent<Kinematics>().GetReflectionDamped(iVelocity, cp.normal, 0.8f);
 
         // Apply reflection
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
             rVelocity = LimitDeviationFromUp(rVelocity);
         }
-        rigidBody.velocity = rVelocity;
 
         // Apply paddle acceleration
+        if (GlobalControl.Instance.condition == Condition.REDUCED)
+        {
+            rVelocity = new Vector3(0, rVelocity.y + paddleVelocity.y, 0);
+        }
+        else
+        {
+            rVelocity += new Vector3(0, paddleVelocity.y, 0);
+        }
+        rigidBody.velocity = rVelocity;
+        
+
+        /*
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
             Vector3 projectedUp = paddleAccel * Mathf.Cos(Mathf.Deg2Rad * Vector3.Angle(Vector3.up, paddleAccel));
@@ -171,7 +182,7 @@ public class Ball : MonoBehaviour {
             // Makes re-bouncing the ball once it slows almost impossible. 
             rigidBody.AddForce(projectedNormal);
         }
-
+         */
 
         // If physics are being changed mid game, change them!
         if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)

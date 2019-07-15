@@ -164,10 +164,11 @@ public class Ball : MonoBehaviour {
         {
             rVelocity += new Vector3(0, paddleVelocity.y, 0);
         }
+
         // Apply loose approximation of paddle acceleration force
         if (paddleAccel.y > 1.0f)
         {
-            rVelocity += new Vector3(0, paddleAccel.y / 5, 0);
+            rVelocity += new Vector3(0, paddleAccel.y / 8, 0); // accel fraction determined through playtesting 
         }
         rigidBody.velocity = rVelocity;
         

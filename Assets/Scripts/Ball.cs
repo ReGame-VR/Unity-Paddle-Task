@@ -67,7 +67,7 @@ public class Ball : MonoBehaviour {
         rigidBody.useGravity = false;
         rigidBody.detectCollisions = false;
 
-        // Use Unity PhysicsTracker
+        // Use UnityLabs PhysicsTracker
         m_MotionData.Reset(m_ToTrack.position, m_ToTrack.rotation, Vector3.zero, Vector3.zero);
         m_LastPosition = m_ToTrack.position;
     }
@@ -85,21 +85,20 @@ public class Ball : MonoBehaviour {
         {
             BounceBall(c);
         }
+        // if ball collides with the floor or something random, it is no longer bouncing
         else
         {
-            // if ball collides with the floor or something random, it is no longer bouncing
             isBouncing = false;
         }
     }
 
+    // For every frame that the ball is still in collision with the paddle, 
+    // apply a fraction of the paddle velocity to the ball. This is a fix for
+    // the "sticky paddle" effect seen at low ball speeds. 
     void OnCollisionStay(Collision c)
     {
-        rigidBody.velocity += m_MotionData.velocity;
-    }
-
-    void OnCollisionExit(Collision c)
-    {
-        //
+        float pVySlice = m_MotionData.Velocity.y / 4.0f;
+        rigidBody.velocity += new Vector3(0, pVySlice, 0);
     }
 
     private void BounceBall(Collision c)
@@ -129,13 +128,6 @@ public class Ball : MonoBehaviour {
         {
             rVelocity += new Vector3(0, paddleVelocity.y, 0);
         }
-/*
-        // Apply loose approximation of paddle acceleration force
-        if (paddleAccel.y > 1.0f)
-        {
-            rVelocity += new Vector3(0, paddleAccel.y / 8, 0); // accel fraction determined through playtesting 
-        }
-*/
         rigidBody.velocity = rVelocity;
 
 
@@ -143,6 +135,11 @@ public class Ball : MonoBehaviour {
         if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)
         {
             rigidBody.velocity += currentBounceModification;
+
+            if (ExplorationConditionPassed())
+            {
+                GetComponent<ExplorationMode>().ModifyBouncePhysics();
+            }
         }
 
         // Determine if collision should be counted as an active bounce
@@ -155,11 +152,7 @@ public class Ball : MonoBehaviour {
             isBouncing = true;
             DeclareBounce(c);
             GetComponent<BounceSoundPlayer>().PlayBounceSound();
-
-            //CheckApexSuccess(fVelocity, cp.point);
         }
-
-
 
         // DEBUGGING
         debugvelocitycollision(paddleVelocity, rigidBody.velocity, paddleAccel);
@@ -174,6 +167,20 @@ public class Ball : MonoBehaviour {
         dd.Display("Ball inv: " + GetComponent<Kinematics>().storedVelocity +
             "  mag: " + GetComponent<Kinematics>().storedVelocity.magnitude, 2);
         dd.Display("Ball outv: " + outv + "   mag: " + outv.magnitude, 3);
+    }
+
+    // Placeholder for condition to change exploration mode physics.
+    private bool ExplorationConditionPassed()
+    {
+        static int hitCounter = 0;
+        if (++hitCounter % 3 == 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public void TurnBallGreen()

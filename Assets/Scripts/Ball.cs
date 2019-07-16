@@ -148,8 +148,6 @@ public class Ball : MonoBehaviour {
 
         // Get reflected bounce, with energy transfer
         Vector3 rVelocity = GetComponent<Kinematics>().GetReflectionDamped(iVelocity, cp.normal, 0.8f);
-
-        // Apply reflection
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
             rVelocity = LimitDeviationFromUp(rVelocity);
@@ -164,31 +162,14 @@ public class Ball : MonoBehaviour {
         {
             rVelocity += new Vector3(0, paddleVelocity.y, 0);
         }
-
+/*
         // Apply loose approximation of paddle acceleration force
         if (paddleAccel.y > 1.0f)
         {
             rVelocity += new Vector3(0, paddleAccel.y / 8, 0); // accel fraction determined through playtesting 
         }
         rigidBody.velocity = rVelocity;
-        
-
-        /*
-        if (GlobalControl.Instance.condition == Condition.REDUCED)
-        {
-            Vector3 projectedUp = paddleAccel * Mathf.Cos(Mathf.Deg2Rad * Vector3.Angle(Vector3.up, paddleAccel));
-            projectedUp = Vector3.up * projectedUp.magnitude; // make sure it only goes up
-            rigidBody.AddForce(projectedUp);
-
-        }
-        else
-        {
-            Vector3 projectedNormal = paddleAccel * Mathf.Cos(Mathf.Deg2Rad * Vector3.Angle(cp.normal, paddleAccel));
-            // TODO: sometimes paddle accel is negative even when the intended motion is to go up.
-            // Makes re-bouncing the ball once it slows almost impossible. 
-            rigidBody.AddForce(projectedNormal);
-        }
-         */
+*/
 
         // If physics are being changed mid game, change them!
         if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)

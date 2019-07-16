@@ -84,13 +84,6 @@ public class Ball : MonoBehaviour {
         if (c.gameObject.tag == "Paddle")
         {
             BounceBall(c);
-            /*
-            if (sCollider.enabled)
-            {
-                sCollider.enabled = false;
-            }
-            StartCoroutine(ReEnableCollider(3));
-            */
         }
         else
         {
@@ -99,35 +92,9 @@ public class Ball : MonoBehaviour {
         }
     }
 
-    // Re-enable the ball collider after n frames
-    bool test = false;
-    IEnumerator ReEnableCollider(int n)
-    {
-        if (test) yield break;
-
-        yield return new WaitForFixedUpdate();
-        test = true;
-
-        sCollider.enabled = true;
-        test = false;
-
-        /*
-
-        if (n <= 1)
-        {
-            sCollider.enabled = true;
-            test = false;
-        }
-        else
-        {
-            StartCoroutine(ReEnableCollider(--n));
-        }
-        */
-    }
-
     void OnCollisionStay(Collision c)
     {
-        return;
+        rigidBody.velocity += m_MotionData.velocity;
     }
 
     void OnCollisionExit(Collision c)
@@ -168,8 +135,9 @@ public class Ball : MonoBehaviour {
         {
             rVelocity += new Vector3(0, paddleAccel.y / 8, 0); // accel fraction determined through playtesting 
         }
-        rigidBody.velocity = rVelocity;
 */
+        rigidBody.velocity = rVelocity;
+
 
         // If physics are being changed mid game, change them!
         if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)

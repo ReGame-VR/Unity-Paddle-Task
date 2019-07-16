@@ -48,9 +48,6 @@ public class Ball : MonoBehaviour {
 
     bool inTurnBallWhiteCR = false;
 
-    // Ball bounce counter for Exploration mode
-    int ExplorationHitCounter = 0;
-
     // Unity PhysicsTracker Configuration =======================================================
     [SerializeField]
     [Tooltip("The object to track in space and report physics data on.")]
@@ -138,11 +135,6 @@ public class Ball : MonoBehaviour {
         if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)
         {
             rigidBody.velocity += currentBounceModification;
-
-            if (ExplorationConditionPassed())
-            {
-                GameObject.Find("[SteamVR]").GetComponent<ExplorationMode>().ModifyBouncePhysics();
-            }
         }
 
         // Determine if collision should be counted as an active bounce
@@ -171,24 +163,6 @@ public class Ball : MonoBehaviour {
             "  mag: " + GetComponent<Kinematics>().storedVelocity.magnitude +
             "\nBall outv: " + outv + "   mag: " + outv.magnitude, 2);
         dd.Display("currentbouncemod: " + currentBounceModification, 3);
-    }
-
-    // Placeholder for condition to change exploration mode physics.
-    private bool ExplorationConditionPassed()
-    {
-        if (++ExplorationHitCounter % 3 == 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    public void IncrementExplorationHitCounter()
-    {
-        ExplorationHitCounter++;
     }
 
     public void TurnBallGreen()

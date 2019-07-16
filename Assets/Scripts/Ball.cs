@@ -48,6 +48,9 @@ public class Ball : MonoBehaviour {
 
     bool inTurnBallWhiteCR = false;
 
+    // Ball bounce counter for Exploration mode
+    int ExplorationHitCounter = 0;
+
     // Unity PhysicsTracker Configuration =======================================================
     [SerializeField]
     [Tooltip("The object to track in space and report physics data on.")]
@@ -138,7 +141,7 @@ public class Ball : MonoBehaviour {
 
             if (ExplorationConditionPassed())
             {
-                GetComponent<ExplorationMode>().ModifyBouncePhysics();
+                GameObject.Find("[SteamVR]").GetComponent<ExplorationMode>().ModifyBouncePhysics();
             }
         }
 
@@ -165,15 +168,15 @@ public class Ball : MonoBehaviour {
 
         dd.Display("Paddle vy: " + paddlev.y.ToString() + "\nPaddle ay: " + paddlea.y.ToString(), 1);
         dd.Display("Ball inv: " + GetComponent<Kinematics>().storedVelocity +
-            "  mag: " + GetComponent<Kinematics>().storedVelocity.magnitude, 2);
-        dd.Display("Ball outv: " + outv + "   mag: " + outv.magnitude, 3);
+            "  mag: " + GetComponent<Kinematics>().storedVelocity.magnitude +
+            "\nBall outv: " + outv + "   mag: " + outv.magnitude, 2);
+        dd.Display("currentbouncemod: " + currentBounceModification, 3);
     }
 
     // Placeholder for condition to change exploration mode physics.
     private bool ExplorationConditionPassed()
     {
-        static int hitCounter = 0;
-        if (++hitCounter % 3 == 0)
+        if (++ExplorationHitCounter % 3 == 0)
         {
             return true;
         }

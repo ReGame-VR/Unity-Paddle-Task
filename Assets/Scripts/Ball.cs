@@ -186,6 +186,11 @@ public class Ball : MonoBehaviour {
         }
     }
 
+    public void IncrementExplorationHitCounter()
+    {
+        ExplorationHitCounter++;
+    }
+
     public void TurnBallGreen()
     {
         GetComponent<MeshRenderer>().material = greenBallMat;

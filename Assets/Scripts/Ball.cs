@@ -46,8 +46,8 @@ public class Ball : MonoBehaviour
     // Unity PhysicsTracker Configuration ======================================
     [SerializeField]
     [Tooltip("The object to track in space and report physics data on.")]
-    Transform      m_ToTrack;
-    PhysicsTracker m_MotionData = new PhysicsTracker();
+    Transform m_ToTrack;
+    public PhysicsTracker m_MotionData = new PhysicsTracker();
     // =========================================================================
 
     void Awake()

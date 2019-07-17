@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Labs.SuperScience;
 
 public class PaddleGame : MonoBehaviour {
 
@@ -73,12 +74,17 @@ public class PaddleGame : MonoBehaviour {
     // Keep track of max number of trials allowed for this instance
     private int maxTrials = 0;
 
+    // Reference to Paddle PhysicsTracker via Ball script
+    PhysicsTracker m_MotionData;
+
     private List<float> bounceHeightList = new List<float>();
 
     void Start()
     {
         // Get reference to Paddle
         paddle = GetActivePaddle();
+
+        m_MotionData = ball.GetComponent<Ball>().m_MotionData;
 
         // Initialize Condition and Visit types
         condition             = GlobalControl.Instance.condition;
@@ -299,7 +305,7 @@ public class PaddleGame : MonoBehaviour {
     private void GatherBounceData()
     {
         float apexHeight = Mathf.Max(bounceHeightList.ToArray());
-        float apexTargetError = Mathf.Abs(targetLine.transform.position.y - apexHeight);
+        float apexTargetError = (apexHeight - targetLine.transform.position.y);
 
         bool apexSuccess = HeightInsideTargetWindow(apexHeight);
 
@@ -331,10 +337,12 @@ public class PaddleGame : MonoBehaviour {
 
     // Grab ball and paddle info and record it. Should be called once per frame
     private void GatherContinuousData()
-    {        
-        Vector3 paddleVelocity = paddle.GetComponent<Paddle>().GetVelocity();
-        Vector3 paddleAccel = paddle.GetComponent<Paddle>().GetAcceleration();
+    {
+        //Vector3 paddleVelocity = paddle.GetComponent<Paddle>().GetVelocity();
+        //Vector3 paddleAccel = paddle.GetComponent<Paddle>().GetAcceleration();
         Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
+        Vector3 paddleVelocity = m_MotionData.Velocity;
+        Vector3 paddleAccel    = m_MotionData.Acceleration;
 
         GetComponent<DataHandler>().recordContinuous(condition, session, degreesOfFreedom, Time.time, 
             GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
@@ -346,8 +354,10 @@ public class PaddleGame : MonoBehaviour {
         GameObject paddle = GetActivePaddle();
 
         paddleBounceHeight = paddle.transform.position.y;
-        paddleBounceVelocity = paddle.GetComponent<Paddle>().GetVelocity();
-        paddleBounceAccel = paddle.GetComponent<Paddle>().GetAcceleration();
+        //paddleBounceVelocity = paddle.GetComponent<Paddle>().GetVelocity();
+        //paddleBounceAccel = paddle.GetComponent<Paddle>().GetAcceleration();
+        paddleBounceVelocity = m_MotionData.Velocity;
+        paddleBounceAccel = m_MotionData.Acceleration;
     }
 
     // If 5 trials or so have passed, make a change to the game and reset the group.

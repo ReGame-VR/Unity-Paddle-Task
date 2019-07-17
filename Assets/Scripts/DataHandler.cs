@@ -182,18 +182,18 @@ public class DataHandler : MonoBehaviour
             header.Add("Condition");  
             header.Add("Visit");
             header.Add("Timestamp");
-            header.Add("Trial Number");
+            header.Add("Trial #");
             header.Add("# of Bounces");
             header.Add("Total # of Bounces");
             header.Add("Bounce Error");
-            header.Add("Paddle Velocity Magnitude");
-            header.Add("Paddle Velocity X");
-            header.Add("Paddle Velocity Y");
-            header.Add("Paddle Velocity Z");
-            header.Add("Paddle Acceleration Magnitude");
-            header.Add("Paddle Acceleration X");
-            header.Add("Paddle Acceleration Y");
-            header.Add("Paddle Acceleration Z");
+            header.Add("PaddleVelocity Magnitude");
+            header.Add("PaddleVelocity X");
+            header.Add("PaddleVelocity Y");
+            header.Add("PaddleVelocity Z");
+            header.Add("PaddleAccel Magnitude");
+            header.Add("PaddleAccel X");
+            header.Add("PaddleAccel Y");
+            header.Add("PaddleAccel Z");
 
             writer.WriteRow(header);
 

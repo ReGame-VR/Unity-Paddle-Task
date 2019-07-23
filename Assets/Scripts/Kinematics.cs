@@ -20,6 +20,8 @@ public class Kinematics : MonoBehaviour
     public Vector3 storedAngularVelocity;
     public Quaternion storedRotation;
 
+    public CircularBuffer positionBuffer;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -29,6 +31,8 @@ public class Kinematics : MonoBehaviour
         storedVelocity = rb.velocity;
         storedAngularVelocity = rb.angularVelocity;
         storedRotation = Quaternion.identity;
+
+        positionBuffer = new CircularBuffer(13);
     }
 
     // Handle physics
@@ -42,6 +46,7 @@ public class Kinematics : MonoBehaviour
         else 
         {
             EnableMotion();
+            StreamVelocityToBuffer();
         }
     }
 
@@ -95,5 +100,41 @@ public class Kinematics : MonoBehaviour
         Vector3 reflected = Vector3.Reflect(inVector, inNormal);
         reflected *= efficiency;
         return reflected;
+    }
+
+    // Add position to a circular buffer of size 10
+    private void StreamVelocityToBuffer()
+    {
+        positionBuffer.Add(rb.position);
+    }
+
+    // Returns true if the ball was previously going up and is now falling. 
+    public bool ReachedApex()
+    {
+        Vector3[] posns = positionBuffer.GetArray();
+
+        if (posns.Length < 13)
+        {
+            return false;
+        }
+
+        float slopeFront = 0;
+        float slopeBack = 0;
+
+        // Get average slope of first 5 y elements
+        for (int i = 0; i < 5; i++)
+        {
+            slopeFront += (posns[i + 1].y - posns[i].y);
+        }
+        slopeFront /= 6;
+
+        // Get average slope of last 5 y elements        
+        for (int i = 6; i < 11; i++)
+        {
+            slopeBack += (posns[i + 1].y - posns[i].y);
+        }
+        slopeBack /= 6;
+
+        return (slopeFront > 0) && (slopeBack < 0);
     }
 }

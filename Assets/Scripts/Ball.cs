@@ -67,6 +67,12 @@ public class Ball : MonoBehaviour
     {
         // send updated information to physicstracker
         m_MotionData.mUpdate(m_ToTrack.position, m_ToTrack.rotation, Time.smoothDeltaTime);
+
+        // Test apex detection
+        if (GetComponent<Kinematics>().ReachedApex())
+        {
+            Debug.Log("Reached apex");
+        }
     }
 
     void OnCollisionEnter(Collision c)

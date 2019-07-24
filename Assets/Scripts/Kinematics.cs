@@ -21,6 +21,7 @@ public class Kinematics : MonoBehaviour
     public Quaternion storedRotation;
 
     public CircularBuffer velocityBuffer;
+    const int CIRCULAR_BUFFER_SIZE = 11;
 
     // Start is called before the first frame update
     void Awake()
@@ -32,7 +33,7 @@ public class Kinematics : MonoBehaviour
         storedAngularVelocity = rb.angularVelocity;
         storedRotation = Quaternion.identity;
 
-        velocityBuffer = new CircularBuffer(13);
+        velocityBuffer = new CircularBuffer(CIRCULAR_BUFFER_SIZE);
     }
 
     // Handle physics
@@ -112,29 +113,25 @@ public class Kinematics : MonoBehaviour
     public bool ReachedApex()
     {
         Vector3[] buffer = velocityBuffer.GetArray();
-
-        if (buffer.Length < 13)
+        if (buffer.Length < CIRCULAR_BUFFER_SIZE)
         {
             return false;
         }
 
-        float slopeFront = 0;
-        float slopeBack = 0;
+        // Apex is reached if velocity crosses from positive to negative
+        bool ConsecPositiveVel = true;
+        bool ConsecNegativeVel = true;
 
-        // Get average slope of first 5 y elements
+        // &= to ensure zero-crossing in buffer
         for (int i = 0; i < 5; i++)
         {
-            slopeFront += (buffer[i + 1].y - buffer[i].y);
-        }
-        slopeFront /= 6;
-
-        // Get average slope of last 5 y elements        
-        for (int i = 6; i < 11; i++)
+            ConsecPositiveVel &= (buffer[i].y > 0);
+        }     
+        for (int i = (CIRCULAR_BUFFER_SIZE - 6); i < (CIRCULAR_BUFFER_SIZE - 1); i++)
         {
-            slopeBack += (buffer[i + 1].y - buffer[i].y);
+            ConsecNegativeVel &= (buffer[i].y < 0);
         }
-        slopeBack /= 6;
-
-        return (slopeFront > 0) && (slopeBack < 0);
+        
+        return (ConsecPositiveVel && ConsecNegativeVel);
     }
 }

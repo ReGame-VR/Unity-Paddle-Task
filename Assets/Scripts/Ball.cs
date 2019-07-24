@@ -101,13 +101,35 @@ public class Ball : MonoBehaviour
 
     private void BounceBall(Collision c)
     {
+        ContactPoint cp = c.GetContact(0);
+
         Vector3 paddleVelocity = m_MotionData.Velocity;
         Vector3 paddleAccel = m_MotionData.Acceleration;
-        
-        ContactPoint cp = c.GetContact(0);
-        
         Vector3 Vin = GetComponent<Kinematics>().storedVelocity;
+        
+        ApplyBouncePhysics(paddleVelocity, paddleAccel, cp, Vin);
 
+        //TODO: add coroutine to enable apex detection 
+
+        // Determine if collision should be counted as an active bounce
+        if (paddleVelocity.magnitude < 0.05f)
+        {
+            isBouncing = false;
+        }
+        else
+        {
+            isBouncing = true;
+            DeclareBounce(c);
+            GetComponent<BounceSoundPlayer>().PlayBounceSound();
+        }
+
+        // DEBUGGING
+        debugvelocitycollision(paddleVelocity, rigidBody.velocity, paddleAccel);
+    }
+
+    // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.
+    void ApplyBouncePhysics(Vector3 paddleVelocity, Vector3 paddleAccel, ContactPoint cp, Vector3 Vin)
+    {
         // Get reflected bounce, with energy transfer
         Vector3 Vreflected = GetComponent<Kinematics>().GetReflectionDamped(Vin, cp.normal, 0.8f);
         if (GlobalControl.Instance.condition == Condition.REDUCED)
@@ -131,21 +153,6 @@ public class Ball : MonoBehaviour
         {
             rigidBody.velocity += currentBounceModification;
         }
-
-        // Determine if collision should be counted as an active bounce
-        if (paddleVelocity.magnitude < 0.05f)
-        {
-            isBouncing = false;
-        }
-        else
-        {
-            isBouncing = true;
-            DeclareBounce(c);
-            GetComponent<BounceSoundPlayer>().PlayBounceSound();
-        }
-
-        // DEBUGGING
-        debugvelocitycollision(paddleVelocity, rigidBody.velocity, paddleAccel);
     }
 
     // for debugging only. remove later.

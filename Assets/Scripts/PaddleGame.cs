@@ -107,7 +107,7 @@ public class PaddleGame : MonoBehaviour {
         }
     }
 
-    void FixedUpdate()
+    void Update()
     {
         // Data handler. Record continuous ball & paddle info
         GatherContinuousData();

@@ -242,9 +242,9 @@ public class DataHandler : MonoBehaviour
             header.Add("Visit");
             header.Add("Timestamp");
             header.Add("Paused?");
-            header.Add("Ball Position X");
-            header.Add("Ball Position Y");
-            header.Add("Ball Position Z");
+            header.Add("Ball Velocity X");
+            header.Add("Ball Velocity Y");
+            header.Add("Ball Velocity Z");
             header.Add("Paddle Velocity Magnitude");
             header.Add("Paddle Velocity X");
             header.Add("Paddle Velocity Y");

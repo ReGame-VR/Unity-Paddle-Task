@@ -333,7 +333,7 @@ public class PaddleGame : MonoBehaviour {
         bsp.PlaySuccessSound();
 
         b.TurnBallGreen();
-        StartCoroutine(b.TurnBallWhiteCR(0.6f));
+        StartCoroutine(b.TurnBallWhiteCR(0.3f));
     }
 
     // Grab ball and paddle info and record it. Should be called once per frame

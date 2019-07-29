@@ -21,7 +21,7 @@ public class Kinematics : MonoBehaviour
     public Quaternion storedRotation;
 
     public CircularBuffer velocityBuffer;
-    const int CIRCULAR_BUFFER_SIZE = 11;
+    const int CIRCULAR_BUFFER_SIZE = 8;
 
     // Start is called before the first frame update
     void Awake()
@@ -127,7 +127,7 @@ public class Kinematics : MonoBehaviour
         {
             ConsecPositiveVel &= (buffer[i].y > 0);
         }     
-        for (int i = (CIRCULAR_BUFFER_SIZE - 6); i < (CIRCULAR_BUFFER_SIZE - 1); i++)
+        for (int i = (CIRCULAR_BUFFER_SIZE - 3); i < (CIRCULAR_BUFFER_SIZE - 1); i++)
         {
             ConsecNegativeVel &= (buffer[i].y < 0);
         }

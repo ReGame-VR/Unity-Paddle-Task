@@ -366,6 +366,7 @@ public class PaddleGame : MonoBehaviour {
     {
         if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.TASK)
         {
+            // This mode is currently not enabled 
             // Move the target to a different location
             GetComponent<ExplorationMode>().MoveTargetLine();
         }
@@ -373,6 +374,7 @@ public class PaddleGame : MonoBehaviour {
         {
             // Change game physics
             GetComponent<ExplorationMode>().ModifyBouncePhysics();
+            GetComponent<ExplorationMode>().IndicatePhysicsChange();
         }
         else
         {

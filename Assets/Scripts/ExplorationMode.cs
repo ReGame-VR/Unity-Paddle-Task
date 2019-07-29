@@ -27,6 +27,8 @@ public class ExplorationMode : MonoBehaviour {
     [Tooltip("The list of vectors that will affect the bounce height of the ball in a forced exploration game.")]
     public List<Vector3> bounceModifications;
 
+    private int TLColorCounter = 0;
+
     void Start()
     {
         ball.GetComponent<Ball>().SetBounceModification(bounceModifications[0]);
@@ -73,5 +75,13 @@ public class ExplorationMode : MonoBehaviour {
         ball.GetComponent<Ball>().SetBounceModification(bounceModifications[newModIndex]);
 
         prevBounceModIndex = newModIndex;
+    }
+
+    // Visual indicator for new bounce physics
+    public void IndicatePhysicsChange()
+    {
+        TLColorCounter++;
+        int next = TLColorCounter % GetComponent<MeshRenderer>().materials.Length;
+        targetLine.GetComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().materials[next];
     }
 }

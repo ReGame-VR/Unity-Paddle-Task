@@ -81,7 +81,7 @@ public class ExplorationMode : MonoBehaviour {
     public void IndicatePhysicsChange()
     {
         TLColorCounter++;
-        int next = TLColorCounter % GetComponent<MeshRenderer>().materials.Length;
+        int next = TLColorCounter % targetLine.GetComponent<MeshRenderer>().materials.Length;
         targetLine.GetComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().materials[next];
     }
 }

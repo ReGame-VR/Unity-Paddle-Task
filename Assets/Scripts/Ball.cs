@@ -67,12 +67,6 @@ public class Ball : MonoBehaviour
     {
         // send updated information to physicstracker
         m_MotionData.mUpdate(m_ToTrack.position, m_ToTrack.rotation, Time.smoothDeltaTime);
-
-        // Test apex detection
-        if (GetComponent<Kinematics>().ReachedApex())
-        {
-            Debug.Log("Reached apex");
-        }
     }
 
     void OnCollisionEnter(Collision c)
@@ -109,7 +103,7 @@ public class Ball : MonoBehaviour
         
         ApplyBouncePhysics(paddleVelocity, paddleAccel, cp, Vin);
 
-        //TODO: add coroutine to enable apex detection 
+        CheckApexSuccess();
 
         // Determine if collision should be counted as an active bounce
         if (paddleVelocity.magnitude < 0.05f)
@@ -125,6 +119,22 @@ public class Ball : MonoBehaviour
 
         // DEBUGGING
         debugvelocitycollision(paddleVelocity, rigidBody.velocity, paddleAccel);
+    }
+
+    void CheckApexSuccess()
+    {
+        StartCoroutine(CheckForApex());
+    }
+
+    IEnumerator CheckForApex()
+    {
+        yield return new WaitWhile( () => !GetComponent<Kinematics>().ReachedApex());
+
+        float apexHeight = rigidBody.position.y;
+        if (gameScript.HeightInsideTargetWindow(apexHeight))
+        {
+            gameScript.IndicateSuccessBall();
+        }
     }
 
     // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.
@@ -253,7 +263,7 @@ public class Ball : MonoBehaviour
         GetComponent<MeshRenderer>().material = ballMat;
     }
 
-    public IEnumerator TurnBallWhiteCR(float time)
+    public IEnumerator TurnBallWhiteCR(float time = 0.0f)
     {
         if (inTurnBallWhiteCR)
         {
@@ -263,10 +273,11 @@ public class Ball : MonoBehaviour
         inTurnBallWhiteCR = true;
 
         TurnBallWhite();
+
         inTurnBallWhiteCR = false;
     }
 
-    public IEnumerator TurnBallGreenCR(float time)
+    public IEnumerator TurnBallGreenCR(float time = 0.0f)
     {
         yield return new WaitForSeconds(time);
         TurnBallGreen();

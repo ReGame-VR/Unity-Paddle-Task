@@ -315,7 +315,7 @@ public class PaddleGame : MonoBehaviour {
             curScore = curScore + 10;
             numAccurateBounces++;
 
-            IndicateSuccessBall();
+            // IndicateSuccessBall(); // temporariliy disabled while testing apex coroutines in Ball
         }
 
         //Record Data from last bounce
@@ -325,13 +325,14 @@ public class PaddleGame : MonoBehaviour {
     }
 
     // Turns ball green briefly and plays success sound.
-    void IndicateSuccessBall()
+    public void IndicateSuccessBall()
     {
         Ball b = GameObject.Find("Ball").GetComponent<Ball>();
         BallSoundPlayer bsp = GameObject.Find("[SteamVR]").GetComponent<BallSoundPlayer>();
 
-        StartCoroutine(bsp.PlaySuccessSound(0.1f));
-        StartCoroutine(b.TurnBallGreenCR(0.1f));
+        bsp.PlaySuccessSound();
+
+        b.TurnBallGreen();
         StartCoroutine(b.TurnBallWhiteCR(0.6f));
     }
 

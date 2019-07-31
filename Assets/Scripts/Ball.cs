@@ -118,7 +118,7 @@ public class Ball : MonoBehaviour
         }
 
         // DEBUGGING
-        debugvelocitycollision(paddleVelocity, rigidBody.velocity, paddleAccel);
+        debugvelocitycollision(cp.normal);
     }
 
     void CheckApexSuccess()
@@ -140,11 +140,14 @@ public class Ball : MonoBehaviour
     // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.
     void ApplyBouncePhysics(Vector3 paddleVelocity, Vector3 paddleAccel, ContactPoint cp, Vector3 Vin)
     {
+        // Reduce the effects of the paddle tilt so the ball doesn't bounce everywhere
+        Vector3 reducedNormal = ProvideLeewayFromUp(cp.normal);
+
         // Get reflected bounce, with energy transfer
-        Vector3 Vreflected = GetComponent<Kinematics>().GetReflectionDamped(Vin, cp.normal, 0.8f);
+        Vector3 Vreflected = GetComponent<Kinematics>().GetReflectionDamped(Vin, reducedNormal, 0.8f);
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
-            Vreflected = LimitDeviationFromUp(Vreflected);
+            Vreflected = LimitDeviationFromUp(Vreflected, GlobalControl.Instance.degreesOfFreedom);
         }
 
         // Apply paddle velocity
@@ -165,16 +168,28 @@ public class Ball : MonoBehaviour
         }
     }
 
+    Vector3 ProvideLeewayFromUp(Vector3 n)
+    {
+        float degreesOfTilt = Vector3.Angle(Vector3.up, n);
+        float limit = 1.6f; // feels pretty realistic through testing
+        if (degreesOfTilt < limit)
+        {
+            degreesOfTilt /= limit;
+        }
+        else
+        {
+            degreesOfTilt -= limit;
+        }
+        return LimitDeviationFromUp(n, degreesOfTilt);
+    }
+
     // for debugging only. remove later.
-    void debugvelocitycollision(Vector3 paddlev, Vector3 outv, Vector3 paddlea)
+    void debugvelocitycollision(Vector3 n)
     {
         DebuggerDisplay dd = GameObject.Find("Debugger Display").GetComponent<DebuggerDisplay>();
 
-        dd.Display("Paddle vy: " + paddlev.y.ToString() + "\nPaddle ay: " + paddlea.y.ToString(), 1);
-        dd.Display("Ball inv: " + GetComponent<Kinematics>().storedVelocity +
-            "  mag: " + GetComponent<Kinematics>().storedVelocity.magnitude +
-            "\nBall outv: " + outv + "   mag: " + outv.magnitude, 2);
-        dd.Display("currentbouncemod: " + currentBounceModification, 3);
+        dd.Display("paddle tilt deg: " + (Vector3.Angle(Vector3.up, n)), 1);
+
     }
 
     // Try to declare that the ball has been bounced. If the ball
@@ -212,22 +227,19 @@ public class Ball : MonoBehaviour
 
     // If in Reduced condition, returns the vector of the same original magnitude and same x-z direction
     // but with adjusted height so that the angle does not exceed the desired degrees of freedom
-    public Vector3 LimitDeviationFromUp(Vector3 v)
+    public Vector3 LimitDeviationFromUp(Vector3 v, float degreesOfFreedom)
     {
-        if (Vector3.Angle(Vector3.up, v) <= GlobalControl.Instance.degreesOfFreedom)
+        if (Vector3.Angle(Vector3.up, v) <= degreesOfFreedom)
         {
             return v;
         }
 
         float bounceMagnitude = v.magnitude;
-
-        float yReduced = bounceMagnitude * Mathf.Cos(GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
-
-        float xzReducedMagnitude = bounceMagnitude * Mathf.Sin(GlobalControl.Instance.degreesOfFreedom * Mathf.Deg2Rad);
+        float yReduced = bounceMagnitude * Mathf.Cos(degreesOfFreedom * Mathf.Deg2Rad);
+        float xzReducedMagnitude = bounceMagnitude * Mathf.Sin(degreesOfFreedom * Mathf.Deg2Rad);
         Vector3 xzReduced = new Vector3(v.x, 0, v.z).normalized * xzReducedMagnitude;
 
         Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z);
-
         return modifiedBounceVelocity;
     }
 
@@ -282,5 +294,4 @@ public class Ball : MonoBehaviour
         yield return new WaitForSeconds(time);
         TurnBallGreen();
     }
-
 }

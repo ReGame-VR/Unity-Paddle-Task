@@ -26,6 +26,9 @@ public class GlobalControl : MonoBehaviour {
     // Target Line Height
     public TargetHeight targetHeightPreference = TargetHeight.DEFAULT;
 
+    // Target Line Success Threshold
+    public float targetRadius = 0.05f;
+
     // Test period of this instance
     public Session session = Session.BASELINE;
 

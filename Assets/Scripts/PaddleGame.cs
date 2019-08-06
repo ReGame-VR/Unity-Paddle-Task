@@ -31,7 +31,7 @@ public class PaddleGame : MonoBehaviour {
 
     [Tooltip("The radius of the target line area. Example: If this is 0.05, the target line will be 0.10 thick")]
     [SerializeField]
-    private float targetRadius = 0.05f;
+    private float targetRadius = 0.05f; // get from GlobalControl
 
     // Current number of bounces that the player has acheieved in this trial
     private int numBounces = 0;
@@ -94,6 +94,7 @@ public class PaddleGame : MonoBehaviour {
 
         // Calibrate the target line to be at the player's eye level
         SetTargetLineHeight();
+        targetRadius = GlobalControl.Instance.targetRadius;
 
         maxTrials = GlobalControl.Instance.maxTrialCount;
 

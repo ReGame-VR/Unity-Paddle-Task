@@ -53,13 +53,24 @@ public class MenuController : MonoBehaviour {
     }
 
     // Record how many seconds the ball should hover for upon reset
-    public void UpdateHoverTime(float sValue)
+    public void UpdateHoverTime(float value)
     {
         Slider s = GameObject.Find("Ball Respawn Time Slider").GetComponent<Slider>();
         Text sliderText = GameObject.Find("Time Indicator").GetComponent<Text>();
 
-        sliderText.text = (sValue + " seconds");
-        GlobalControl.Instance.ballResetHoverSeconds = (int)sValue;
+        sliderText.text = value + " seconds";
+        GlobalControl.Instance.ballResetHoverSeconds = (int)value;
+    }
+
+    // Set the window for how far the ball can be from the target line and still count as a success
+    public void UpdateTargetRadius(float value)
+    {
+        Slider s = GameObject.Find("Success Threshold Slider").GetComponent<Slider>(); 
+        Text sliderText = GameObject.Find("Width Indicator").GetComponent<Text>();
+
+        float targetThresholdMeters = 0.01f * value; 
+        sliderText.text = "+/- " + targetThresholdMeters.ToString("0.00") + " meters";
+        GlobalControl.Instance.targetRadius = targetThresholdMeters;
     }
 
     // Records the Condition from the dropdown menu

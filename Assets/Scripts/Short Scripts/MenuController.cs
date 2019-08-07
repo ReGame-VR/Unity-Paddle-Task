@@ -20,6 +20,9 @@ public class MenuController : MonoBehaviour {
         GlobalControl.Instance.numPaddles = 1;
         GlobalControl.Instance.participantID = "";
         GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.NONE;
+
+        // Load saved preferences
+        GetComponent<MenuPlayerPrefs>().LoadAllPreferences();
     }
 
     /// <summary>
@@ -41,6 +44,7 @@ public class MenuController : MonoBehaviour {
     public void RecordDegrees()
     {
         GlobalControl.Instance.degreesOfFreedom = (GlobalControl.Instance.condition == Condition.REDUCED) ? 0.0f : 90.0f;
+        // GetComponent<MenuPlayerPrefs>().SaveDOF(GlobalControl.Instance.degreesOfFreedom);
     }
 
     /// <summary>
@@ -50,6 +54,7 @@ public class MenuController : MonoBehaviour {
     public void RecordMaxTrials(string arg0)
     {
         GlobalControl.Instance.maxTrialCount = ((arg0 == "") ? 0 : int.Parse(arg0));
+        GetComponent<MenuPlayerPrefs>().SaveMaxTrials(arg0);
     }
 
     // Record how many seconds the ball should hover for upon reset
@@ -60,6 +65,8 @@ public class MenuController : MonoBehaviour {
 
         sliderText.text = value + " seconds";
         GlobalControl.Instance.ballResetHoverSeconds = (int)value;
+
+        GetComponent<MenuPlayerPrefs>().SaveHoverTime(value);
     }
 
     // Set the window for how far the ball can be from the target line and still count as a success
@@ -71,6 +78,8 @@ public class MenuController : MonoBehaviour {
         float targetThresholdMeters = 0.01f * value; 
         sliderText.text = "+/- " + targetThresholdMeters.ToString("0.00") + " meters";
         GlobalControl.Instance.targetRadius = targetThresholdMeters;
+
+        GetComponent<MenuPlayerPrefs>().SaveTargetRadius(value);
     }
 
     // Records the Condition from the dropdown menu
@@ -92,6 +101,8 @@ public class MenuController : MonoBehaviour {
         {
             GlobalControl.Instance.condition = Condition.TARGETLINE;
         }
+
+        // GetComponent<MenuPlayerPrefs>().SaveCondition(arg0);
     }
 
     // Records the functional Exploration mode, tied to Condition dropdown menu
@@ -105,6 +116,8 @@ public class MenuController : MonoBehaviour {
         {
             GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.NONE;
         }
+
+        // GetComponent<MenuPlayerPrefs>().SaveExplorationMode(arg0);
     }
 
     // Records the Session from the dropdown menu
@@ -126,6 +139,8 @@ public class MenuController : MonoBehaviour {
         {
             GlobalControl.Instance.session = Session.TRANSFER;
         }
+
+        // GetComponent<MenuPlayerPrefs>().SaveSession(arg0);
     }
 
     // Records the Target Line height preference from the dropdown menu
@@ -143,12 +158,14 @@ public class MenuController : MonoBehaviour {
         {
             GlobalControl.Instance.targetHeightPreference = TargetHeight.RAISED;
         }
+
+        //GetComponent<MenuPlayerPrefs>().SaveTargetHeight(arg0);
     }
 
     // Records the number of paddles from the dropdown nmenu
-    public void RecordNumPaddles(int choice)
+    public void RecordNumPaddles(int arg0)
     {
-        if (choice == 0)
+        if (arg0 == 0)
         {
             GlobalControl.Instance.numPaddles = 1;
         }
@@ -156,6 +173,8 @@ public class MenuController : MonoBehaviour {
         {
             GlobalControl.Instance.numPaddles = 2;
         }
+
+        // GetComponent<MenuPlayerPrefs>().SaveNumPaddles(arg0);
     }
 
     /// <summary>

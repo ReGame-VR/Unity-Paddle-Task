@@ -22,13 +22,8 @@ public class MenuPlayerPrefs : MonoBehaviour
         //"exploration",
         //"session",
         "targetheight",
-        "numpaddles"
+        //"numpaddles"
     };
-
-    public void ResetPlayerPrefs()
-    {
-        PlayerPrefs.DeleteAll();
-    }
 
     // Public setters. Parameters should correspond to MenuController parameters for easy loading.
     public void SaveDOF(float giDOF)
@@ -81,12 +76,23 @@ public class MenuPlayerPrefs : MonoBehaviour
     {
         return PlayerPrefs.GetFloat("targetradius");
     }
-    public int LoadNumPaddles()
+
+
+    // Private methods to load PlayerPrefs into the menu. 
+    private void LoadMaxTrialsToMenu()
     {
-        return PlayerPrefs.GetInt("numpaddles");
+        if (PlayerPrefs.HasKey("maxtrials")) menuController.RecordMaxTrials(LoadMaxTrials()); 
+    }
+    private void LoadHoverTimeToMenu()
+    {
+        if (PlayerPrefs.HasKey("hovertime")) menuController.UpdateHoverTime(LoadHoverTime());
+    }
+    private void LoadTargetRadiusToMenu()
+    {
+        if (PlayerPrefs.HasKey("maxtrials")) menuController.UpdateTargetRadius(LoadTargetRadius());
     }
 
-
+    // Loads all saved preferences to the main menu
     public void LoadAllPreferences()
     {
         foreach (string pref in preferenceList) {
@@ -95,15 +101,13 @@ public class MenuPlayerPrefs : MonoBehaviour
                 switch (pref)
                 {
                     case "maxtrials":
-                        menuController.RecordMaxTrials(LoadMaxTrials());
+                        LoadMaxTrialsToMenu();
                         GameObject.Find("Number of Trials InputField").GetComponent<InputField>().text = LoadMaxTrials();
                         break;
                     case "hovertime":
-                        menuController.UpdateHoverTime(LoadHoverTime());
                         GameObject.Find("Ball Respawn Time Slider").GetComponent<Slider>().value = LoadHoverTime();
                         break;
                     case "targetradius":
-                        menuController.UpdateTargetRadius(LoadTargetRadius());
                         GameObject.Find("Success Threshold Slider").GetComponent<Slider>().value = LoadTargetRadius();
                         break;
                     default:
@@ -112,5 +116,11 @@ public class MenuPlayerPrefs : MonoBehaviour
                 }
             }
         }
+    }
+
+    // Clears all saved main menu preferences
+    public void ResetPlayerPrefs()
+    {
+        PlayerPrefs.DeleteAll();
     }
 }

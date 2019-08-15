@@ -29,5 +29,11 @@ public class InputManager : MonoBehaviour
         {
             GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().SetTargetLineHeight();
         }
+
+        // Quit application
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 }

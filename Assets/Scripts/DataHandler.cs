@@ -21,6 +21,8 @@ public class DataHandler : MonoBehaviour
     /// </summary>
     void OnDisable()
     {
+        if (pid == "") pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + Time.time;
+
         WriteTrialFile();
         WriteBounceFile();
         WriteContinuousFile();
@@ -109,7 +111,7 @@ public class DataHandler : MonoBehaviour
         public readonly Vector3 ballPos;
         public readonly Vector3 paddleVelocity;
         public readonly Vector3 paddleAccel;
-        
+
 
         public ContinuousData(Condition condition, Session session, float degreesOfFreedom, float time, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
         {
@@ -130,8 +132,9 @@ public class DataHandler : MonoBehaviour
     private void WriteTrialFile()
     {
         // Write all entries in data list to file
-        Directory.CreateDirectory(@"Data/" + pid);
-        using (CsvFileWriter writer = new CsvFileWriter(@"Data/" + pid + "/" + pid + "Trial.csv"))
+        string directory = "Data/" + pid;
+        Directory.CreateDirectory(@directory);
+        using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + pid + "Trial.csv"))
         {
             Debug.Log("Writing trial data to file");
 
@@ -139,7 +142,7 @@ public class DataHandler : MonoBehaviour
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
             header.Add("Time");
-            header.Add("Condition");      
+            header.Add("Condition");
             header.Add("Visit");
             header.Add("Trial #");
             header.Add("# of Consecutive Bounces");
@@ -151,7 +154,7 @@ public class DataHandler : MonoBehaviour
             foreach (TrialData d in trialData)
             {
                 CsvRow row = new CsvRow();
-                
+
                 row.Add(pid);
                 row.Add(d.time.ToString());
                 row.Add(d.condition.ToString());
@@ -171,15 +174,16 @@ public class DataHandler : MonoBehaviour
     private void WriteBounceFile()
     {
         // Write all entries in data list to file
-        Directory.CreateDirectory(@"Data/" + pid);
-        using (CsvFileWriter writer = new CsvFileWriter(@"Data/" + pid + "/" + pid + "Bounce.csv"))
+        string directory = "Data/" + pid;
+        Directory.CreateDirectory(@directory);
+        using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + pid + "Bounce.csv"))
         {
             Debug.Log("Writing bounce data to file");
 
             // write header
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
-            header.Add("Condition");  
+            header.Add("Condition");
             header.Add("Visit");
             header.Add("Timestamp");
             header.Add("Trial #");
@@ -230,15 +234,16 @@ public class DataHandler : MonoBehaviour
     private void WriteContinuousFile()
     {
         // Write all entries in data list to file
-        Directory.CreateDirectory(@"Data/" + pid);
-        using (CsvFileWriter writer = new CsvFileWriter(@"Data/" + pid + "/" + pid + "Continuous.csv"))
+        string directory = "Data/" + pid;
+        Directory.CreateDirectory(@directory);
+        using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + pid + "Continuous.csv"))
         {
             Debug.Log("Writing continuous data to file");
 
             // write header
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
-            header.Add("Condition");     
+            header.Add("Condition");
             header.Add("Visit");
             header.Add("Timestamp");
             header.Add("Paused?");
@@ -282,19 +287,4 @@ public class DataHandler : MonoBehaviour
             }
         }
     }
-
-/* TODO determine if DoF functionality should include angles between 0 and 90 deg
-    /// <summary>
-    /// Formats the condition to reflect reduced degrees of freedom, if applicable
-    ///
-    private string FormatConditionString(Condition c, float d)
-    {
-        string buffer = c.ToString();
-        if (c == Condition.REDUCED)
-        {
-            buffer += " " + d + " degrees";
-        }
-        return buffer;
-    }
-*/
 }

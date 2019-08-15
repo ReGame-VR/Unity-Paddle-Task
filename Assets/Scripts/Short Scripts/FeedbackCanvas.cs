@@ -12,19 +12,20 @@ public class FeedbackCanvas : MonoBehaviour {
     private Text scoreText;
 
     // High score for score
-    [SerializeField]
-    private Text hiScoreText;
+    //[SerializeField]
+    //private Text hiScoreText;
 
     // High score for bounces
-    [SerializeField]
-    private Text hiBounceText;
+    //[SerializeField]
+    //private Text hiBounceText;
 
     // The high scores for this game
-    private float hiScore = 0;
-    private int hiBounce = 0;
+    //private float hiScore = 0;
+    //private int hiBounce = 0;
 
     public void UpdateScoreText(float curScore, int curBounces)
     {
+        /**
         //Update high scores
         if (curScore > hiScore)
         {
@@ -36,6 +37,7 @@ public class FeedbackCanvas : MonoBehaviour {
             hiBounce = curBounces;
             hiBounceText.text = hiBounce.ToString();
         }
+        **/
 
         // Update trial scores
         scoreText.text = curScore.ToString();

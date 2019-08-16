@@ -66,6 +66,7 @@ public class MenuPlayerPrefs : MonoBehaviour
     // Public getters. Should return parameters corresponding with MenuController functions
     public string LoadMaxTrials()
     {
+        Debug.Log("\""+PlayerPrefs.GetString("maxtrials")+"\"");
         return PlayerPrefs.GetString("maxtrials");
     }
     public float LoadHoverTime()
@@ -81,7 +82,8 @@ public class MenuPlayerPrefs : MonoBehaviour
     // Private methods to load PlayerPrefs into the menu. 
     private void LoadMaxTrialsToMenu()
     {
-        if (PlayerPrefs.HasKey("maxtrials")) menuController.RecordMaxTrials(LoadMaxTrials()); 
+        string maxtrials = LoadMaxTrials();
+        if (PlayerPrefs.HasKey("maxtrials")) menuController.RecordMaxTrials(maxtrials); 
     }
     private void LoadHoverTimeToMenu()
     {
@@ -102,13 +104,12 @@ public class MenuPlayerPrefs : MonoBehaviour
                 {
                     case "maxtrials":
                         LoadMaxTrialsToMenu();
-                        GameObject.Find("Number of Trials InputField").GetComponent<InputField>().text = LoadMaxTrials();
                         break;
                     case "hovertime":
-                        GameObject.Find("Ball Respawn Time Slider").GetComponent<Slider>().value = LoadHoverTime();
+                        LoadHoverTimeToMenu();
                         break;
                     case "targetradius":
-                        GameObject.Find("Success Threshold Slider").GetComponent<Slider>().value = LoadTargetRadius();
+                        LoadTargetRadiusToMenu();
                         break;
                     default:
                         Debug.Log("Unknown PlayerPref param '" + pref + "'");
@@ -121,6 +122,9 @@ public class MenuPlayerPrefs : MonoBehaviour
     // Clears all saved main menu preferences
     public void ResetPlayerPrefs()
     {
+        Debug.Log("Reset Menu Preferences");
         PlayerPrefs.DeleteAll();
+        // TODO 
+        // SetDefaultSettings();
     }
 }

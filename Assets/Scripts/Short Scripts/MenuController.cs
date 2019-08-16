@@ -53,7 +53,7 @@ public class MenuController : MonoBehaviour {
     /// <param name="arg0"></param>
     public void RecordMaxTrials(string arg0)
     {
-        GlobalControl.Instance.maxTrialCount = ((arg0 == "") ? 0 : int.Parse(arg0));
+        GlobalControl.Instance.maxTrialCount = ((arg0 == null || arg0 == "") ? 0 : int.Parse(arg0));
         GetComponent<MenuPlayerPrefs>().SaveMaxTrials(arg0);
     }
 

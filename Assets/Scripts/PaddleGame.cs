@@ -71,9 +71,6 @@ public class PaddleGame : MonoBehaviour {
     private bool inPlayDropSoundRoutine = false;
     private int ballResetHoverSeconds = 3;
 
-    // Keep track of max number of trials allowed for this instance
-    private int maxTrials = 0;
-
     // Reference to Paddle PhysicsTracker via Ball script
     PhysicsTracker m_MotionData;
 
@@ -95,8 +92,6 @@ public class PaddleGame : MonoBehaviour {
         // Calibrate the target line to be at the player's eye level
         SetTargetLineHeight();
         targetRadius = GlobalControl.Instance.targetRadius;
-
-        maxTrials = GlobalControl.Instance.maxTrialCount;
 
         if (GlobalControl.Instance.numPaddles > 1)
         {
@@ -126,11 +121,7 @@ public class PaddleGame : MonoBehaviour {
         HoverOnReset();
 
         // Check if game should end
-        if ((maxTrials > 0) && (trialNum > maxTrials))
-        {
-            Debug.Log("Max trials exceeded, quitting");
-            Application.Quit();
-        }
+        CheckEndCondition();
     }
 
     // Sets Target Line height based on HMD eye level and target position preference
@@ -416,6 +407,20 @@ public class PaddleGame : MonoBehaviour {
         else
         {
             return rightPaddle;
+        }
+    }
+
+    void CheckEndCondition()
+    {
+        if (GlobalControl.Instance.GetTimeLimitSeconds() == 0)
+        {
+            return;
+        }
+
+        if (GlobalControl.Instance.GetTimeElapsed() > GlobalControl.Instance.GetTimeLimitSeconds())
+        {
+            Debug.Log("Time limit of " + GlobalControl.Instance.GetTimeLimitSeconds() + " seconds has passed. Quitting");
+            Application.Quit();
         }
     }
 

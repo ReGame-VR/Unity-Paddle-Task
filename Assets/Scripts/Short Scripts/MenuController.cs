@@ -51,9 +51,9 @@ public class MenuController : MonoBehaviour {
     /// Records an int representing max number of trials allowed for this instance.
     /// </summary>
     /// <param name="arg0"></param>
-    public void RecordMaxTrials(string arg0)
+    public void RecordMaxTrials(int arg0)
     {
-        GlobalControl.Instance.maxTrialCount = ((arg0 == null || arg0 == "") ? 0 : int.Parse(arg0));
+        GlobalControl.Instance.maxTrialTime = arg0;
         GetComponent<MenuPlayerPrefs>().SaveMaxTrials(arg0);
     }
 

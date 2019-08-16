@@ -35,8 +35,11 @@ public class GlobalControl : MonoBehaviour {
     // Degrees of Freedom for ball bounce for this instance
     public float degreesOfFreedom = 90;
 
-    // Number of trials allowed, after which the game will end
-    public int maxTrialCount = 0;
+    // Time limit in minutes after beginning, after which the game will end
+    public int maxTrialTime = 0;
+
+    // Time elapsed while game is not paused, in seconds 
+    public float timeElapsed = 0;
 
     // Duration for which ball should be held before dropping upon reset
     public int ballResetHoverSeconds = 3;
@@ -66,5 +69,23 @@ public class GlobalControl : MonoBehaviour {
         {
             Destroy(gameObject);
         }
+    }
+
+    private void Update()
+    {
+        if (!paused)
+        {
+            timeElapsed += Time.deltaTime;
+        }
+    }
+    
+    public float GetTimeLimitSeconds()
+    {
+        return maxTrialTime * 60.0f;
+    }
+
+    public float GetTimeElapsed()
+    {
+        return timeElapsed;
     }
 }

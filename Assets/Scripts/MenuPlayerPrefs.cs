@@ -30,9 +30,9 @@ public class MenuPlayerPrefs : MonoBehaviour
     {
         PlayerPrefs.SetFloat("dof", giDOF);
     }
-    public void SaveMaxTrials(string giMaxTrials)
+    public void SaveMaxTrials(int giMaxTrials)
     {
-        PlayerPrefs.SetString("maxtrials", giMaxTrials);
+        PlayerPrefs.SetInt("maxtrials", giMaxTrials);
     }
     public void SaveHoverTime(float sliderValue)
     {
@@ -64,10 +64,9 @@ public class MenuPlayerPrefs : MonoBehaviour
     }
 
     // Public getters. Should return parameters corresponding with MenuController functions
-    public string LoadMaxTrials()
+    public int LoadMaxTrials()
     {
-        Debug.Log("\""+PlayerPrefs.GetString("maxtrials")+"\"");
-        return PlayerPrefs.GetString("maxtrials");
+        return PlayerPrefs.GetInt("maxtrials");
     }
     public float LoadHoverTime()
     {
@@ -82,8 +81,7 @@ public class MenuPlayerPrefs : MonoBehaviour
     // Private methods to load PlayerPrefs into the menu. 
     private void LoadMaxTrialsToMenu()
     {
-        string maxtrials = LoadMaxTrials();
-        if (PlayerPrefs.HasKey("maxtrials")) menuController.RecordMaxTrials(maxtrials); 
+        if (PlayerPrefs.HasKey("maxtrials")) menuController.RecordMaxTrials(LoadMaxTrials()); 
     }
     private void LoadHoverTimeToMenu()
     {

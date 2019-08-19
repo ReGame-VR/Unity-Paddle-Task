@@ -13,6 +13,7 @@ public class DataHandler : MonoBehaviour
     List<TrialData> trialData = new List<TrialData>();
     List<BounceData> bounceData = new List<BounceData>();
     List<ContinuousData> continuousData = new List<ContinuousData>();
+    HeaderData headerData;
 
     private string pid = GlobalControl.Instance.participantID;
 
@@ -21,29 +22,38 @@ public class DataHandler : MonoBehaviour
     /// </summary>
     void OnDisable()
     {
-        if (pid == "") pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + Time.time;
+        if (pid == null | pid == "" | pid.Length == 0)
+        {
+            pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + System.DateTime.Now.Millisecond.ToString();
+            Debug.Log("Empty PID, creating folder " + pid);
+        }
 
-        WriteTrialFile();
+            WriteTrialFile();
         WriteBounceFile();
         WriteContinuousFile();
     }
 
     // Records trial data into the data list
-    public void recordTrial(Condition condition, Session session, float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
+    public void recordTrial(float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
     {
-        trialData.Add(new TrialData(condition, session, degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces));
+        trialData.Add(new TrialData(degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces));
     }
 
     // Records bounce data into the data list
-    public void recordBounce(Condition condition, Session session, float degreesOfFreedom, float time, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, Vector3 paddleVelocity, Vector3 paddleAccel)
+    public void recordBounce(float degreesOfFreedom, float time, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel)
     {
-        bounceData.Add(new BounceData(condition, session, degreesOfFreedom, time, trialNum, bounceNum, bounceNumTotal, apexTargetError, paddleVelocity, paddleAccel));
+        bounceData.Add(new BounceData(degreesOfFreedom, time, trialNum, bounceNum, bounceNumTotal, apexTargetError, success, paddleVelocity, paddleAccel));
     }
 
     // Records continuous ball and paddle data into the data list
-    public void recordContinuous(Condition condition, Session session, float degreesOfFreedom, float time, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
+    public void recordContinuous(float degreesOfFreedom, float time, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
     {
-        continuousData.Add(new ContinuousData(condition, session, degreesOfFreedom, time, paused, ballPos, paddleVelocity, paddleAccel));
+        continuousData.Add(new ContinuousData(degreesOfFreedom, time, paused, ballPos, paddleVelocity, paddleAccel));
+    }
+
+    public void recordHeaderInfo(Condition c, Session s, int maxtime, float htime, float tradius)
+    {
+        headerData = new HeaderData(c, s, maxtime, htime, tradius);
     }
 
     /// <summary>
@@ -53,17 +63,14 @@ public class DataHandler : MonoBehaviour
     /// </summary>
     class TrialData
     {
-        public readonly Condition condition;
-        public readonly Session session;
         public readonly float degreesOfFreedom;
         public readonly float time;
         public readonly int trialNum;
         public readonly int numBounces;
         public readonly int numAccurateBounces;
 
-        public TrialData(Condition condition, Session session, float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
+        public TrialData(float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
         {
-            this.condition = condition;
             this.degreesOfFreedom = degreesOfFreedom;
             this.time = time;
             this.trialNum = trialNum;
@@ -74,27 +81,25 @@ public class DataHandler : MonoBehaviour
 
     class BounceData
     {
-        public readonly Condition condition;
-        public readonly Session session;
         public readonly float degreesOfFreedom;
         public readonly float time;
         public readonly int trialNum;
         public readonly int bounceNum;
         public readonly int bounceNumTotal;
         public readonly float apexTargetError;
+        public readonly bool success;
         public readonly Vector3 paddleVelocity;
         public readonly Vector3 paddleAccel;
 
-        public BounceData(Condition condition, Session session, float degreesOfFreedom, float time, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, Vector3 paddleVelocity, Vector3 paddleAccel)
+        public BounceData(float degreesOfFreedom, float time, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel)
         {
-            this.condition = condition;
-            this.session = session;
             this.degreesOfFreedom = degreesOfFreedom;
             this.time = time;
             this.trialNum = trialNum;
             this.bounceNum = bounceNum;
             this.bounceNumTotal = bounceNumTotal;
             this.apexTargetError = apexTargetError;
+            this.success = success;
             this.paddleVelocity = paddleVelocity;
             this.paddleAccel = paddleAccel;
         }
@@ -103,20 +108,15 @@ public class DataHandler : MonoBehaviour
 
     class ContinuousData
     {
-        public readonly Condition condition;
-        public readonly Session session;
         public readonly float degreesOfFreedom;
         public readonly float time;
         public readonly bool paused;
         public readonly Vector3 ballPos;
         public readonly Vector3 paddleVelocity;
         public readonly Vector3 paddleAccel;
-
-
-        public ContinuousData(Condition condition, Session session, float degreesOfFreedom, float time, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
+ 
+        public ContinuousData(float degreesOfFreedom, float time, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
         {
-            this.condition = condition;
-            this.session = session;
             this.degreesOfFreedom = degreesOfFreedom;
             this.time = time;
             this.paused = paused;
@@ -124,6 +124,55 @@ public class DataHandler : MonoBehaviour
             this.paddleVelocity = paddleVelocity;
             this.paddleAccel = paddleAccel;
         }
+    }
+
+    class HeaderData
+    {
+        public readonly Condition condition;
+        public readonly Session session;
+        public readonly int maxTrialTimeMin;
+        public readonly float hoverTime;
+        public readonly float targetRadius;
+
+        public HeaderData(Condition c, Session s, int maxtime, float htime, float tradius)
+        {
+            this.condition = c;
+            this.session = s;
+            this.maxTrialTimeMin = maxtime;
+            this.hoverTime = htime;
+            this.targetRadius = tradius;
+        }
+    }
+
+
+    private void WriteHeaderInfo(CsvFileWriter writer)
+    {
+        CsvRow c = new CsvRow();
+        c.Add("Condition");
+        c.Add(headerData.condition.ToString());
+
+        CsvRow s = new CsvRow();
+        s.Add("Session");
+        s.Add(headerData.session.ToString());
+
+        CsvRow maxtime = new CsvRow();
+        maxtime.Add("Time Limit (s)");
+        maxtime.Add(headerData.maxTrialTimeMin.ToString());
+
+        CsvRow hovertime = new CsvRow();
+        hovertime.Add("Ball Hover Time (s)");
+        hovertime.Add(headerData.hoverTime.ToString());
+
+        CsvRow trad = new CsvRow();
+        trad.Add("Target Line Success Radius (m)");
+        trad.Add(headerData.targetRadius.ToString());
+
+        writer.WriteRow(c);
+        writer.WriteRow(s);
+        writer.WriteRow(maxtime);
+        writer.WriteRow(hovertime);
+        writer.WriteRow(trad);
+        writer.WriteRow(new CsvRow());
     }
 
     /// <summary>
@@ -138,12 +187,13 @@ public class DataHandler : MonoBehaviour
         {
             Debug.Log("Writing trial data to file");
 
+            // write session data
+            WriteHeaderInfo(writer);
+
             // write header
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
             header.Add("Time");
-            header.Add("Condition");
-            header.Add("Visit");
             header.Add("Trial #");
             header.Add("# of Consecutive Bounces");
             header.Add("# of Accurate Bounces");
@@ -157,8 +207,6 @@ public class DataHandler : MonoBehaviour
 
                 row.Add(pid);
                 row.Add(d.time.ToString());
-                row.Add(d.condition.ToString());
-                row.Add(d.session.ToString());
                 row.Add(d.trialNum.ToString());
                 row.Add(d.numBounces.ToString());
                 row.Add(d.numAccurateBounces.ToString());
@@ -180,16 +228,18 @@ public class DataHandler : MonoBehaviour
         {
             Debug.Log("Writing bounce data to file");
 
+            // write session data
+            WriteHeaderInfo(writer);
+
             // write header
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
-            header.Add("Condition");
-            header.Add("Visit");
             header.Add("Timestamp");
             header.Add("Trial #");
             header.Add("# of Bounces");
             header.Add("Total # of Bounces");
             header.Add("Bounce Error");
+            header.Add("Apex Success");
             header.Add("PaddleVelocity Magnitude");
             header.Add("PaddleVelocity X");
             header.Add("PaddleVelocity Y");
@@ -207,13 +257,12 @@ public class DataHandler : MonoBehaviour
                 CsvRow row = new CsvRow();
 
                 row.Add(pid);
-                row.Add(d.condition.ToString());
-                row.Add(d.session.ToString());
                 row.Add(d.time.ToString());
                 row.Add(d.trialNum.ToString());
                 row.Add(d.bounceNum.ToString());
                 row.Add(d.bounceNumTotal.ToString());
                 row.Add(d.apexTargetError.ToString());
+                row.Add(d.success.ToString());
                 row.Add(d.paddleVelocity.magnitude.ToString());
                 row.Add(d.paddleVelocity.x.ToString());
                 row.Add(d.paddleVelocity.y.ToString());
@@ -240,11 +289,12 @@ public class DataHandler : MonoBehaviour
         {
             Debug.Log("Writing continuous data to file");
 
+            // write session data
+            WriteHeaderInfo(writer);
+
             // write header
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
-            header.Add("Condition");
-            header.Add("Visit");
             header.Add("Timestamp");
             header.Add("Paused?");
             header.Add("Ball Velocity X");
@@ -267,8 +317,6 @@ public class DataHandler : MonoBehaviour
                 CsvRow row = new CsvRow();
 
                 row.Add(pid);
-                row.Add(d.condition.ToString());
-                row.Add(d.session.ToString());
                 row.Add(d.time.ToString());
                 row.Add(d.paused ? "PAUSED" : "");
                 row.Add(d.ballPos.x.ToString());

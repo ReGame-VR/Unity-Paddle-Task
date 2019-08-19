@@ -60,9 +60,11 @@ public class PaddleGame : MonoBehaviour {
     // 0 degrees: ball can only bounce in y direction, 90 degrees: no reduction in range
     public float degreesOfFreedom;
 
-    // Trial Condition and Visit type
+    // This session information
     private Condition condition;
     private Session session;
+    private int maxTrialTime;
+    private float hoverTime;
 
     // Variables to keep track of resetting the ball after dropping to the ground
     GameObject paddle;
@@ -86,8 +88,13 @@ public class PaddleGame : MonoBehaviour {
         // Initialize Condition and Visit types
         condition             = GlobalControl.Instance.condition;
         session               = GlobalControl.Instance.session;
+        maxTrialTime          = GlobalControl.Instance.maxTrialTime;
+        hoverTime             = GlobalControl.Instance.ballResetHoverSeconds;
         degreesOfFreedom      = GlobalControl.Instance.degreesOfFreedom;
         ballResetHoverSeconds = GlobalControl.Instance.ballResetHoverSeconds;
+
+        // Record session data
+        GetComponent<DataHandler>().recordHeaderInfo(condition, session, maxTrialTime, hoverTime, targetRadius);
 
         // Calibrate the target line to be at the player's eye level
         SetTargetLineHeight();
@@ -285,7 +292,7 @@ public class PaddleGame : MonoBehaviour {
         GatherBounceData();
 
         // Record Trial Data from last trial
-        GetComponent<DataHandler>().recordTrial(condition, session, degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces);
+        GetComponent<DataHandler>().recordTrial(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces);
 
         trialNum++;
         numBounces = 0;
@@ -311,7 +318,7 @@ public class PaddleGame : MonoBehaviour {
         }
 
         //Record Data from last bounce
-        GetComponent<DataHandler>().recordBounce(condition, session, degreesOfFreedom, Time.time, trialNum, numBounces, numTotalBounces, apexTargetError, paddleBounceVelocity, paddleBounceAccel);
+        GetComponent<DataHandler>().recordBounce(degreesOfFreedom, Time.time, trialNum, numBounces, numTotalBounces, apexTargetError, apexSuccess, paddleBounceVelocity, paddleBounceAccel);
 
         bounceHeightList = new List<float>();
     }
@@ -337,8 +344,7 @@ public class PaddleGame : MonoBehaviour {
         Vector3 paddleVelocity = m_MotionData.Velocity;
         Vector3 paddleAccel    = m_MotionData.Acceleration;
 
-        GetComponent<DataHandler>().recordContinuous(condition, session, degreesOfFreedom, Time.time, 
-            GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
+        GetComponent<DataHandler>().recordContinuous(degreesOfFreedom, Time.time, GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
     }
 
     // Initialize paddle information to be recorded upon next bounce

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class MenuPlayerPrefs : MonoBehaviour
 {
-    private MenuController menuController;
+    public MenuController menuController;
 
     private void Start()
     {
@@ -29,38 +29,47 @@ public class MenuPlayerPrefs : MonoBehaviour
     public void SaveDOF(float giDOF)
     {
         PlayerPrefs.SetFloat("dof", giDOF);
+        PlayerPrefs.Save();
     }
     public void SaveMaxTrials(int giMaxTrials)
     {
         PlayerPrefs.SetInt("maxtrials", giMaxTrials);
+        PlayerPrefs.Save();
     }
     public void SaveHoverTime(float sliderValue)
     {
         PlayerPrefs.SetFloat("hovertime", sliderValue);
+        PlayerPrefs.Save();
     }
     public void SaveTargetRadius(float sliderValue)
     {
         PlayerPrefs.SetFloat("targetradius", sliderValue);
+        PlayerPrefs.Save();
     }
     public void SaveCondition(int menuInt)
     {
         PlayerPrefs.SetInt("condition", menuInt);
+        PlayerPrefs.Save();
     }
     public void SaveExplorationMode(int menuInt)
     {
         PlayerPrefs.SetInt("exploration", menuInt);
+        PlayerPrefs.Save();
     }
     public void SaveSession(int menuInt)
     {
         PlayerPrefs.SetInt("session", menuInt);
+        PlayerPrefs.Save();
     }
     public void SaveTargetHeight(int menuInt)
     {
         PlayerPrefs.SetInt("targetheight", menuInt);
+        PlayerPrefs.Save();
     }
     public void SaveNumPaddles(int menuInt)
     {
         PlayerPrefs.SetInt("numpaddles", menuInt);
+        PlayerPrefs.Save();
     }
 
     // Public getters. Should return parameters corresponding with MenuController functions

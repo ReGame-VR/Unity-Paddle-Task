@@ -53,7 +53,9 @@ public class MenuController : MonoBehaviour {
     /// <param name="arg0"></param>
     public void RecordMaxTrials(int arg0)
     {
+        Dropdown d = GameObject.Find("Max Trial Time Dropdown").GetComponent<Dropdown>();
         GlobalControl.Instance.maxTrialTime = arg0;
+        d.value = arg0;
         GetComponent<MenuPlayerPrefs>().SaveMaxTrials(arg0);
     }
 
@@ -64,6 +66,7 @@ public class MenuController : MonoBehaviour {
         Text sliderText = GameObject.Find("Time Indicator").GetComponent<Text>();
 
         sliderText.text = value + " seconds";
+        s.value = value;
         GlobalControl.Instance.ballResetHoverSeconds = (int)value;
 
         GetComponent<MenuPlayerPrefs>().SaveHoverTime(value);
@@ -77,6 +80,7 @@ public class MenuController : MonoBehaviour {
 
         float targetThresholdMeters = 0.01f * value; 
         sliderText.text = "+/- " + targetThresholdMeters.ToString("0.00") + " meters";
+        s.value = value;
         GlobalControl.Instance.targetRadius = targetThresholdMeters;
 
         GetComponent<MenuPlayerPrefs>().SaveTargetRadius(value);

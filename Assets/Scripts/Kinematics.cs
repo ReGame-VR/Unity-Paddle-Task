@@ -20,7 +20,7 @@ public class Kinematics : MonoBehaviour
     public Vector3 storedAngularVelocity;
     public Quaternion storedRotation;
 
-    public CircularBuffer velocityBuffer;
+    public CircularBuffer<Vector3> velocityBuffer;
     const int CIRCULAR_BUFFER_SIZE = 8;
 
     // Start is called before the first frame update
@@ -33,7 +33,7 @@ public class Kinematics : MonoBehaviour
         storedAngularVelocity = rb.angularVelocity;
         storedRotation = Quaternion.identity;
 
-        velocityBuffer = new CircularBuffer(CIRCULAR_BUFFER_SIZE);
+        velocityBuffer = new CircularBuffer<Vector3>(CIRCULAR_BUFFER_SIZE);
     }
 
     // Handle physics

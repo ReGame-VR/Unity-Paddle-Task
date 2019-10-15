@@ -75,11 +75,15 @@ public class MenuController : MonoBehaviour {
     // Set the window for how far the ball can be from the target line and still count as a success
     public void UpdateTargetRadius(float value)
     {
+        const float INCHES_PER_METER = 39.37f;
+        const float METERS_PER_INCH = 0.0254f;
+
         Slider s = GameObject.Find("Success Threshold Slider").GetComponent<Slider>(); 
         Text sliderText = GameObject.Find("Width Indicator").GetComponent<Text>();
 
-        float targetThresholdMeters = 0.01f * value; 
-        sliderText.text = "+/- " + targetThresholdMeters.ToString("0.00") + " meters";
+        float targetThresholdInches = value * 0.5f;
+        float targetThresholdMeters = targetThresholdInches * METERS_PER_INCH; // each notch is 0.5 inches 
+        sliderText.text = "+/- " + targetThresholdInches.ToString("0.0") + " in.\n(" + value.ToString("0.0") + " in. total)";
         s.value = value;
         GlobalControl.Instance.targetRadius = targetThresholdMeters;
 

@@ -45,10 +45,22 @@ public class PaddleGame : MonoBehaviour {
     // The current trial number. This is increased by one every time the ball is reset.
     public int trialNum = 0;
 
+    /*  TODO remove this 
+     *  
+     *  
+     *  
     // A group of trials. The current group number will tick up every trial.
     // When curGroupNum reaches trialGroupSize, it will reset back to 1.
     private int bounceGroupSize = 10;
     private int curGroupNum = 1;
+    */
+
+    // If 3 of the last 10 bounces were successful, update the exploration mode physics 
+    private const int EXPLORATION_MAX_BOUNCES = 10;
+    private const int EXPLORATION_SUCCESS_THRESHOLD = 6;
+    private int explorationModeBounces;
+    private int explorationModeSuccesses;
+    private CircularBuffer<bool> explorationModeBuffer = new CircularBuffer<bool>(EXPLORATION_MAX_BOUNCES);
 
     // The paddle bounce height, velocity, and acceleration to be recorded on each bounce.
     // These are the values on the *paddle*, NOT the ball
@@ -262,14 +274,17 @@ public class PaddleGame : MonoBehaviour {
         numBounces++;
         numTotalBounces++;
 
-        // If the user bounced enough times, kick in an exploration
-        // effect (if turned on).
+        /* TODO remove 
+         * 
+         * 
+        // If the user bounced enough times, kick in an exploration effect (if turned on).
         curGroupNum++;
         if (curGroupNum > bounceGroupSize)
         {
             ResetBounceGroup();
             curGroupNum = 1;
         }
+        */
 
         // If there are two paddles, switch the active one
         if (GlobalControl.Instance.numPaddles > 1)
@@ -359,6 +374,7 @@ public class PaddleGame : MonoBehaviour {
         paddleBounceAccel = m_MotionData.Acceleration;
     }
 
+    /*
     // If 5 trials or so have passed, make a change to the game and reset the group.
     private void ResetBounceGroup()
     {
@@ -377,6 +393,41 @@ public class PaddleGame : MonoBehaviour {
         else
         {
             // Don't do anything, there is no exploration mode set
+        }
+    }
+    */
+
+    // If 6 of the last 10 bounces were successful, update ExplorationMode physics 
+    // bool parameter is whether last bounce was success 
+    public void ModifyPhysicsOnSuccess(bool bounceSuccess)
+    {
+        if (GlobalControl.Instance.explorationMode != GlobalControl.ExplorationMode.FORCED)
+        {
+            return;
+        }
+
+        explorationModeBuffer.Add(bounceSuccess);
+
+        int successes = 0;
+
+        bool[] temp = explorationModeBuffer.GetArray();
+        for (int i = 0; i < explorationModeBuffer.length(); i++)
+        {
+            if (temp[i])
+            {
+                successes++;
+            }
+        }
+
+        if (successes >= EXPLORATION_SUCCESS_THRESHOLD)
+        {
+            // Change game physics
+            GetComponent<ExplorationMode>().ModifyBouncePhysics();
+            GetComponent<ExplorationMode>().IndicatePhysicsChange();
+
+            // Reset counter
+            explorationModeBuffer = new CircularBuffer<bool>(EXPLORATION_MAX_BOUNCES);
+            return;
         }
     }
 

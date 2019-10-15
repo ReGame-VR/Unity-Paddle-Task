@@ -103,8 +103,6 @@ public class Ball : MonoBehaviour
         
         ApplyBouncePhysics(paddleVelocity, paddleAccel, cp, Vin);
 
-        CheckApexSuccess();
-
         // Determine if collision should be counted as an active bounce
         if (paddleVelocity.magnitude < 0.05f)
         {
@@ -113,6 +111,8 @@ public class Ball : MonoBehaviour
         else
         {
             isBouncing = true;
+
+            CheckApexSuccess();
             DeclareBounce(c);
             GetComponent<BounceSoundPlayer>().PlayBounceSound();
         }
@@ -131,10 +131,13 @@ public class Ball : MonoBehaviour
         yield return new WaitWhile( () => !GetComponent<Kinematics>().ReachedApex());
 
         float apexHeight = rigidBody.position.y;
-        if (gameScript.HeightInsideTargetWindow(apexHeight))
-        {
-            gameScript.IndicateSuccessBall();
+        bool successfulBounce = gameScript.HeightInsideTargetWindow(apexHeight);
+
+        if (successfulBounce) { 
+            gameScript.IndicateSuccessBall();       // Flash ball green 
         }
+    
+        gameScript.ModifyPhysicsOnSuccess(successfulBounce);    // Check if 3 bounces were successful in the last 10
     }
 
     // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.

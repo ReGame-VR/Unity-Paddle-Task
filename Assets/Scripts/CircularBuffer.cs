@@ -2,22 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CircularBuffer : MonoBehaviour
+public class CircularBuffer<T> //: MonoBehaviour
 {
-    // For now, only support queues explicitly for Vector3s. 
-    // TODO: make this generic. 
-    private Queue<Vector3> _queue;
+    private Queue<T> _queue;
 
     private int _size;
     private int capacity = 0;
 
     public CircularBuffer(int size)
     {
-        _queue = new Queue<Vector3>(size);
+        _queue = new Queue<T>(size);
         _size = size;
     }
 
-    public void Add(Vector3 o)
+    public int length()
+    {
+        return capacity;
+    }
+
+    public void Add(T o)
     {
         if (capacity < _size)
         {
@@ -31,7 +34,7 @@ public class CircularBuffer : MonoBehaviour
         }
     }
 
-    public Vector3[] GetArray()
+    public T[] GetArray()
     {
         return _queue.ToArray();
     }

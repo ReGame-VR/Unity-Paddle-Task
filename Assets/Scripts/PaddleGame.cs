@@ -333,7 +333,8 @@ public class PaddleGame : MonoBehaviour {
         }
 
         //Record Data from last bounce
-        GetComponent<DataHandler>().recordBounce(degreesOfFreedom, Time.time, trialNum, numBounces, numTotalBounces, apexTargetError, apexSuccess, paddleBounceVelocity, paddleBounceAccel);
+        Vector3 cbm = ball.GetComponent<Ball>().GetCurrentBounceMod();
+        GetComponent<DataHandler>().recordBounce(degreesOfFreedom, Time.time, cbm, trialNum, numBounces, numTotalBounces, apexTargetError, apexSuccess, paddleBounceVelocity, paddleBounceAccel);
 
         bounceHeightList = new List<float>();
     }
@@ -359,7 +360,9 @@ public class PaddleGame : MonoBehaviour {
         Vector3 paddleVelocity = m_MotionData.Velocity;
         Vector3 paddleAccel    = m_MotionData.Acceleration;
 
-        GetComponent<DataHandler>().recordContinuous(degreesOfFreedom, Time.time, GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
+        Vector3 cbm = ball.GetComponent<Ball>().GetCurrentBounceMod();
+
+        GetComponent<DataHandler>().recordContinuous(degreesOfFreedom, Time.time, cbm, GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
     }
 
     // Initialize paddle information to be recorded upon next bounce

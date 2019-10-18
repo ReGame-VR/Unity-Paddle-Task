@@ -297,4 +297,9 @@ public class Ball : MonoBehaviour
         yield return new WaitForSeconds(time);
         TurnBallGreen();
     }
+
+    public Vector3 GetCurrentBounceMod()
+    {
+        return currentBounceModification;
+    }
 }

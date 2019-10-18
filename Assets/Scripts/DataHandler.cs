@@ -17,6 +17,8 @@ public class DataHandler : MonoBehaviour
 
     private string pid = GlobalControl.Instance.participantID;
 
+    bool isExplorationMode = (GlobalControl.Instance.condition == Condition.ENHANCED);
+
     /// <summary>
     /// Write all data to a file
     /// </summary>
@@ -28,7 +30,7 @@ public class DataHandler : MonoBehaviour
             Debug.Log("Empty PID, creating folder " + pid);
         }
 
-            WriteTrialFile();
+        WriteTrialFile();
         WriteBounceFile();
         WriteContinuousFile();
     }
@@ -40,15 +42,15 @@ public class DataHandler : MonoBehaviour
     }
 
     // Records bounce data into the data list
-    public void recordBounce(float degreesOfFreedom, float time, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel)
+    public void recordBounce(float degreesOfFreedom, float time, Vector3 bouncemod, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel)
     {
-        bounceData.Add(new BounceData(degreesOfFreedom, time, trialNum, bounceNum, bounceNumTotal, apexTargetError, success, paddleVelocity, paddleAccel));
+        bounceData.Add(new BounceData(degreesOfFreedom, time, bouncemod, trialNum, bounceNum, bounceNumTotal, apexTargetError, success, paddleVelocity, paddleAccel));
     }
 
     // Records continuous ball and paddle data into the data list
-    public void recordContinuous(float degreesOfFreedom, float time, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
+    public void recordContinuous(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
     {
-        continuousData.Add(new ContinuousData(degreesOfFreedom, time, paused, ballPos, paddleVelocity, paddleAccel));
+        continuousData.Add(new ContinuousData(degreesOfFreedom, time, bouncemod, paused, ballPos, paddleVelocity, paddleAccel));
     }
 
     public void recordHeaderInfo(Condition c, Session s, int maxtime, float htime, float tradius)
@@ -83,6 +85,7 @@ public class DataHandler : MonoBehaviour
     {
         public readonly float degreesOfFreedom;
         public readonly float time;
+        public readonly Vector3 bounceModification;
         public readonly int trialNum;
         public readonly int bounceNum;
         public readonly int bounceNumTotal;
@@ -91,10 +94,11 @@ public class DataHandler : MonoBehaviour
         public readonly Vector3 paddleVelocity;
         public readonly Vector3 paddleAccel;
 
-        public BounceData(float degreesOfFreedom, float time, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel)
+        public BounceData(float degreesOfFreedom, float time, Vector3 bouncemod, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel)
         {
             this.degreesOfFreedom = degreesOfFreedom;
             this.time = time;
+            this.bounceModification = bouncemod;
             this.trialNum = trialNum;
             this.bounceNum = bounceNum;
             this.bounceNumTotal = bounceNumTotal;
@@ -110,15 +114,17 @@ public class DataHandler : MonoBehaviour
     {
         public readonly float degreesOfFreedom;
         public readonly float time;
+        public readonly Vector3 bounceModification;
         public readonly bool paused;
         public readonly Vector3 ballPos;
         public readonly Vector3 paddleVelocity;
         public readonly Vector3 paddleAccel;
- 
-        public ContinuousData(float degreesOfFreedom, float time, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
+
+        public ContinuousData(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
         {
             this.degreesOfFreedom = degreesOfFreedom;
             this.time = time;
+            this.bounceModification = bouncemod;
             this.paused = paused;
             this.ballPos = ballPos;
             this.paddleVelocity = paddleVelocity;
@@ -236,6 +242,7 @@ public class DataHandler : MonoBehaviour
             header.Add("Participant ID");
             header.Add("Timestamp");
             header.Add("Trial #");
+            header.Add("Enhanced Y-velocity offset"); // bounce modification 
             header.Add("# of Bounces");
             header.Add("Total # of Bounces");
             header.Add("Bounce Error");
@@ -256,9 +263,11 @@ public class DataHandler : MonoBehaviour
             {
                 CsvRow row = new CsvRow();
 
+
                 row.Add(pid);
                 row.Add(d.time.ToString());
                 row.Add(d.trialNum.ToString());
+                row.Add(DhWriteYBounceMod(d.bounceModification));
                 row.Add(d.bounceNum.ToString());
                 row.Add(d.bounceNumTotal.ToString());
                 row.Add(d.apexTargetError.ToString());
@@ -296,6 +305,7 @@ public class DataHandler : MonoBehaviour
             CsvRow header = new CsvRow();
             header.Add("Participant ID");
             header.Add("Timestamp");
+            header.Add("Enhanced Y-velocity offset"); // bounce modification 
             header.Add("Paused?");
             header.Add("Ball Velocity X");
             header.Add("Ball Velocity Y");
@@ -318,6 +328,7 @@ public class DataHandler : MonoBehaviour
 
                 row.Add(pid);
                 row.Add(d.time.ToString());
+                row.Add(DhWriteYBounceMod(d.bounceModification));
                 row.Add(d.paused ? "PAUSED" : "");
                 row.Add(d.ballPos.x.ToString());
                 row.Add(d.ballPos.y.ToString());
@@ -334,5 +345,12 @@ public class DataHandler : MonoBehaviour
                 writer.WriteRow(row);
             }
         }
+    }
+
+    // utility functions --------------------------------------------
+
+    string DhWriteYBounceMod(Vector3 bm)
+    {
+        return isExplorationMode ? bm.y.ToString() : "NORMAL"; 
     }
 }

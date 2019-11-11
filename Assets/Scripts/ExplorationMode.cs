@@ -88,4 +88,9 @@ public class ExplorationMode : MonoBehaviour {
 
         tlMesh.material = targetLineColors[next];
     }
+
+    public List<Vector3> GetBouncModList()
+    {
+        return bounceModifications;
+    }
 }

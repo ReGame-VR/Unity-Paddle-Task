@@ -4,7 +4,7 @@
 public enum Condition { REGULAR, ENHANCED, REDUCED, TARGETLINE };
 public enum Session { BASELINE, ACQUISITION, RETENTION, TRANSFER };
 public enum TargetHeight { DEFAULT, LOWERED, RAISED };
-public enum ExpCondition { HEAVIEST, HEAVIER, NORMAL, LIGHTER, LIGHTEST };
+public enum ExpCondition { RANDOM, HEAVIEST, HEAVIER, NORMAL, LIGHTER, LIGHTEST };
 
 /// <summary>
 /// Stores calibration data for trial use in a single place.

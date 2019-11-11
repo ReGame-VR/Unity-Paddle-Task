@@ -59,6 +59,9 @@ public class Ball : MonoBehaviour
         rigidBody.useGravity = false;
         rigidBody.detectCollisions = false;
 
+        // SUMMIT TECH KITCHEN VISIT 1: fixed bounce modification for expmode. 
+        InitBounceMod();
+
         // Use UnityLabs PhysicsTracker
         m_MotionData.Reset(m_ToTrack.position, m_ToTrack.rotation, Vector3.zero, Vector3.zero);
     }
@@ -91,6 +94,35 @@ public class Ball : MonoBehaviour
     {
         float pVySlice = m_MotionData.Velocity.y / 8.0f;    // 8 is a good divisor
         rigidBody.velocity += new Vector3(0, pVySlice, 0);
+    }
+
+    private void InitBounceMod()
+    {
+        List<Vector3> bounceModList = GameObject.Find("[SteamVR]").GetComponent<ExplorationMode>().GetBouncModList(); 
+
+        switch (GlobalControl.Instance.expCondition)
+        {
+            case ExpCondition.NORMAL:
+                currentBounceModification = bounceModList[0];
+                break;
+            case ExpCondition.LIGHTEST:
+                currentBounceModification = bounceModList[1];
+                break;
+            case ExpCondition.LIGHTER:
+                currentBounceModification = bounceModList[2];
+                break;
+            case ExpCondition.HEAVIER:
+                currentBounceModification = bounceModList[3];
+                break;
+            case ExpCondition.HEAVIEST:
+                currentBounceModification = bounceModList[4];
+                break;
+            default:
+                currentBounceModification = bounceModList[0];
+                break;
+        }
+
+        Debug.Log("Initializing ball bounce mod to " + currentBounceModification.y);
     }
 
     private void BounceBall(Collision c)
@@ -137,7 +169,10 @@ public class Ball : MonoBehaviour
             gameScript.IndicateSuccessBall();       // Flash ball green 
         }
     
-        gameScript.ModifyPhysicsOnSuccess(successfulBounce);    // Check if 3 bounces were successful in the last 10
+        if (GlobalControl.Instance.expCondition == ExpCondition.RANDOM)
+        {
+            gameScript.ModifyPhysicsOnSuccess(successfulBounce);    // Check if 3 bounces were successful in the last 10
+        }
     }
 
     // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.

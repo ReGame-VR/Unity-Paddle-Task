@@ -45,16 +45,6 @@ public class PaddleGame : MonoBehaviour {
     // The current trial number. This is increased by one every time the ball is reset.
     public int trialNum = 0;
 
-    /*  TODO remove this 
-     *  
-     *  
-     *  
-    // A group of trials. The current group number will tick up every trial.
-    // When curGroupNum reaches trialGroupSize, it will reset back to 1.
-    private int bounceGroupSize = 10;
-    private int curGroupNum = 1;
-    */
-
     // If 3 of the last 10 bounces were successful, update the exploration mode physics 
     private const int EXPLORATION_MAX_BOUNCES = 10;
     private const int EXPLORATION_SUCCESS_THRESHOLD = 6;
@@ -274,18 +264,6 @@ public class PaddleGame : MonoBehaviour {
         numBounces++;
         numTotalBounces++;
 
-        /* TODO remove 
-         * 
-         * 
-        // If the user bounced enough times, kick in an exploration effect (if turned on).
-        curGroupNum++;
-        if (curGroupNum > bounceGroupSize)
-        {
-            ResetBounceGroup();
-            curGroupNum = 1;
-        }
-        */
-
         // If there are two paddles, switch the active one
         if (GlobalControl.Instance.numPaddles > 1)
         {
@@ -376,29 +354,7 @@ public class PaddleGame : MonoBehaviour {
         paddleBounceVelocity = m_MotionData.Velocity;
         paddleBounceAccel = m_MotionData.Acceleration;
     }
-
-    /*
-    // If 5 trials or so have passed, make a change to the game and reset the group.
-    private void ResetBounceGroup()
-    {
-        if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.TASK)
-        {
-            // This mode is currently not enabled 
-            // Move the target to a different location
-            GetComponent<ExplorationMode>().MoveTargetLine();
-        }
-        else if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)
-        {
-            // Change game physics
-            GetComponent<ExplorationMode>().ModifyBouncePhysics();
-            GetComponent<ExplorationMode>().IndicatePhysicsChange();
-        }
-        else
-        {
-            // Don't do anything, there is no exploration mode set
-        }
-    }
-    */
+    
 
     // If 6 of the last 10 bounces were successful, update ExplorationMode physics 
     // bool parameter is whether last bounce was success 

@@ -140,22 +140,25 @@ public class MenuController : MonoBehaviour {
         switch (arg0)
         {
             case 0:
-                GlobalControl.Instance.expCondition = ExpCondition.LIGHTEST;
+                GlobalControl.Instance.expCondition = ExpCondition.RANDOM;
                 break;
             case 1:
-                GlobalControl.Instance.expCondition = ExpCondition.LIGHTER;
+                GlobalControl.Instance.expCondition = ExpCondition.LIGHTEST;
                 break;
             case 2:
-                GlobalControl.Instance.expCondition = ExpCondition.NORMAL;
+                GlobalControl.Instance.expCondition = ExpCondition.LIGHTER;
                 break;
             case 3:
-                GlobalControl.Instance.expCondition = ExpCondition.HEAVIER;
+                GlobalControl.Instance.expCondition = ExpCondition.NORMAL;
                 break;
             case 4:
+                GlobalControl.Instance.expCondition = ExpCondition.HEAVIER;
+                break;
+            case 5:
                 GlobalControl.Instance.expCondition = ExpCondition.HEAVIEST;
                 break;
             default:
-                GlobalControl.Instance.expCondition = ExpCondition.NORMAL;
+                GlobalControl.Instance.expCondition = ExpCondition.RANDOM;
                 break;
         }
 

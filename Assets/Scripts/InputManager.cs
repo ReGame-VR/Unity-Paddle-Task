@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
 
 // InputManager listens for keyboard input and calls the appropriate function.
 public class InputManager : MonoBehaviour
@@ -28,6 +29,12 @@ public class InputManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C))
         {
             GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().SetTargetLineHeight();
+        }
+
+        // Swap which controller should be used 
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().SwapActivePaddle();
         }
 
         // Quit application

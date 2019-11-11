@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Labs.SuperScience;
+using Valve.VR;
 
 public class PaddleGame : MonoBehaviour {
 
@@ -16,6 +17,10 @@ public class PaddleGame : MonoBehaviour {
     [Tooltip("The right paddle in the game")]
     [SerializeField]
     private GameObject rightPaddle;
+
+    [Tooltip("The right paddle in the game")]
+    [SerializeField]
+    private bool useLeft;
 
     [Tooltip("The ball being bounced")]
     [SerializeField]
@@ -85,6 +90,7 @@ public class PaddleGame : MonoBehaviour {
     {
         // Get reference to Paddle
         paddle = GetActivePaddle();
+        useLeft = false;
 
         m_MotionData = ball.GetComponent<Ball>().m_MotionData;
 
@@ -133,6 +139,21 @@ public class PaddleGame : MonoBehaviour {
 
         // Check if game should end
         CheckEndCondition();
+    }
+
+    public void SwapActivePaddle()
+    {
+        SteamVR_Behaviour_Pose paddlePose = GameObject.Find("Paddle").GetComponent<SteamVR_Behaviour_Pose>();
+        useLeft = !useLeft;
+
+        if (useLeft)
+        {
+            paddlePose.inputSource = SteamVR_Input_Sources.LeftHand;
+        }
+        else
+        {
+            paddlePose.inputSource = SteamVR_Input_Sources.RightHand;
+        }
     }
 
     // Sets Target Line height based on HMD eye level and target position preference

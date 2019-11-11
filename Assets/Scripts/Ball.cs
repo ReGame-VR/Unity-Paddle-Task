@@ -25,7 +25,7 @@ public class Ball : MonoBehaviour
     private PaddleGame gameScript;
 
     // The current bounce effect in a forced exploration condition
-    private Vector3 currentBounceModification = new Vector3(0,0,0);
+    public Vector3 currentBounceModification = new Vector3(0,0,0);
 
     // Store last position of ball for pause
     private Vector3 lastPosition = Vector3.up;

@@ -4,6 +4,7 @@
 public enum Condition { REGULAR, ENHANCED, REDUCED, TARGETLINE };
 public enum Session { BASELINE, ACQUISITION, RETENTION, TRANSFER };
 public enum TargetHeight { DEFAULT, LOWERED, RAISED };
+public enum ExpCondition { HEAVIEST, HEAVIER, NORMAL, LIGHTER, LIGHTEST };
 
 /// <summary>
 /// Stores calibration data for trial use in a single place.
@@ -21,7 +22,10 @@ public class GlobalControl : MonoBehaviour {
     public int numPaddles = 1;
 
     // The condition of this instance
-    public Condition condition = Condition.REGULAR;
+    public Condition condition = Condition.ENHANCED;
+
+    // The Exploration condition of this instance (controls randomized physics)
+    public ExpCondition expCondition = ExpCondition.NORMAL;
 
     // Target Line Height
     public TargetHeight targetHeightPreference = TargetHeight.DEFAULT;

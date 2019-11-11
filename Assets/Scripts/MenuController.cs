@@ -54,8 +54,8 @@ public class MenuController : MonoBehaviour {
     public void RecordMaxTrials(int arg0)
     {
         Dropdown d = GameObject.Find("Max Trial Time Dropdown").GetComponent<Dropdown>();
-        GlobalControl.Instance.maxTrialTime = arg0;
         d.value = arg0;
+        GlobalControl.Instance.maxTrialTime = arg0;
         GetComponent<MenuPlayerPrefs>().SaveMaxTrials(arg0);
     }
 
@@ -89,28 +89,31 @@ public class MenuController : MonoBehaviour {
 
         GetComponent<MenuPlayerPrefs>().SaveTargetRadius(value);
     }
+    
 
     // Records the Condition from the dropdown menu
     public void RecordCondition(int arg0)
     {
-        if (arg0 == 0)
+        Dropdown d = GameObject.Find("Condition Dropdown").GetComponent<Dropdown>();
+        d.value = arg0;
+
+        switch (arg0)
         {
-            GlobalControl.Instance.condition = Condition.REGULAR;
-        }
-        else if (arg0 == 1)
-        {
-            GlobalControl.Instance.condition = Condition.ENHANCED;
-        }
-        else if (arg0 == 2)
-        {
-            GlobalControl.Instance.condition = Condition.REDUCED;
-        }
-        else if (arg0 == 3)
-        {
-            GlobalControl.Instance.condition = Condition.TARGETLINE;
+            case 1:
+                GlobalControl.Instance.condition = Condition.ENHANCED;
+                break;
+            case 2:
+                GlobalControl.Instance.condition = Condition.REDUCED;
+                break;
+            case 3:
+                GlobalControl.Instance.condition = Condition.TARGETLINE;
+                break;
+            default:
+                GlobalControl.Instance.condition = Condition.REGULAR;
+                break;
         }
 
-        // GetComponent<MenuPlayerPrefs>().SaveCondition(arg0);
+        GetComponent<MenuPlayerPrefs>().SaveCondition(arg0);
     }
 
     // Records the functional Exploration mode, tied to Condition dropdown menu
@@ -125,12 +128,46 @@ public class MenuController : MonoBehaviour {
             GlobalControl.Instance.explorationMode = GlobalControl.ExplorationMode.NONE;
         }
 
-        // GetComponent<MenuPlayerPrefs>().SaveExplorationMode(arg0);
+        GetComponent<MenuPlayerPrefs>().SaveExplorationMode(arg0);
+    }
+
+    // Records the Condition from the dropdown menu
+    public void RecordExpCond(int arg0)
+    {
+        Dropdown d = GameObject.Find("ExpCondition Dropdown").GetComponent<Dropdown>();
+        d.value = arg0;
+
+        switch (arg0)
+        {
+            case 0:
+                GlobalControl.Instance.expCondition = ExpCondition.LIGHTEST;
+                break;
+            case 1:
+                GlobalControl.Instance.expCondition = ExpCondition.LIGHTER;
+                break;
+            case 2:
+                GlobalControl.Instance.expCondition = ExpCondition.NORMAL;
+                break;
+            case 3:
+                GlobalControl.Instance.expCondition = ExpCondition.HEAVIER;
+                break;
+            case 4:
+                GlobalControl.Instance.expCondition = ExpCondition.HEAVIEST;
+                break;
+            default:
+                GlobalControl.Instance.expCondition = ExpCondition.NORMAL;
+                break;
+        }
+
+        GetComponent<MenuPlayerPrefs>().SaveExpCondition(arg0);
     }
 
     // Records the Session from the dropdown menu
     public void RecordSession(int arg0)
     {
+        Dropdown d = GameObject.Find("Session Dropdown").GetComponent<Dropdown>();
+        d.value = arg0;
+
         if (arg0 == 0)
         {
             GlobalControl.Instance.session = Session.BASELINE;
@@ -148,12 +185,15 @@ public class MenuController : MonoBehaviour {
             GlobalControl.Instance.session = Session.TRANSFER;
         }
 
-        // GetComponent<MenuPlayerPrefs>().SaveSession(arg0);
+        GetComponent<MenuPlayerPrefs>().SaveSession(arg0);
     }
 
     // Records the Target Line height preference from the dropdown menu
     public void RecordTargetHeight(int arg0)
     {
+        Dropdown d = GameObject.Find("Target Height Dropdown").GetComponent<Dropdown>();
+        d.value = arg0;
+
         if (arg0 == 0)
         {
             GlobalControl.Instance.targetHeightPreference = TargetHeight.DEFAULT;
@@ -167,12 +207,15 @@ public class MenuController : MonoBehaviour {
             GlobalControl.Instance.targetHeightPreference = TargetHeight.RAISED;
         }
 
-        //GetComponent<MenuPlayerPrefs>().SaveTargetHeight(arg0);
+        GetComponent<MenuPlayerPrefs>().SaveTargetHeight(arg0);
     }
 
     // Records the number of paddles from the dropdown nmenu
     public void RecordNumPaddles(int arg0)
     {
+        Dropdown d = GameObject.Find("Num Paddle Dropdown").GetComponent<Dropdown>();
+        d.value = arg0;
+
         if (arg0 == 0)
         {
             GlobalControl.Instance.numPaddles = 1;

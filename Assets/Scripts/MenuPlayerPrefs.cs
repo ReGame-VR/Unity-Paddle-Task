@@ -6,24 +6,25 @@ using UnityEngine.UI;
 public class MenuPlayerPrefs : MonoBehaviour
 {
     public MenuController menuController;
-
-    private void Start()
-    {
-        menuController = GetComponent<MenuController>();
-    }
     // All Main Menu parameters 
-    public readonly string[] preferenceList =
+    public string[] preferenceList =
     {
         //"dof",
         "maxtrials",
         "hovertime",
         "targetradius",
-        //"condition",
+        "condition",
         //"exploration",
-        //"session",
+        "expcondition",
+        "session",
         "targetheight",
         //"numpaddles"
     };
+
+    private void Start()
+    {
+        menuController = GetComponent<MenuController>();
+    }
 
     // Public setters. Parameters should correspond to MenuController parameters for easy loading.
     public void SaveDOF(float giDOF)
@@ -56,6 +57,11 @@ public class MenuPlayerPrefs : MonoBehaviour
         PlayerPrefs.SetInt("exploration", menuInt);
         PlayerPrefs.Save();
     }
+    public void SaveExpCondition(int menuInt)
+    {
+        PlayerPrefs.SetInt("expcondition", menuInt);
+        PlayerPrefs.Save();
+    }
     public void SaveSession(int menuInt)
     {
         PlayerPrefs.SetInt("session", menuInt);
@@ -72,34 +78,74 @@ public class MenuPlayerPrefs : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // Public getters. Should return parameters corresponding with MenuController functions
-    public int LoadMaxTrials()
-    {
-        return PlayerPrefs.GetInt("maxtrials");
-    }
-    public float LoadHoverTime()
-    {
-        return PlayerPrefs.GetFloat("hovertime");
-    }
-    public float LoadTargetRadius()
-    {
-        return PlayerPrefs.GetFloat("targetradius");
-    }
-
 
     // Private methods to load PlayerPrefs into the menu. 
     private void LoadMaxTrialsToMenu()
     {
-        if (PlayerPrefs.HasKey("maxtrials")) menuController.RecordMaxTrials(LoadMaxTrials()); 
+        Debug.Log("menuloading mt");
+        if (PlayerPrefs.HasKey("maxtrials"))
+        {
+            menuController.RecordMaxTrials(PlayerPrefs.GetInt("maxtrials"));
+            Debug.Log("menuloading mt_has" + PlayerPrefs.GetInt("maxtrials"));
+        }
     }
     private void LoadHoverTimeToMenu()
     {
-        if (PlayerPrefs.HasKey("hovertime")) menuController.UpdateHoverTime(LoadHoverTime());
+        Debug.Log("menuloading ht");
+        if (PlayerPrefs.HasKey("hovertime"))
+        {
+            Debug.Log("menuloading ht_has");
+            menuController.UpdateHoverTime(PlayerPrefs.GetFloat("hovertime"));
+        }
     }
     private void LoadTargetRadiusToMenu()
     {
-        if (PlayerPrefs.HasKey("maxtrials")) menuController.UpdateTargetRadius(LoadTargetRadius());
+        Debug.Log("menuloading tr");
+        if (PlayerPrefs.HasKey("maxtrials"))
+        {
+            Debug.Log("menuloading tr_has");
+            menuController.UpdateTargetRadius(PlayerPrefs.GetFloat("targetradius"));
+        }
     }
+    private void LoadConditionToMenu()
+    {
+        Debug.Log("menuloading c");
+        if (PlayerPrefs.HasKey("condition"))
+        {
+            Debug.Log("menuloading c_has");
+            menuController.RecordCondition(PlayerPrefs.GetInt("condition"));
+        }
+    }
+
+    private void LoadExpConditionToMenu()
+    {
+        Debug.Log("menuloading ec");
+        if (PlayerPrefs.HasKey("expcondition"))
+        {
+            Debug.Log("menuloading ec_has");
+            menuController.RecordExpCond(PlayerPrefs.GetInt("expcondition"));
+        }
+    }
+    private void LoadSessionToMenu()
+    {
+        Debug.Log("menuloading s");
+        if (PlayerPrefs.HasKey("session"))
+        {
+            Debug.Log("menuloading s_has");
+            menuController.RecordSession(PlayerPrefs.GetInt("session"));
+        }
+    }
+    private void LoadTargetHeightToMenu()
+    {
+        Debug.Log("menuloading th");
+        if (PlayerPrefs.HasKey("targetheight"))
+        {
+            menuController.RecordTargetHeight(PlayerPrefs.GetInt("targetheight"));
+            Debug.Log("menuloading th_has" + PlayerPrefs.GetInt("targetheight"));
+        }
+    }
+    
+
 
     // Loads all saved preferences to the main menu
     public void LoadAllPreferences()
@@ -107,6 +153,7 @@ public class MenuPlayerPrefs : MonoBehaviour
         foreach (string pref in preferenceList) {
             if (PlayerPrefs.HasKey(pref))
             {
+                Debug.Log("menuloading " + pref);
                 switch (pref)
                 {
                     case "maxtrials":
@@ -117,6 +164,18 @@ public class MenuPlayerPrefs : MonoBehaviour
                         break;
                     case "targetradius":
                         LoadTargetRadiusToMenu();
+                        break;
+                    case "condition":
+                        LoadConditionToMenu();
+                        break;
+                    case "expcondition":
+                        LoadExpConditionToMenu();
+                        break;
+                    case "session":
+                        LoadSessionToMenu();
+                        break;
+                    case "targetheight":
+                        LoadTargetHeightToMenu();
                         break;
                     default:
                         Debug.Log("Unknown PlayerPref param '" + pref + "'");

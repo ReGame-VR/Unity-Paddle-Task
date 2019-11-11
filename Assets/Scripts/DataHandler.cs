@@ -24,11 +24,8 @@ public class DataHandler : MonoBehaviour
     /// </summary>
     void OnDisable()
     {
-        if (pid == null | pid == "" | pid.Length == 0)
-        {
-            pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + System.DateTime.Now.Millisecond.ToString();
-            Debug.Log("Empty PID, creating folder " + pid);
-        }
+        // make pid folder unique
+        pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + System.DateTime.Now.Millisecond.ToString() + "_" + pid;
 
         WriteTrialFile();
         WriteBounceFile();

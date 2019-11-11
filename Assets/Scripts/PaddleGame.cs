@@ -64,6 +64,7 @@ public class PaddleGame : MonoBehaviour {
 
     // This session information
     private Condition condition;
+    private ExpCondition expCondition;
     private Session session;
     private int maxTrialTime;
     private float hoverTime;
@@ -89,6 +90,7 @@ public class PaddleGame : MonoBehaviour {
 
         // Initialize Condition and Visit types
         condition             = GlobalControl.Instance.condition;
+        expCondition          = GlobalControl.Instance.expCondition;
         session               = GlobalControl.Instance.session;
         maxTrialTime          = GlobalControl.Instance.maxTrialTime;
         hoverTime             = GlobalControl.Instance.ballResetHoverSeconds;
@@ -96,7 +98,7 @@ public class PaddleGame : MonoBehaviour {
         ballResetHoverSeconds = GlobalControl.Instance.ballResetHoverSeconds;
 
         // Record session data
-        GetComponent<DataHandler>().recordHeaderInfo(condition, session, maxTrialTime, hoverTime, targetRadius);
+        GetComponent<DataHandler>().recordHeaderInfo(condition, expCondition, session, maxTrialTime, hoverTime, targetRadius);
 
         // Calibrate the target line to be at the player's eye level
         SetTargetLineHeight();
@@ -311,7 +313,7 @@ public class PaddleGame : MonoBehaviour {
         }
 
         //Record Data from last bounce
-        Vector3 cbm = ball.GetComponent<Ball>().GetCurrentBounceMod();
+        Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
         GetComponent<DataHandler>().recordBounce(degreesOfFreedom, Time.time, cbm, trialNum, numBounces, numTotalBounces, apexTargetError, apexSuccess, paddleBounceVelocity, paddleBounceAccel);
 
         bounceHeightList = new List<float>();
@@ -338,7 +340,7 @@ public class PaddleGame : MonoBehaviour {
         Vector3 paddleVelocity = m_MotionData.Velocity;
         Vector3 paddleAccel    = m_MotionData.Acceleration;
 
-        Vector3 cbm = ball.GetComponent<Ball>().GetCurrentBounceMod();
+        Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
 
         GetComponent<DataHandler>().recordContinuous(degreesOfFreedom, Time.time, cbm, GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
     }

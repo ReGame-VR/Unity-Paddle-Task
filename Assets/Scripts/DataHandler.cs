@@ -50,9 +50,9 @@ public class DataHandler : MonoBehaviour
         continuousData.Add(new ContinuousData(degreesOfFreedom, time, bouncemod, paused, ballPos, paddleVelocity, paddleAccel));
     }
 
-    public void recordHeaderInfo(Condition c, Session s, int maxtime, float htime, float tradius)
+    public void recordHeaderInfo(Condition c, ExpCondition ec, Session s, int maxtime, float htime, float tradius)
     {
-        headerData = new HeaderData(c, s, maxtime, htime, tradius);
+        headerData = new HeaderData(c, ec, s, maxtime, htime, tradius);
     }
 
     /// <summary>
@@ -132,14 +132,16 @@ public class DataHandler : MonoBehaviour
     class HeaderData
     {
         public readonly Condition condition;
+        public readonly ExpCondition expCondition;
         public readonly Session session;
         public readonly int maxTrialTimeMin;
         public readonly float hoverTime;
         public readonly float targetRadius;
 
-        public HeaderData(Condition c, Session s, int maxtime, float htime, float tradius)
+        public HeaderData(Condition c, ExpCondition ec, Session s, int maxtime, float htime, float tradius)
         {
             this.condition = c;
+            this.expCondition = ec;
             this.session = s;
             this.maxTrialTimeMin = maxtime;
             this.hoverTime = htime;
@@ -153,6 +155,10 @@ public class DataHandler : MonoBehaviour
         CsvRow c = new CsvRow();
         c.Add("Condition");
         c.Add(headerData.condition.ToString());
+
+        CsvRow ec = new CsvRow();
+        c.Add("Physics Modification");
+        c.Add(headerData.expCondition.ToString());
 
         CsvRow s = new CsvRow();
         s.Add("Session");

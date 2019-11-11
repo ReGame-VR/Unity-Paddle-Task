@@ -25,7 +25,7 @@ public class Ball : MonoBehaviour
     private PaddleGame gameScript;
 
     // The current bounce effect in a forced exploration condition
-    public Vector3 currentBounceModification = new Vector3(0,0,0);
+    public Vector3 currentBounceModification;
 
     // Store last position of ball for pause
     private Vector3 lastPosition = Vector3.up;
@@ -58,9 +58,6 @@ public class Ball : MonoBehaviour
         rigidBody.velocity = Vector3.zero;
         rigidBody.useGravity = false;
         rigidBody.detectCollisions = false;
-
-        // SUMMIT TECH KITCHEN VISIT 1: fixed bounce modification for expmode. 
-        InitBounceMod();
 
         // Use UnityLabs PhysicsTracker
         m_MotionData.Reset(m_ToTrack.position, m_ToTrack.rotation, Vector3.zero, Vector3.zero);
@@ -96,10 +93,11 @@ public class Ball : MonoBehaviour
         rigidBody.velocity += new Vector3(0, pVySlice, 0);
     }
 
-    private void InitBounceMod()
+    // Called from ExplorationMode.cs --> start()
+    public void InitBounceMod()
     {
-        List<Vector3> bounceModList = GameObject.Find("[SteamVR]").GetComponent<ExplorationMode>().GetBouncModList(); 
-
+        List<Vector3> bounceModList = GameObject.Find("[SteamVR]").GetComponent<ExplorationMode>().GetBounceModList();
+        Debug.Log("Init bounce mod. ec:" + GlobalControl.Instance.expCondition);
         switch (GlobalControl.Instance.expCondition)
         {
             case ExpCondition.NORMAL:
@@ -118,7 +116,7 @@ public class Ball : MonoBehaviour
                 currentBounceModification = bounceModList[4];
                 break;
             default:
-                currentBounceModification = bounceModList[0];
+                currentBounceModification = new Vector3(0, 0, 0);
                 break;
         }
 
@@ -287,7 +285,7 @@ public class Ball : MonoBehaviour
         currentBounceModification = modification;
     }
 
-    // Modifies the bounce for this forced exploration game
+    // Returns the bounce for this forced exploration game
     public Vector3 GetBounceModification()
     {
         return currentBounceModification;
@@ -331,10 +329,5 @@ public class Ball : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
         TurnBallGreen();
-    }
-
-    public Vector3 GetCurrentBounceMod()
-    {
-        return currentBounceModification;
     }
 }

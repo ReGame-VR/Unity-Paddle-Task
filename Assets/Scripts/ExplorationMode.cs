@@ -32,7 +32,7 @@ public class ExplorationMode : MonoBehaviour {
 
     void Start()
     {
-        ball.GetComponent<Ball>().SetBounceModification(bounceModifications[0]);
+        ball.GetComponent<Ball>().InitBounceMod();
     }
 
     // Set up where the eye level for this game is
@@ -89,7 +89,7 @@ public class ExplorationMode : MonoBehaviour {
         tlMesh.material = targetLineColors[next];
     }
 
-    public List<Vector3> GetBouncModList()
+    public List<Vector3> GetBounceModList()
     {
         return bounceModifications;
     }

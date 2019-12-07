@@ -24,6 +24,7 @@ public class Ball : MonoBehaviour
     [SerializeField]
     private PaddleGame gameScript;
 
+
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
 
@@ -67,6 +68,7 @@ public class Ball : MonoBehaviour
     {
         // send updated information to physicstracker
         m_MotionData.mUpdate(m_ToTrack.position, m_ToTrack.rotation, Time.smoothDeltaTime);
+        
     }
 
     void OnCollisionEnter(Collision c)
@@ -121,6 +123,12 @@ public class Ball : MonoBehaviour
         }
 
         Debug.Log("Initializing ball bounce mod to " + currentBounceModification.y);
+    }
+
+    // Returns the default spawn position of the ball (10cm above the target line) 
+    public static Vector3 spawnPosition(GameObject targetLine)
+    {
+        return new Vector3(0.0f, targetLine.transform.position.y + 0.1f, 0.5f);
     }
 
     private void BounceBall(Collision c)

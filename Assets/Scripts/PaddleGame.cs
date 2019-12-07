@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Unity.Labs.SuperScience;
 using Valve.VR;
 
@@ -37,6 +38,14 @@ public class PaddleGame : MonoBehaviour {
     [Tooltip("The radius of the target line area. Example: If this is 0.05, the target line will be 0.10 thick")]
     [SerializeField]
     private float targetRadius = 0.05f; // get from GlobalControl
+
+    [Tooltip("A reference to the Time to Drop countdown display quad")]
+    [SerializeField]
+    private GameObject timeToDropQuad;
+
+    [Tooltip("A reference to the Time to Drop countdown display text")]
+    [SerializeField]
+    private Text timeToDropText;
 
     // Current number of bounces that the player has acheieved in this trial
     private int numBounces = 0;
@@ -80,6 +89,11 @@ public class PaddleGame : MonoBehaviour {
     private bool inHoverResetCoroutine = false;
     private bool inPlayDropSoundRoutine = false;
     private int ballResetHoverSeconds = 3;
+
+    // Variables for countdown timer display
+    public int countdown;
+    private bool inCoutdownCoroutine = false;
+
 
     // Reference to Paddle PhysicsTracker via Ball script
     PhysicsTracker m_MotionData;
@@ -200,6 +214,8 @@ public class PaddleGame : MonoBehaviour {
     {
         if (!inHoverMode)
         {
+            timeToDropQuad.SetActive(false);
+
             // Check if ball is on ground
             if (ball.transform.position.y < ball.transform.localScale.y)
             {
@@ -208,11 +224,7 @@ public class PaddleGame : MonoBehaviour {
         }
         else // if hovering
         {
-            Vector3 paddlePosition = new Vector3(
-                paddle.transform.position.x, 
-                targetLine.transform.position.y, 
-                paddle.transform.position.z
-            );
+            timeToDropQuad.SetActive(true);
 
             ball.GetComponent<SphereCollider>().enabled = false;
 
@@ -220,9 +232,12 @@ public class PaddleGame : MonoBehaviour {
             StartCoroutine(PlayDropSound(ballResetHoverSeconds - 0.15f));
             StartCoroutine(ReleaseHoverOnReset(ballResetHoverSeconds));
 
+            // Start countdown timer 
+            StartCoroutine(UpdateTtdDisplay());
+
             ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
             ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-            ball.transform.position = paddlePosition;
+            ball.transform.position = Ball.spawnPosition(targetLine);
             ball.transform.rotation = Quaternion.identity;
         }
     }
@@ -247,6 +262,27 @@ public class PaddleGame : MonoBehaviour {
 
         // Reset trial
         ResetTrial();
+    }
+
+    // Update time to drop
+    IEnumerator UpdateTtdDisplay()
+    {
+        if (inCoutdownCoroutine)
+        {
+            yield break;
+        }
+        inCoutdownCoroutine = true;
+
+        countdown = (int)ballResetHoverSeconds;
+
+        while (countdown >= 1.0f)
+        {
+            timeToDropText.text = countdown.ToString();
+            countdown--;
+            yield return new WaitForSeconds(1.0f);
+        }
+
+        inCoutdownCoroutine = false;
     }
 
     // Play drop sound

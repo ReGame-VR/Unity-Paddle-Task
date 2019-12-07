@@ -197,7 +197,7 @@ public class Ball : MonoBehaviour
         // Apply paddle velocity
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
-            Vreflected = new Vector3(0, Vreflected.y + (2.0f * paddleVelocity.y), 0);
+            Vreflected = new Vector3(0, Vreflected.y + (1.25f * paddleVelocity.y), 0);
         }
         else
         {

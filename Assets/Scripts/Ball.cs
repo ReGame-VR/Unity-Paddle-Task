@@ -197,7 +197,7 @@ public class Ball : MonoBehaviour
         // Apply paddle velocity
         if (GlobalControl.Instance.condition == Condition.REDUCED)
         {
-            Vreflected = new Vector3(0, Vreflected.y + paddleVelocity.y, 0);
+            Vreflected = new Vector3(0, Vreflected.y + (2.0f * paddleVelocity.y), 0);
         }
         else
         {
@@ -215,7 +215,7 @@ public class Ball : MonoBehaviour
     Vector3 ProvideLeewayFromUp(Vector3 n)
     {
         float degreesOfTilt = Vector3.Angle(Vector3.up, n);
-        float limit = 1.6f; // feels pretty realistic through testing
+        float limit = 2.0f; // feels pretty realistic through testing
         if (degreesOfTilt < limit)
         {
             degreesOfTilt /= limit;

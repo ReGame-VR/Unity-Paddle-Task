@@ -94,6 +94,9 @@ public class PaddleGame : MonoBehaviour {
     public int countdown;
     private bool inCoutdownCoroutine = false;
 
+    // Timescale
+    public bool slowtime = false;
+
 
     // Reference to Paddle PhysicsTracker via Ball script
     PhysicsTracker m_MotionData;
@@ -207,6 +210,21 @@ public class PaddleGame : MonoBehaviour {
                 break;
         }
         return y;
+    }
+
+    // Toggles the timescale to make the game slower 
+    public void ToggleTimescale()
+    {
+        slowtime = !slowtime;
+
+        if (slowtime)
+        {
+            Time.timeScale = 0.7f;
+        }
+        else
+        {
+            Time.timeScale = 1.0f;
+        }
     }
 
     // Holds the ball over the paddle at Target Height for 0.5 seconds, then releases

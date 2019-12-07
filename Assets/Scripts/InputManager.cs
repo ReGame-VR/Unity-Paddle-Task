@@ -37,6 +37,12 @@ public class InputManager : MonoBehaviour
             GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().SwapActivePaddle();
         }
 
+        // Toggle slow mode 
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().ToggleTimescale();
+        }
+
         // Quit application
         if (Input.GetKeyDown(KeyCode.Escape))
         {

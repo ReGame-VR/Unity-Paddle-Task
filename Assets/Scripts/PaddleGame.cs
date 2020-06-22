@@ -219,7 +219,7 @@ public class PaddleGame : MonoBehaviour {
 
         if (slowtime)
         {
-            Time.timeScale = 0.7f;
+            Time.timeScale = .3f; // 0.7f;
         }
         else
         {

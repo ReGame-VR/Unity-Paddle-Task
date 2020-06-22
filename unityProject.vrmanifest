@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.unitypaddletask.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "C:\\Users\\regam\\Documents\\GitHub\\Unity-Paddle-Task\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "action_manifest_path": "C:\\_Work\\Git\\Northeastern\\Unity-Paddle-Task\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
           "name": "Unity Paddle Task [Testing]"

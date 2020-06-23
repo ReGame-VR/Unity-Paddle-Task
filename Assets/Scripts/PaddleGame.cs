@@ -105,6 +105,8 @@ public class PaddleGame : MonoBehaviour {
 
     void Start()
     {
+        Instantiate(GlobalControl.Instance.environments[GlobalControl.Instance.environmentOption]);
+
         // Get reference to Paddle
         paddle = GetActivePaddle();
         useLeft = false;
@@ -120,8 +122,10 @@ public class PaddleGame : MonoBehaviour {
         degreesOfFreedom      = GlobalControl.Instance.degreesOfFreedom;
         ballResetHoverSeconds = GlobalControl.Instance.ballResetHoverSeconds;
 
-        // Record session data
-        GetComponent<DataHandler>().recordHeaderInfo(condition, expCondition, session, maxTrialTime, hoverTime, targetRadius);
+        if (GlobalControl.Instance.recordingData)
+        {
+            StartRecording();
+        }
 
         // Calibrate the target line to be at the player's eye level
         SetTargetLineHeight();
@@ -156,6 +160,13 @@ public class PaddleGame : MonoBehaviour {
 
         // Check if game should end
         CheckEndCondition();
+    }
+
+    public void StartRecording()
+	{
+        // Record session data
+        GetComponent<DataHandler>().recordHeaderInfo(condition, expCondition, session, maxTrialTime, hoverTime, targetRadius);
+
     }
 
     public void SwapActivePaddle()
@@ -232,6 +243,8 @@ public class PaddleGame : MonoBehaviour {
     {
         if (!inHoverMode)
         {
+            Time.timeScale = GlobalControl.Instance.timescale;
+
             timeToDropQuad.SetActive(false);
 
             // Check if ball is on ground
@@ -257,6 +270,8 @@ public class PaddleGame : MonoBehaviour {
             ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
             ball.transform.position = Ball.spawnPosition(targetLine);
             ball.transform.rotation = Quaternion.identity;
+
+            Time.timeScale = 1f;
         }
     }
 
@@ -361,8 +376,11 @@ public class PaddleGame : MonoBehaviour {
         // Record data for final bounce in trial
         GatherBounceData();
 
-        // Record Trial Data from last trial
-        GetComponent<DataHandler>().recordTrial(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces);
+        if (GlobalControl.Instance.recordingData)
+		{
+            // Record Trial Data from last trial
+            GetComponent<DataHandler>().recordTrial(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces);
+		}
 
         trialNum++;
         numBounces = 0;
@@ -389,7 +407,11 @@ public class PaddleGame : MonoBehaviour {
 
         //Record Data from last bounce
         Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
-        GetComponent<DataHandler>().recordBounce(degreesOfFreedom, Time.time, cbm, trialNum, numBounces, numTotalBounces, apexTargetError, apexSuccess, paddleBounceVelocity, paddleBounceAccel);
+
+        if (GlobalControl.Instance.recordingData)
+		{
+            GetComponent<DataHandler>().recordBounce(degreesOfFreedom, Time.time, cbm, trialNum, numBounces, numTotalBounces, apexTargetError, apexSuccess, paddleBounceVelocity, paddleBounceAccel);
+		}
 
         bounceHeightList = new List<float>();
     }
@@ -417,7 +439,10 @@ public class PaddleGame : MonoBehaviour {
 
         Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
 
-        GetComponent<DataHandler>().recordContinuous(degreesOfFreedom, Time.time, cbm, GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
+		if (GlobalControl.Instance.recordingData)
+		{
+            GetComponent<DataHandler>().recordContinuous(degreesOfFreedom, Time.time, cbm, GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
+		}
     }
 
     // Initialize paddle information to be recorded upon next bounce

@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.VR;
 using UnityEngine.SceneManagement;
+using TMPro;
+using System;
 
 /// <summary>
 /// Holds functions for responding to and recording preferences on menu.
@@ -53,7 +55,7 @@ public class MenuController : MonoBehaviour {
     /// <param name="arg0"></param>
     public void RecordMaxTrials(int arg0)
     {
-        Dropdown d = GameObject.Find("Max Trial Time Dropdown").GetComponent<Dropdown>();
+        TMP_Dropdown d = GameObject.Find("Max Trial Time Dropdown").GetComponent<TMP_Dropdown>();
         d.value = arg0;
         GlobalControl.Instance.maxTrialTime = arg0;
         GetComponent<MenuPlayerPrefs>().SaveMaxTrials(arg0);
@@ -94,7 +96,7 @@ public class MenuController : MonoBehaviour {
     // Records the Condition from the dropdown menu
     public void RecordCondition(int arg0)
     {
-        Dropdown d = GameObject.Find("Condition Dropdown").GetComponent<Dropdown>();
+        TMP_Dropdown d = GameObject.Find("Condition Dropdown").GetComponent<TMP_Dropdown>();
         d.value = arg0;
 
         switch (arg0)
@@ -134,7 +136,7 @@ public class MenuController : MonoBehaviour {
     // Records the Condition from the dropdown menu
     public void RecordExpCond(int arg0)
     {
-        Dropdown d = GameObject.Find("ExpCondition Dropdown").GetComponent<Dropdown>();
+        TMP_Dropdown d = GameObject.Find("ExpCondition Dropdown").GetComponent<TMP_Dropdown>();
         d.value = arg0;
 
         switch (arg0)
@@ -168,7 +170,7 @@ public class MenuController : MonoBehaviour {
     // Records the Session from the dropdown menu
     public void RecordSession(int arg0)
     {
-        Dropdown d = GameObject.Find("Session Dropdown").GetComponent<Dropdown>();
+        TMP_Dropdown d = GameObject.Find("Session Dropdown").GetComponent<TMP_Dropdown>();
         d.value = arg0;
 
         if (arg0 == 0)
@@ -194,7 +196,7 @@ public class MenuController : MonoBehaviour {
     // Records the Target Line height preference from the dropdown menu
     public void RecordTargetHeight(int arg0)
     {
-        Dropdown d = GameObject.Find("Target Height Dropdown").GetComponent<Dropdown>();
+        TMP_Dropdown d = GameObject.Find("Target Height Dropdown").GetComponent<TMP_Dropdown>();
         d.value = arg0;
 
         if (arg0 == 0)
@@ -216,7 +218,7 @@ public class MenuController : MonoBehaviour {
     // Records the number of paddles from the dropdown nmenu
     public void RecordNumPaddles(int arg0)
     {
-        Dropdown d = GameObject.Find("Num Paddle Dropdown").GetComponent<Dropdown>();
+        TMP_Dropdown d = GameObject.Find("Num Paddle Dropdown").GetComponent<TMP_Dropdown>();
         d.value = arg0;
 
         if (arg0 == 0)
@@ -230,6 +232,40 @@ public class MenuController : MonoBehaviour {
 
         // GetComponent<MenuPlayerPrefs>().SaveNumPaddles(arg0);
     }
+
+    public void RecordTimescale(string arg0)
+	{
+        int parsed;
+        if (Int32.TryParse(arg0, out parsed))
+		{
+            GlobalControl.Instance.timescale = parsed;
+		}
+    }
+
+    public void RecordDifficulty(string arg0)
+    {
+        int parsed;
+        if (Int32.TryParse(arg0, out parsed))
+        {
+            GlobalControl.Instance.difficulty = parsed;
+        }
+    }
+
+    public void RecordTargetHeight(bool arg0)
+	{
+        GlobalControl.Instance.targetHeightEnabled = arg0;
+	}
+
+    public void RecordPlayVideo(bool arg0)
+	{
+        GlobalControl.Instance.playVideo = arg0;
+        GlobalControl.Instance.recordingData = !arg0;
+	}
+
+    public void RecordEnvironment(int arg0)
+	{
+        GlobalControl.Instance.environmentOption = arg0;
+	}
 
     /// <summary>
     /// Loads next scene if wii is connected and participant ID was entered.

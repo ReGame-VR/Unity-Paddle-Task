@@ -570,7 +570,8 @@ PlayerSettings:
   webGLCompressionFormat: 1
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    1: TMP
   platformArchitecture: {}
   scriptingBackend:
     Standalone: 0
@@ -668,7 +669,7 @@ PlayerSettings:
   facebookStatus: 1
   facebookXfbml: 0
   facebookFrictionlessRequests: 1
-  apiCompatibilityLevel: 2
+  apiCompatibilityLevel: 6
   cloudProjectId: 1144831d-6fae-4bee-9e88-d1cb21ef439a
   framebufferDepthMemorylessMode: 0
   projectName: Unity Paddle Task

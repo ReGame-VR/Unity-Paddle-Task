@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 
 public enum Condition { REGULAR, ENHANCED, REDUCED, TARGETLINE };
@@ -9,7 +10,11 @@ public enum ExpCondition { RANDOM, HEAVIEST, HEAVIER, NORMAL, LIGHTER, LIGHTEST 
 /// <summary>
 /// Stores calibration data for trial use in a single place.
 /// </summary>
-public class GlobalControl : MonoBehaviour {
+public class GlobalControl : MonoBehaviour 
+{
+
+    // The single instance of this class
+    public static GlobalControl Instance;
 
     public enum ExplorationMode { NONE, TASK, FORCED };
 
@@ -51,8 +56,24 @@ public class GlobalControl : MonoBehaviour {
     // Allow game to be paused
     public bool paused = true;
 
-    // The single instance of this class
-    public static GlobalControl Instance;
+    // Alter the speed at which physics and other updates occur
+    public float timescale;
+
+    // Will hide the target height and alter behaviors so they are affected by consecutive hits only
+    public bool targetHeightEnabled;
+
+    // scalar affecting various metrics increasing randomness and general difficulty
+    public float difficulty;
+
+    // Play video at the start
+    public bool playVideo;
+
+    // Selected enviornment
+    public int environmentOption;
+
+    public List<GameObject> environments;
+
+    public bool recordingData;
 
     /// <summary>
     /// Assign instance to this, or destroy it if Instance already exits and is not this instance.

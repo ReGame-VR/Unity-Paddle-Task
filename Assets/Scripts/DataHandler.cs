@@ -9,58 +9,12 @@ using System.IO;
 /// </summary>
 public class DataHandler : MonoBehaviour
 {
-    // stores the data for writing to file at end of task
-    List<TrialData> trialData = new List<TrialData>();
-    List<BounceData> bounceData = new List<BounceData>();
-    List<ContinuousData> continuousData = new List<ContinuousData>();
-    HeaderData headerData;
-
-    private string pid = GlobalControl.Instance.participantID;
-
-    bool isExplorationMode = (GlobalControl.Instance.condition == Condition.ENHANCED);
-
-    /// <summary>
-    /// Write all data to a file
-    /// </summary>
-    void OnDisable()
-    {
-        // make pid folder unique
-        pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + System.DateTime.Now.Millisecond.ToString() + "_" + pid;
-
-        WriteTrialFile();
-        WriteBounceFile();
-        WriteContinuousFile();
-    }
-
-    // Records trial data into the data list
-    public void recordTrial(float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
-    {
-        trialData.Add(new TrialData(degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces));
-    }
-
-    // Records bounce data into the data list
-    public void recordBounce(float degreesOfFreedom, float time, Vector3 bouncemod, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel)
-    {
-        bounceData.Add(new BounceData(degreesOfFreedom, time, bouncemod, trialNum, bounceNum, bounceNumTotal, apexTargetError, success, paddleVelocity, paddleAccel));
-    }
-
-    // Records continuous ball and paddle data into the data list
-    public void recordContinuous(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
-    {
-        continuousData.Add(new ContinuousData(degreesOfFreedom, time, bouncemod, paused, ballPos, paddleVelocity, paddleAccel));
-    }
-
-    public void recordHeaderInfo(Condition c, ExpCondition ec, Session s, int maxtime, float htime, float tradius)
-    {
-        headerData = new HeaderData(c, ec, s, maxtime, htime, tradius);
-    }
-
     /// <summary>
     /// A class that stores info on each trial relevant to data recording. Every field is
     /// public readonly, so can always be accessed, but can only be assigned once in the
     /// constructor.
     /// </summary>
-    class TrialData
+    public class TrialData
     {
         public readonly float degreesOfFreedom;
         public readonly float time;
@@ -78,7 +32,7 @@ public class DataHandler : MonoBehaviour
         }
     }
 
-    class BounceData
+    public class BounceData
     {
         public readonly float degreesOfFreedom;
         public readonly float time;
@@ -107,7 +61,7 @@ public class DataHandler : MonoBehaviour
 
     }
 
-    class ContinuousData
+    public class ContinuousData
     {
         public readonly float degreesOfFreedom;
         public readonly float time;
@@ -129,7 +83,7 @@ public class DataHandler : MonoBehaviour
         }
     }
 
-    class HeaderData
+    public class HeaderData
     {
         public readonly Condition condition;
         public readonly ExpCondition expCondition;
@@ -147,6 +101,57 @@ public class DataHandler : MonoBehaviour
             this.hoverTime = htime;
             this.targetRadius = tradius;
         }
+    }
+
+    // stores the data for writing to file at end of task
+    List<TrialData> trialData = new List<TrialData>();
+    List<BounceData> bounceData = new List<BounceData>();
+    List<ContinuousData> continuousData = new List<ContinuousData>();
+    HeaderData headerData;
+
+    private string pid = GlobalControl.Instance.participantID;
+
+    bool isExplorationMode = (GlobalControl.Instance.condition == Condition.ENHANCED);
+
+    /// <summary>
+    /// Write all data to a file
+    /// </summary>
+    void OnDisable()
+    {
+        // make pid folder unique
+        pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + System.DateTime.Now.Millisecond.ToString() + "_" + pid;
+
+        WriteTrialFile();
+        WriteBounceFile();
+        WriteContinuousFile();
+    }
+
+    public List<TrialData> GetTrialData() 
+    { 
+        return trialData; 
+    }
+
+    // Records trial data into the data list
+    public void recordTrial(float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
+    {
+        trialData.Add(new TrialData(degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces));
+    }
+
+    // Records bounce data into the data list
+    public void recordBounce(float degreesOfFreedom, float time, Vector3 bouncemod, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel)
+    {
+        bounceData.Add(new BounceData(degreesOfFreedom, time, bouncemod, trialNum, bounceNum, bounceNumTotal, apexTargetError, success, paddleVelocity, paddleAccel));
+    }
+
+    // Records continuous ball and paddle data into the data list
+    public void recordContinuous(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
+    {
+        continuousData.Add(new ContinuousData(degreesOfFreedom, time, bouncemod, paused, ballPos, paddleVelocity, paddleAccel));
+    }
+
+    public void recordHeaderInfo(Condition c, ExpCondition ec, Session s, int maxtime, float htime, float tradius)
+    {
+        headerData = new HeaderData(c, ec, s, maxtime, htime, tradius);
     }
 
 

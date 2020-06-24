@@ -97,15 +97,24 @@ public class PaddleGame : MonoBehaviour {
     // Timescale
     public bool slowtime = false;
 
-
     // Reference to Paddle PhysicsTracker via Ball script
     PhysicsTracker m_MotionData;
 
     private List<float> bounceHeightList = new List<float>();
 
+    int difficultyEvaluationTrials = GlobalControl.Instance.difficultyEvaluationTrials;
+    int difficultyChangedSuspension = GlobalControl.Instance.difficultyChangedSuspension;
+    int trialDifficultyChanged = 0;
+
+    GlobalControl globalControl;
+    DataHandler dataHandler;
+
     void Start()
     {
-        Instantiate(GlobalControl.Instance.environments[GlobalControl.Instance.environmentOption]);
+        globalControl = GlobalControl.Instance;
+        dataHandler = GetComponent<DataHandler>();
+
+        Instantiate(globalControl.environments[globalControl.environmentOption]);
 
         // Get reference to Paddle
         paddle = GetActivePaddle();
@@ -114,24 +123,24 @@ public class PaddleGame : MonoBehaviour {
         m_MotionData = ball.GetComponent<Ball>().m_MotionData;
 
         // Initialize Condition and Visit types
-        condition             = GlobalControl.Instance.condition;
-        expCondition          = GlobalControl.Instance.expCondition;
-        session               = GlobalControl.Instance.session;
-        maxTrialTime          = GlobalControl.Instance.maxTrialTime;
-        hoverTime             = GlobalControl.Instance.ballResetHoverSeconds;
-        degreesOfFreedom      = GlobalControl.Instance.degreesOfFreedom;
-        ballResetHoverSeconds = GlobalControl.Instance.ballResetHoverSeconds;
+        condition             = globalControl.condition;
+        expCondition          = globalControl.expCondition;
+        session               = globalControl.session;
+        maxTrialTime          = globalControl.maxTrialTime;
+        hoverTime             = globalControl.ballResetHoverSeconds;
+        degreesOfFreedom      = globalControl.degreesOfFreedom;
+        ballResetHoverSeconds = globalControl.ballResetHoverSeconds;
 
-        if (GlobalControl.Instance.recordingData)
+        if (globalControl.recordingData)
         {
             StartRecording();
         }
 
         // Calibrate the target line to be at the player's eye level
         SetTargetLineHeight();
-        targetRadius = GlobalControl.Instance.targetRadius;
+        targetRadius = globalControl.targetRadius;
 
-        if (GlobalControl.Instance.numPaddles > 1)
+        if (globalControl.numPaddles > 1)
         {
             rightPaddle.GetComponent<Paddle>().EnablePaddle();
             rightPaddle.GetComponent<Paddle>().SetPaddleIdentifier(Paddle.PaddleIdentifier.RIGHT);
@@ -139,6 +148,8 @@ public class PaddleGame : MonoBehaviour {
             leftPaddle.GetComponent<Paddle>().EnablePaddle();
             leftPaddle.GetComponent<Paddle>().SetPaddleIdentifier(Paddle.PaddleIdentifier.LEFT);
         }
+
+        ChangeDifficulty(globalControl.difficulty);
     }
 
     void Update()
@@ -165,7 +176,7 @@ public class PaddleGame : MonoBehaviour {
     public void StartRecording()
 	{
         // Record session data
-        GetComponent<DataHandler>().recordHeaderInfo(condition, expCondition, session, maxTrialTime, hoverTime, targetRadius);
+        dataHandler.recordHeaderInfo(condition, expCondition, session, maxTrialTime, hoverTime, targetRadius);
 
     }
 
@@ -206,7 +217,7 @@ public class PaddleGame : MonoBehaviour {
 
     private float ApplyInstanceTargetHeightPref(float y)
     {
-        switch (GlobalControl.Instance.targetHeightPreference)
+        switch (globalControl.targetHeightPreference)
         {
             case TargetHeight.RAISED:
                 y *= 1.1f;
@@ -230,7 +241,7 @@ public class PaddleGame : MonoBehaviour {
 
         if (slowtime)
         {
-            Time.timeScale = .3f; // 0.7f;
+            Time.timeScale = globalControl.timescale; // 0.7f;
         }
         else
         {
@@ -243,7 +254,7 @@ public class PaddleGame : MonoBehaviour {
     {
         if (!inHoverMode)
         {
-            Time.timeScale = GlobalControl.Instance.timescale;
+            Time.timeScale = globalControl.timescale;
 
             timeToDropQuad.SetActive(false);
 
@@ -264,7 +275,7 @@ public class PaddleGame : MonoBehaviour {
             StartCoroutine(ReleaseHoverOnReset(ballResetHoverSeconds));
 
             // Start countdown timer 
-            StartCoroutine(UpdateTtdDisplay());
+            StartCoroutine(UpdateTimeToDropDisplay());
 
             ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
             ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
@@ -298,7 +309,7 @@ public class PaddleGame : MonoBehaviour {
     }
 
     // Update time to drop
-    IEnumerator UpdateTtdDisplay()
+    IEnumerator UpdateTimeToDropDisplay()
     {
         if (inCoutdownCoroutine)
         {
@@ -332,7 +343,7 @@ public class PaddleGame : MonoBehaviour {
     }
 
     // Returns true if the ball is within the target line boundaries.
-    public bool HeightInsideTargetWindow(float height)
+    public bool GetHeightInsideTargetWindow(float height)
     {
         float targetHeight = targetLine.transform.position.y;
         float lowerLimit = targetHeight - targetRadius;
@@ -357,7 +368,7 @@ public class PaddleGame : MonoBehaviour {
         numTotalBounces++;
 
         // If there are two paddles, switch the active one
-        if (GlobalControl.Instance.numPaddles > 1)
+        if (globalControl.numPaddles > 1)
         {
             StartCoroutine(WaitToSwitchPaddles(c));
         }
@@ -376,11 +387,12 @@ public class PaddleGame : MonoBehaviour {
         // Record data for final bounce in trial
         GatherBounceData();
 
-        if (GlobalControl.Instance.recordingData)
+        if (globalControl.recordingData)
 		{
             // Record Trial Data from last trial
-            GetComponent<DataHandler>().recordTrial(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces);
-		}
+            dataHandler.recordTrial(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces);
+            CheckDifficulty();
+        }
 
         trialNum++;
         numBounces = 0;
@@ -394,7 +406,7 @@ public class PaddleGame : MonoBehaviour {
         float apexHeight = Mathf.Max(bounceHeightList.ToArray());
         float apexTargetError = (apexHeight - targetLine.transform.position.y);
 
-        bool apexSuccess = HeightInsideTargetWindow(apexHeight);
+        bool apexSuccess = GetHeightInsideTargetWindow(apexHeight);
 
         // If the apex of the bounce was inside the target window, increase the score
         if (apexSuccess)
@@ -408,9 +420,9 @@ public class PaddleGame : MonoBehaviour {
         //Record Data from last bounce
         Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
 
-        if (GlobalControl.Instance.recordingData)
+        if (globalControl.recordingData)
 		{
-            GetComponent<DataHandler>().recordBounce(degreesOfFreedom, Time.time, cbm, trialNum, numBounces, numTotalBounces, apexTargetError, apexSuccess, paddleBounceVelocity, paddleBounceAccel);
+            dataHandler.recordBounce(degreesOfFreedom, Time.time, cbm, trialNum, numBounces, numTotalBounces, apexTargetError, apexSuccess, paddleBounceVelocity, paddleBounceAccel);
 		}
 
         bounceHeightList = new List<float>();
@@ -439,9 +451,9 @@ public class PaddleGame : MonoBehaviour {
 
         Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
 
-		if (GlobalControl.Instance.recordingData)
+		if (globalControl.recordingData)
 		{
-            GetComponent<DataHandler>().recordContinuous(degreesOfFreedom, Time.time, cbm, GlobalControl.Instance.paused, ballVelocity, paddleVelocity, paddleAccel);
+            dataHandler.recordContinuous(degreesOfFreedom, Time.time, cbm, globalControl.paused, ballVelocity, paddleVelocity, paddleAccel);
 		}
     }
 
@@ -462,7 +474,7 @@ public class PaddleGame : MonoBehaviour {
     // bool parameter is whether last bounce was success 
     public void ModifyPhysicsOnSuccess(bool bounceSuccess)
     {
-        if (GlobalControl.Instance.explorationMode != GlobalControl.ExplorationMode.FORCED)
+        if (globalControl.explorationMode != GlobalControl.ExplorationMode.FORCED)
         {
             return;
         }
@@ -528,16 +540,60 @@ public class PaddleGame : MonoBehaviour {
         }
     }
 
+    private void CheckDifficulty()
+    {
+        var trialData = dataHandler.GetTrialData();
+        if (trialData.Count >= trialDifficultyChanged + difficultyChangedSuspension + difficultyEvaluationTrials)
+        {
+            int bounces = 0, accurateBounces = 0;
+            float slopeDenominator = 0f;
+            float bounceSlope;
+
+            for (int i = trialData.Count - difficultyEvaluationTrials; i < trialData.Count; i++)
+            {
+                bounces += trialData[i].numBounces;
+                accurateBounces += trialData[i].numAccurateBounces;
+
+                slopeDenominator += i + 1;
+            }
+
+            float averageBounces = (float)bounces / (float)difficultyEvaluationTrials;
+            float averageAccurateBounces = (float)accurateBounces / (float)difficultyEvaluationTrials;
+            bounceSlope = bounces / slopeDenominator;
+            Debug.LogFormat("evaluated slope to be {0}", bounceSlope.ToString("F4"));
+
+            // increase if trials are progressvely positive, decrease otherwise 
+            ChangeDifficulty(GetDifficultyChange(bounceSlope >= 1));
+        }
+    }
+
+    public void ChangeDifficulty(float difficulty)
+    {
+        if (difficulty == globalControl.difficulty)
+        {
+            // no chnage, returning
+            return;
+        }
+
+        trialDifficultyChanged = dataHandler.GetTrialData().Count;
+    }
+
+    private float GetDifficultyChange(bool higher)
+    {
+        float change = higher ? globalControl.difficultyInterval : globalControl.difficultyInterval * -1;
+        return Mathf.Clamp(globalControl.difficulty + change, globalControl.difficultyMin, globalControl.difficultyMax);
+    }
+
     void CheckEndCondition()
     {
-        if (GlobalControl.Instance.GetTimeLimitSeconds() == 0)
+        if (globalControl.GetTimeLimitSeconds() == 0)
         {
             return;
         }
 
-        if (GlobalControl.Instance.GetTimeElapsed() > GlobalControl.Instance.GetTimeLimitSeconds())
+        if (globalControl.GetTimeElapsed() > globalControl.GetTimeLimitSeconds())
         {
-            Debug.Log("Time limit of " + GlobalControl.Instance.GetTimeLimitSeconds() + " seconds has passed. Quitting");
+            Debug.Log("Time limit of " + globalControl.GetTimeLimitSeconds() + " seconds has passed. Quitting");
             Application.Quit();
         }
     }

@@ -57,23 +57,35 @@ public class GlobalControl : MonoBehaviour
     public bool paused = true;
 
     // Alter the speed at which physics and other updates occur
-    public float timescale;
+    public float timescale = 1f;
 
     // Will hide the target height and alter behaviors so they are affected by consecutive hits only
-    public bool targetHeightEnabled;
+    public bool targetHeightEnabled = true;
 
     // scalar affecting various metrics increasing randomness and general difficulty
-    public float difficulty;
+    public float difficulty = 1;
 
     // Play video at the start
-    public bool playVideo;
+    public bool playVideo = false;
 
     // Selected enviornment
-    public int environmentOption;
+    public int environmentOption = 0;
 
-    public List<GameObject> environments;
+    public List<GameObject> environments = new List<GameObject>();
 
-    public bool recordingData;
+    public bool recordingData = true;
+
+    // How many trials should be used for difficulty evaluation
+    public int difficultyEvaluationTrials = 10;
+
+    // How many trials should the user get to get used to the new difficulty before evaluation starts again
+    public int difficultyChangedSuspension = 10;
+
+    // the change in difficulty when shifting
+    public float difficultyInterval = 1f;
+
+    // low and high ends for difficulty scale
+    public float difficultyMin = 1, difficultyMax = 4;
 
     /// <summary>
     /// Assign instance to this, or destroy it if Instance already exits and is not this instance.
@@ -93,6 +105,33 @@ public class GlobalControl : MonoBehaviour
         else if (Instance != this)
         {
             Destroy(gameObject);
+        }
+
+        Testing();
+    }
+
+    private void Testing()
+	{
+        int count = 10;
+        if (count >= difficultyEvaluationTrials)
+        {
+            int bounces = 0, accurateBounces = 0;
+            float slopeNumerator = 0f, slopeDenominator = 0f;
+            float slope;
+
+            for (int i = count - difficultyEvaluationTrials; i < count; i++)
+            {
+                bounces += i + 1;
+                // accurateBounces += trialData[i].numAccurateBounces;
+
+                slopeNumerator += (i + 1) * .5f;
+                slopeDenominator += i + 1;
+            }
+
+            float averageBounces = (float)bounces / (float)difficultyEvaluationTrials;
+            float averageAccurateBounces = (float)accurateBounces / (float)difficultyEvaluationTrials;
+            slope = slopeNumerator / slopeDenominator;
+            Debug.LogFormat("evaluated slope to be {0}", slope.ToString("F4"));
         }
     }
 

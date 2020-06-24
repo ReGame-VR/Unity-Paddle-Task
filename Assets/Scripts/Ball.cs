@@ -169,7 +169,7 @@ public class Ball : MonoBehaviour
         yield return new WaitWhile( () => !GetComponent<Kinematics>().ReachedApex());
 
         float apexHeight = rigidBody.position.y;
-        bool successfulBounce = gameScript.HeightInsideTargetWindow(apexHeight);
+        bool successfulBounce = gameScript.GetHeightInsideTargetWindow(apexHeight);
 
         if (successfulBounce) { 
             gameScript.IndicateSuccessBall();       // Flash ball green 

@@ -9,6 +9,7 @@ public class VideoControl : MonoBehaviour
     public float postVideoDelay = 3f;
     public GameObject renderTarget;
     public bool editorTesting = false;
+    public PaddleGame paddleGame;
     
     VideoClip video;
 
@@ -30,14 +31,18 @@ public class VideoControl : MonoBehaviour
 
             player.Play();
 		}
+		else
+		{
+            renderTarget.gameObject.SetActive(false);
+        }
     }
 
     IEnumerator PlaybackFinished(float delaySeconds)
 	{
-
         yield return new WaitForSeconds(delaySeconds);
         renderTarget.gameObject.SetActive(false);
-
+        GlobalControl.Instance.recordingData = true;
+        paddleGame.StartRecording();
 	}
 
 }

@@ -10804,7 +10804,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   explorationMode: 0
   participantID: 
-  numPaddles: 0
+  numPaddles: 1
   condition: 0
   expCondition: 2
   targetHeightPreference: 0
@@ -10815,15 +10815,20 @@ MonoBehaviour:
   timeElapsed: 0
   ballResetHoverSeconds: 3
   paused: 1
-  timescale: 0
-  targetHeightEnabled: 0
-  difficulty: 0
+  timescale: 1
+  targetHeightEnabled: 1
+  difficulty: 1
   playVideo: 0
   environmentOption: 0
   environments:
   - {fileID: 684842116218577282, guid: b3ebcc9afc85e4e47964153dc3609475, type: 3}
   - {fileID: 7130670092410527548, guid: 315b40b3aa8269f47b92e4ffc06cf33a, type: 3}
   recordingData: 0
+  difficultyEvaluationTrials: 10
+  difficultyChangedSuspension: 10
+  difficultyInterval: 1
+  difficultyMin: 1
+  difficultyMax: 4
 --- !u!4 &1434758229
 Transform:
   m_ObjectHideFlags: 0

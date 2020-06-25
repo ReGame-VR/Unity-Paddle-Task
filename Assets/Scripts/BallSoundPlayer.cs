@@ -6,6 +6,7 @@ public class BallSoundPlayer : MonoBehaviour {
     
     public AudioSource dropSound;
     public AudioSource successSound;
+    public AudioSource effectSource;
 
     // Play high pitch sound when ball is about to drop.
     public void PlayDropSound()
@@ -29,4 +30,9 @@ public class BallSoundPlayer : MonoBehaviour {
         successSound.Stop();
         successSound.PlayOneShot(successSound.clip);
     }
+
+    public void PlayEffectSound(AudioClip audioClip)
+	{
+        effectSource.PlayOneShot(audioClip);
+	}
 }

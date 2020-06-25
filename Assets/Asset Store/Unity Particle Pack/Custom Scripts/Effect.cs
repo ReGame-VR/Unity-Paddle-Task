@@ -8,7 +8,7 @@ public class Effect : MonoBehaviour
 	public float effectTime = 4;
 	public AnimationCurve fadeIn;
 	public Material material;
-	public GameObject particleParent;
+	public List<EffectParticle> effectParticles = new List<EffectParticle>();
 	[NonSerialized]
 	public ParticleSystem ps;
 	new public Renderer renderer;
@@ -70,4 +70,18 @@ public class Effect : MonoBehaviour
 		playing = true;
 		ps.Play();
 	}
+
+	public  EffectParticle GetEffectParticle(Effect effect)
+	{
+		foreach (var particle in effectParticles)
+		{
+			if (particle.effect == effect)
+			{
+				return particle;
+			}
+		}
+
+		return null;
+	}
+
 }

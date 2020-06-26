@@ -33,6 +33,9 @@ public class BallSoundPlayer : MonoBehaviour {
 
     public void PlayEffectSound(AudioClip audioClip)
 	{
-        effectSource.PlayOneShot(audioClip);
+        if (audioClip != null)
+		{
+            effectSource.PlayOneShot(audioClip);
+		}
 	}
 }

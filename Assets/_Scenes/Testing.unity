@@ -152,7 +152,7 @@ MonoBehaviour:
   material: {fileID: 0}
   effectParticles:
   - effect: {fileID: 45726204}
-    particleParent: {fileID: 1866692875439891}
+    particleParent: {fileID: 1947871746106587}
   renderer: {fileID: 0}
   localOffset: {x: 0, y: -0.5, z: 0}
 --- !u!114 &193024199
@@ -437,7 +437,7 @@ MonoBehaviour:
   material: {fileID: 0}
   effectParticles:
   - effect: {fileID: 937607853}
-    particleParent: {fileID: 1866693599409216}
+    particleParent: {fileID: 1947870985314184}
   renderer: {fileID: 0}
   localOffset: {x: 0, y: -0.5, z: 0}
 --- !u!1 &1099704162
@@ -14888,7 +14888,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1866693599409216
 GameObject:
   m_ObjectHideFlags: 0
@@ -14906,7 +14906,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1912730215722380
 GameObject:
   m_ObjectHideFlags: 0

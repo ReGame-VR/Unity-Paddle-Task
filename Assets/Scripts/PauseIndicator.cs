@@ -8,7 +8,7 @@ public class PauseIndicator : MonoBehaviour
 
     void Update()
     {
-        if (GlobalControl.Instance.paused)
+        if (GlobalControl.Instance.paused && !GlobalControl.Instance.recordingData)
         {
             quad.SetActive(true);
         }

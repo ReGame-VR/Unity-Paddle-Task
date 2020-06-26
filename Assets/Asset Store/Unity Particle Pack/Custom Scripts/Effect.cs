@@ -69,6 +69,7 @@ public class Effect : MonoBehaviour
 	{
 		playing = true;
 		ps.Play();
+		timer = 0;
 	}
 
 	public  EffectParticle GetEffectParticle(Effect effect)

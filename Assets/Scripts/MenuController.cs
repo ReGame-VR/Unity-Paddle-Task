@@ -65,7 +65,7 @@ public class MenuController : MonoBehaviour {
     public void UpdateHoverTime(float value)
     {
         Slider s = GameObject.Find("Ball Respawn Time Slider").GetComponent<Slider>();
-        Text sliderText = GameObject.Find("Time Indicator").GetComponent<Text>();
+        TextMeshProUGUI sliderText = GameObject.Find("Time Indicator").GetComponent<TextMeshProUGUI>();
 
         sliderText.text = value + " seconds";
         s.value = value;
@@ -80,8 +80,8 @@ public class MenuController : MonoBehaviour {
         const float INCHES_PER_METER = 39.37f;
         const float METERS_PER_INCH = 0.0254f;
 
-        Slider s = GameObject.Find("Success Threshold Slider").GetComponent<Slider>(); 
-        Text sliderText = GameObject.Find("Width Indicator").GetComponent<Text>();
+        Slider s = GameObject.Find("Success Threshold Slider").GetComponent<Slider>();
+        TextMeshProUGUI sliderText = GameObject.Find("Width Indicator").GetComponent<TextMeshProUGUI>();
 
         float targetThresholdInches = value * 0.5f;
         float targetThresholdMeters = targetThresholdInches * METERS_PER_INCH; // each notch is 0.5 inches 

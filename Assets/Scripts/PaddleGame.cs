@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Unity.Labs.SuperScience;
 using Valve.VR;
 using System.Runtime.CompilerServices;
+using System;
 
 public class PaddleGame : MonoBehaviour
 {
@@ -195,15 +196,30 @@ public class PaddleGame : MonoBehaviour
 		CheckEndCondition();
 
 		// add time adjust jl controls for demonstrations
-		if (Input.GetKeyDown(KeyCode.J))
+		if (Input.GetKeyDown(KeyCode.N))
 		{
-			globalControl.timescale -= .1f;
+			globalControl.timescale = Mathf.Clamp(globalControl.timescale - .05f, .05f, 3f);
 			Time.timeScale = globalControl.timescale;
+			Debug.Log("reduced timescale to " + globalControl.timescale);
 		}
-		if (Input.GetKeyDown(KeyCode.L))
+		if (Input.GetKeyDown(KeyCode.M))
 		{
-			globalControl.timescale += .1f;
+			globalControl.timescale = Mathf.Clamp(globalControl.timescale + .05f, .05f, 3f);
 			Time.timeScale = globalControl.timescale;
+			Debug.Log("increased timescale to " + globalControl.timescale);
+
+		}
+		if (Input.GetKeyDown(KeyCode.U))
+		{
+			curScore -= 25f;
+			BallBounced(null);
+			Debug.Log("Score decreased");
+		}
+		if (Input.GetKeyDown(KeyCode.I))
+		{
+			curScore += 25f;
+			BallBounced(null);
+			Debug.Log("Score increased");
 		}
 	}
 
@@ -289,7 +305,10 @@ public class PaddleGame : MonoBehaviour
 	{
 		if (!inHoverMode)
 		{
-			Time.timeScale = globalControl.timescale;
+			if (!inRespawnMode)
+			{
+				Time.timeScale = globalControl.timescale;
+			}
 
 			timeToDropQuad.SetActive(false);
 
@@ -325,14 +344,23 @@ public class PaddleGame : MonoBehaviour
 
 	IEnumerator Respawning()
 	{
+		Time.timeScale = 1f;
+		effectController.StopAllParticleEffects();
 		effectController.StartEffect(effectController.dissolve);
 		yield return new WaitForSeconds(ballRespawnSeconds);
 		inRespawnMode = false;
 		inHoverMode = true;
 		yield return new WaitForEndOfFrame();
+		effectController.StopParticleEffect(effectController.dissolve);
 		effectController.StartEffect(effectController.respawn);
 		yield return new WaitForSeconds(ballRespawnSeconds);
 		ball.GetComponent<Ball>().TurnBallWhite();
+		//yield return new WaitForSeconds(ballResetHoverSeconds);
+		// Debug.Log("4");
+
+		// yield return null;
+		// Debug.Log("5");
+
 	}
 
 	// Drops ball after reset
@@ -416,13 +444,17 @@ public class PaddleGame : MonoBehaviour
 		{
 			Debug.LogFormat("max score for effects not reached. current score {0} is greater than the target {1} for effect {2}. startign effects, increasing score target...", curScore, scoreEffectTarget, scoreEffects[scoreEffectTarget].score);
 
+			foreach (var disableEffect in scoreEffects[scoreEffectTarget].disableEffects)
+			{
+				effectController.StopParticleEffect(disableEffect);
+			}
 			effectController.StartEffect(scoreEffects[scoreEffectTarget].effect);
 			ballSoundPlayer.PlayEffectSound(scoreEffects[scoreEffectTarget].audioClip);
 
 			if (scoreEffectTarget + 1 >= scoreEffects.Count)
 			{
 				maxScoreEffectReached = true;
-				Debug.LogFormat("max score reached, score is {0} and score target was {1}", curScore, scoreEffects[scoreEffectTarget].score);
+				Debug.LogFormat("max effect score reached, score is {0} and score target was {1}", curScore, scoreEffects[scoreEffectTarget].score);
 			}
 			else
 			{
@@ -665,8 +697,11 @@ public class PaddleGame : MonoBehaviour
 	private void PopulateScoreEffects()
 	{
 		// enter score effects in order of the score needed to trigger them
-		scoreEffects.Add(new ScoreEffects(40, effectController.fire, null));
-		scoreEffects.Add(new ScoreEffects(80, effectController.blueFire, null));
+		scoreEffects.Add(new ScoreEffects(25, effectController.embers, null));
+		scoreEffects.Add(new ScoreEffects(50, effectController.fire, null));
+		scoreEffects.Add(new ScoreEffects(75, effectController.blueEmbers, null, new List<Effect>() { effectController.embers }));
+		scoreEffects.Add(new ScoreEffects(100, effectController.blueFire, null, new List<Effect>() { effectController.fire }));
+
 
 		int highestScore = 0;
 		for(int i = 0; i < scoreEffects.Count; i++)

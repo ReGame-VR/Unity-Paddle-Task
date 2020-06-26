@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.PlayerLoop;
 using UnityEngine.Video;
 
 public class VideoControl : MonoBehaviour
@@ -12,6 +13,7 @@ public class VideoControl : MonoBehaviour
     public PaddleGame paddleGame;
     
     VideoClip video;
+    Coroutine playbackFinished;
 
     void Start()
     {
@@ -19,6 +21,7 @@ public class VideoControl : MonoBehaviour
         video = player.clip; 
         if (GlobalControl.Instance.playVideo)
 		{
+            GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>().TogglePause();
             float appStartDelay = (float)video.length + postVideoDelay;
 
 #if UNITY_EDITOR
@@ -27,7 +30,7 @@ public class VideoControl : MonoBehaviour
                 appStartDelay = 10f;
 		    }
 #endif
-            StartCoroutine(PlaybackFinished(appStartDelay));
+            playbackFinished = StartCoroutine(PlaybackFinished(appStartDelay));
 
             player.Play();
 		}
@@ -37,10 +40,20 @@ public class VideoControl : MonoBehaviour
         }
     }
 
+	void Update()
+	{
+        if (Input.GetKeyDown(KeyCode.V))
+		{
+            StopCoroutine(playbackFinished);
+            StartCoroutine(PlaybackFinished(0));
+		}
+	}
+
     IEnumerator PlaybackFinished(float delaySeconds)
 	{
         yield return new WaitForSeconds(delaySeconds);
         renderTarget.gameObject.SetActive(false);
+        player.Stop();
         GlobalControl.Instance.recordingData = true;
         paddleGame.StartRecording();
 	}

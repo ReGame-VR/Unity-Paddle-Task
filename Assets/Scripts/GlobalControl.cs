@@ -6,6 +6,8 @@ public enum Condition { REGULAR, ENHANCED, REDUCED, TARGETLINE };
 public enum Session { BASELINE, ACQUISITION, RETENTION, TRANSFER };
 public enum TargetHeight { DEFAULT, LOWERED, RAISED };
 public enum ExpCondition { RANDOM, HEAVIEST, HEAVIER, NORMAL, LIGHTER, LIGHTEST };
+public enum DifficultyEvaluation { BASE, MODERATE, MAXIMAL, CUSTOM };
+public enum Mindset { GROWTH, CONTROL };
 
 /// <summary>
 /// Stores calibration data for trial use in a single place.
@@ -86,6 +88,8 @@ public class GlobalControl : MonoBehaviour
 
     // low and high ends for difficulty scale
     public float difficultyMin = 1, difficultyMax = 4;
+
+    public DifficultyEvaluation difficultyEvaluation = DifficultyEvaluation.BASE;
 
     /// <summary>
     /// Assign instance to this, or destroy it if Instance already exits and is not this instance.

@@ -11,6 +11,12 @@ using System.Linq;
 public class PaddleGame : MonoBehaviour
 {
 
+	private const float ballSpeedMin = .3f, ballSpeedMax = 1.5f;
+	// enum values
+	private const int ballBounceMin = 5, ballBounceMax = 1;
+	private const float targetRadiusMin = .5f, targetRadiusMax = 5f;
+	private const int difficultyMin = 1, difficultyMax = 10;
+
 	[Tooltip("The head mounted display")]
 	[SerializeField]
 	private GameObject hmd;
@@ -53,6 +59,9 @@ public class PaddleGame : MonoBehaviour
 
 	[SerializeField, Tooltip("Handles the ball sound effects")]
 	private BallSoundPlayer ballSoundPlayer;
+
+	[SerializeField]
+	AudioClip feedbackExample;
 
 	// Current number of bounces that the player has acheieved in this trial
 	private int numBounces = 0;
@@ -126,7 +135,7 @@ public class PaddleGame : MonoBehaviour
 		{ DifficultyEvaluation.MAXIMAL, new List<TrialSetData>() },
 		{ DifficultyEvaluation.CUSTOM, new List<TrialSetData>() }
 	};
-	private List<ScoreEffects> scoreEffects = new List<ScoreEffects>();
+	private List<ScoreEffect> scoreEffects = new List<ScoreEffect>();
 	private List<DifficultyEvaluation> difficultyEvaluationOrder = new List<DifficultyEvaluation>();
 	private int difficultyEvaluationIndex = 0;
 
@@ -137,8 +146,16 @@ public class PaddleGame : MonoBehaviour
 		{ DifficultyEvaluation.MAXIMAL, - 1 }
 	};
 
+
 	int scoreEffectTarget = 0;
 	bool maxScoreEffectReached = false;
+
+	float difficulty;
+	List<TrialCondition> trialConditions = new List<TrialCondition>();
+	TrialCondition baseTrialCondition, moderateTrialCondition, maximaltrialCondition;
+	List<TrialData> trialDatas = new List<TrialData>();
+
+	AudioSource feedbackSource;
 
 	GlobalControl globalControl;
 	DataHandler dataHandler;
@@ -169,6 +186,8 @@ public class PaddleGame : MonoBehaviour
 			leftPaddle.GetComponent<Paddle>().SetPaddleIdentifier(Paddle.PaddleIdentifier.LEFT);
 		}
 
+		InitializeTrialConditions();
+
 		Initialize();
 	}
 
@@ -189,7 +208,7 @@ public class PaddleGame : MonoBehaviour
 			StartRecording();
 		}
 
-		int difficulty = 0;
+		// int difficulty = 0;
 		if (globalControl.difficultyEvaluation == DifficultyEvaluation.BASE)
 		{
 			// difficulty = GetDifficulty()
@@ -214,6 +233,8 @@ public class PaddleGame : MonoBehaviour
 
 			difficultyEvaluation = difficultyEvaluationOrder[difficultyEvaluationIndex];
 		}
+
+		difficulty = GetDifficulty(difficultyEvaluationOrder[difficultyEvaluationIndex]);
 	}
 
 	void Update()
@@ -269,28 +290,8 @@ public class PaddleGame : MonoBehaviour
 		// This is to ensure that the final trial is recorded.
 		ResetTrial();
 	}
-
-	public void StartRecording()
-	{
-		// Record session data
-		dataHandler.recordHeaderInfo(condition, expCondition, session, maxTrialTime, hoverTime, targetRadius);
-
-	}
-
-	public void SwapActivePaddle()
-	{
-		SteamVR_Behaviour_Pose paddlePose = GameObject.Find("Paddle").GetComponent<SteamVR_Behaviour_Pose>();
-		useLeft = !useLeft;
-
-		if (useLeft)
-		{
-			paddlePose.inputSource = SteamVR_Input_Sources.LeftHand;
-		}
-		else
-		{
-			paddlePose.inputSource = SteamVR_Input_Sources.RightHand;
-		}
-	}
+	
+	#region Initialization
 
 	// Sets Target Line height based on HMD eye level and target position preference
 	public void SetTargetLineHeight()
@@ -326,20 +327,87 @@ public class PaddleGame : MonoBehaviour
 		return y;
 	}
 
-	// Toggles the timescale to make the game slower 
-	public void ToggleTimescale()
+	private void PopulateScoreEffects()
 	{
-		slowtime = !slowtime;
+		// enter score effects in order of the score needed to trigger them
+		scoreEffects.Add(new ScoreEffect(25, effectController.embers, null));
+		scoreEffects.Add(new ScoreEffect(50, effectController.fire, null));
+		scoreEffects.Add(new ScoreEffect(75, effectController.blueEmbers, null, new List<Effect>() { effectController.embers }));
+		scoreEffects.Add(new ScoreEffect(100, effectController.blueFire, null, new List<Effect>() { effectController.fire }));
 
-		if (slowtime)
+
+		int highestScore = 0;
+		for(int i = 0; i < scoreEffects.Count; i++)
 		{
-			Time.timeScale = globalControl.timescale; // 0.7f;
+			if (scoreEffects[i].score > highestScore)
+			{
+				highestScore = scoreEffects[i].score;
+			}
+			else
+			{
+				// could create a sorting algorithm but it's a bit more work to deal with the custom class. user input in the correct order not that hard though. 
+				Debug.LogErrorFormat("ERROR! Invalid Score order entered, must be in ascending order. Entry {0} had score {1}, lower than the minimum {2}", i, scoreEffects[i], highestScore);
+			}
 		}
-		else
-		{
-			Time.timeScale = 1.0f;
-		}
+
+		scoreEffectTarget = 0;
 	}
+
+	void InitializeTrialConditions()
+	{
+		int successTrials = 0, targetConsecutiveBounces = 0, targetAccurateBounces = 0;
+		if (difficultyEvaluation == DifficultyEvaluation.BASE)
+		{
+			successTrials = 7;
+			targetConsecutiveBounces = 5;
+		}
+		else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
+		{
+			successTrials = 7;
+			targetConsecutiveBounces = 5;
+			targetAccurateBounces = 5;
+
+		}
+		else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
+		{
+			successTrials = 7;
+			targetConsecutiveBounces = 5;
+		}
+
+
+		// difficulty conditions
+		baseTrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
+		{
+			if (trialData.bounces >= 5)
+			{
+				return true;
+			}
+			return false; 
+		});
+		moderateTrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
+		{ 
+			if (trialData.bounces >= 5 && trialData.accurateBounces >= 5) 
+			{ 
+				return true; 
+			} 
+			return false; 
+		});
+		maximaltrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
+		{
+			if (trialData.bounces >= 5)
+			{
+				return true;
+			}
+			return false; 
+		});
+
+		// feedback conditions
+		trialConditions.Add(new TrialCondition(5, 5, true, feedbackExample, (TrialData trialData) => { if (trialData.bounces <= 0) { return true; } return false; }));
+	}
+
+	#endregion // Initialization
+
+	#region Reset Trial
 
 	// Holds the ball over the paddle at Target Height for 0.5 seconds, then releases
 	public void HoverOnReset()
@@ -396,12 +464,6 @@ public class PaddleGame : MonoBehaviour
 		effectController.StartEffect(effectController.respawn);
 		yield return new WaitForSeconds(ballRespawnSeconds);
 		ball.GetComponent<Ball>().TurnBallWhite();
-		//yield return new WaitForSeconds(ballResetHoverSeconds);
-		// Debug.Log("4");
-
-		// yield return null;
-		// Debug.Log("5");
-
 	}
 
 	// Drops ball after reset
@@ -460,6 +522,38 @@ public class PaddleGame : MonoBehaviour
 		ballSoundPlayer.PlayDropSound();
 	}
 
+	// The ball was reset after hitting the ground. Reset bounce and score.
+	public void ResetTrial()
+	{
+		// Don't run this code the first time the ball is reset or when there are 0 bounces
+		if (trialNum < 1 || numBounces < 1)
+		{
+			trialNum++;
+			return;
+		}
+
+		// Record data for final bounce in trial
+		GatherBounceData();
+
+		if (globalControl.recordingData)
+		{
+			// Record Trial Data from last trial
+			dataHandler.recordTrial(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces, difficultyEvaluation);
+			CheckDifficulty();
+		}
+
+		trialNum++;
+		numBounces = 0;
+		numAccurateBounces = 0;
+		curScore = 0f;
+		scoreEffectTarget = 0;
+		maxScoreEffectReached = false;
+	}
+
+	#endregion // Reset
+
+	#region Checks, Interactions, Data
+
 	// This will be called when the ball successfully bounces on the paddle.
 	public void BallBounced(Collision c)
 	{
@@ -502,35 +596,210 @@ public class PaddleGame : MonoBehaviour
 				scoreEffectTarget++;
 			}
 		}
-
 	}
 
-	// The ball was reset after hitting the ground. Reset bounce and score.
-	public void ResetTrial()
+	// Turns ball green briefly and plays success sound.
+	public void IndicateSuccessBall()
 	{
-		// Don't run this code the first time the ball is reset or when there are 0 bounces
-		if (trialNum < 1 || numBounces < 1)
+		Ball b = ball.GetComponent<Ball>();
+
+		ballSoundPlayer.PlaySuccessSound();
+
+		b.TurnBallGreen();
+		StartCoroutine(b.TurnBallWhiteCR(0.3f));
+	}
+
+	private void EvaluationCompleted()
+	{
+		difficultyEvaluationIndex++;
+		if (difficultyEvaluationIndex >= difficultyEvaluationOrder.Count)
 		{
-			trialNum++;
+			// evaluations completed
+		}
+		else
+		{
+			difficultyEvaluation = difficultyEvaluationOrder[difficultyEvaluationIndex];
+		}
+	}
+
+	void CheckEndCondition()
+	{
+		if (CheckScoreCondition())
+		{
+			EvaluateDifficultyResult(true);
+		}
+
+		if (globalControl.GetTimeLimitSeconds() == 0)
+		{
 			return;
 		}
 
-		// Record data for final bounce in trial
-		GatherBounceData();
-
-		if (globalControl.recordingData)
+		if (globalControl.GetTimeElapsed() > globalControl.GetTimeLimitSeconds())
 		{
-			// Record Trial Data from last trial
-			dataHandler.recordTrial(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces, difficultyEvaluation);
-			CheckDifficulty();
+#if !UNITY_EDITOR
+			Debug.Log("Time limit of " + globalControl.GetTimeLimitSeconds() + " seconds has passed. Quitting");
+#endif
+			// Application.Quit();
+			EvaluateDifficultyResult(false);
+		}
+	}
+
+	void CheckConditions()
+	{
+		TrialCondition difficultyCondition = null;
+		if (difficultyEvaluation == DifficultyEvaluation.BASE)
+		{
+			difficultyCondition = baseTrialCondition;
+		}
+		else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
+		{
+			difficultyCondition = moderateTrialCondition;
+		}
+		else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
+		{
+			difficultyCondition = maximaltrialCondition;
 		}
 
-		trialNum++;
-		numBounces = 0;
-		numAccurateBounces = 0;
-		curScore = 0f;
-		scoreEffectTarget = 0;
-		maxScoreEffectReached = false;
+		if (CheckCondition(difficultyCondition))
+		{
+			// begin next set
+		}
+
+		for (int i = 0; i < trialConditions.Count; i++)
+		{
+			CheckCondition(trialConditions[i]);
+		}
+
+		return; 
+		// old method
+		int successTrials = 0, targetConsecutiveBounces = 0, targetAccurateBounces = 0;
+		if (difficultyEvaluation == DifficultyEvaluation.BASE)
+		{
+			successTrials = 7;
+			targetConsecutiveBounces = 5;
+		}
+		else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
+		{
+			successTrials = 7;
+			targetConsecutiveBounces = 5;
+			targetAccurateBounces = 5;
+
+		}
+		else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
+		{
+			successTrials = 7;
+			targetConsecutiveBounces = 5;
+		}
+
+		//if (GetTrialEvaluationTrue(successTrials, successLastTrials, targetConsecutiveBounces, targetAccurateBounces))
+		//{
+		//	return true;
+		//}
+		//else
+		//{
+		//	return false;
+		//}
+	}
+
+	bool CheckCondition(TrialCondition trialCondition)
+	{
+		if (trialCondition.trialEvaluationTarget > trialDatas.Count)
+		{
+			// not enough data
+			return false;
+		}
+
+		if (trialCondition.trialEvaluationCooldown > 0)
+		{
+			trialCondition.trialEvaluationCooldown--;
+			return false;
+		}
+
+		int trueCount = 0;
+
+		for(int i = trialDatas.Count; i > trialDatas.Count - trialCondition.trialEvaluationsSet && i > 0; i--)
+		{
+			if (trialCondition.checkTrialCondition(trialDatas[i]))
+			{
+				trueCount++;
+			}
+			else if (trialCondition.sequential)
+			{
+				trueCount = 0;
+			}
+
+			if (trueCount >= trialCondition.trialEvaluationTarget)
+			{
+				// successful condition
+				if (trialCondition.conditionFeedback != null)
+				{	
+					feedbackSource.PlayOneShot(trialCondition.conditionFeedback);
+				}
+				trialCondition.trialEvaluationCooldown = trialCondition.trialEvaluationsSet;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool GetTrialEvaluationTrue(int successTrials, int lastTrials, int targetConsecutiveBounces, int targetAccurateBounces)
+	{
+		var data = trialSetDatas[difficultyEvaluation];
+		if (data.Count >= lastTrials)
+		{
+			int succeededTrials = 0;
+			for (int i = data.Count - lastTrials; i < data.Count; i++)
+			{
+				if (data[i].bounces >= targetConsecutiveBounces && data[i].accurateBounces >= targetAccurateBounces)
+				{
+					succeededTrials++;
+				}
+			}
+
+			if (succeededTrials >= successTrials)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private float GetHmdHeight()
+	{
+		return hmd.transform.position.y;
+	}
+
+	// Returns true if the ball is within the target line boundaries.
+	public bool GetHeightInsideTargetWindow(float height)
+	{
+		if (!globalControl.targetHeightEnabled) return false;
+
+		float targetHeight = targetLine.transform.position.y;
+		float lowerLimit = targetHeight - targetRadius;
+		float upperLimit = targetHeight + targetRadius;
+
+		return (height > lowerLimit) && (height < upperLimit);
+	}
+
+	#region Gathering and recording data
+
+	public void StartRecording()
+	{
+		// Record session data
+		dataHandler.recordHeaderInfo(condition, expCondition, session, maxTrialTime, hoverTime, targetRadius);
+	}
+
+	// Initialize paddle information to be recorded upon next bounce
+	private void SetUpPaddleData()
+	{
+		GameObject paddle = GetActivePaddle();
+
+		paddleBounceHeight = paddle.transform.position.y;
+		//paddleBounceVelocity = paddle.GetComponent<Paddle>().GetVelocity();
+		//paddleBounceAccel = paddle.GetComponent<Paddle>().GetAcceleration();
+		paddleBounceVelocity = m_MotionData.Velocity;
+		paddleBounceAccel = m_MotionData.Acceleration;
 	}
 
 	// Determine data for recording a bounce and finally, record it.
@@ -561,17 +830,6 @@ public class PaddleGame : MonoBehaviour
 		bounceHeightList = new List<float>();
 	}
 
-	// Turns ball green briefly and plays success sound.
-	public void IndicateSuccessBall()
-	{
-		Ball b = ball.GetComponent<Ball>();
-
-		ballSoundPlayer.PlaySuccessSound();
-
-		b.TurnBallGreen();
-		StartCoroutine(b.TurnBallWhiteCR(0.3f));
-	}
-
 	// Grab ball and paddle info and record it. Should be called once per frame
 	private void GatherContinuousData()
 	{
@@ -589,74 +847,11 @@ public class PaddleGame : MonoBehaviour
 		}
 	}
 
-	// Initialize paddle information to be recorded upon next bounce
-	private void SetUpPaddleData()
-	{
-		GameObject paddle = GetActivePaddle();
+	#endregion // Gathering and recording data
 
-		paddleBounceHeight = paddle.transform.position.y;
-		//paddleBounceVelocity = paddle.GetComponent<Paddle>().GetVelocity();
-		//paddleBounceAccel = paddle.GetComponent<Paddle>().GetAcceleration();
-		paddleBounceVelocity = m_MotionData.Velocity;
-		paddleBounceAccel = m_MotionData.Acceleration;
-	}
+	#endregion // Checks, Interactions, Data
 
-	// If 6 of the last 10 bounces were successful, update ExplorationMode physics 
-	// bool parameter is whether last bounce was success 
-	public void ModifyPhysicsOnSuccess(bool bounceSuccess)
-	{
-		if (globalControl.explorationMode != GlobalControl.ExplorationMode.FORCED)
-		{
-			return;
-		}
-
-		explorationModeBuffer.Add(bounceSuccess);
-
-		int successes = 0;
-
-		bool[] temp = explorationModeBuffer.GetArray();
-		for (int i = 0; i < explorationModeBuffer.length(); i++)
-		{
-			if (temp[i])
-			{
-				successes++;
-			}
-		}
-
-		if (successes >= EXPLORATION_SUCCESS_THRESHOLD)
-		{
-			// Change game physics
-			GetComponent<ExplorationMode>().ModifyBouncePhysics();
-			GetComponent<ExplorationMode>().IndicatePhysicsChange();
-
-			// Reset counter
-			explorationModeBuffer = new CircularBuffer<bool>(EXPLORATION_MAX_BOUNCES);
-			return;
-		}
-	}
-
-	// In order to prevent bugs, wait a little bit for the paddles to switch
-	IEnumerator WaitToSwitchPaddles(Collision c)
-	{
-		yield return new WaitForSeconds(0.1f);
-		// We need the paddle identifier. This is the second parent of the collider in the heirarchy.
-		SwitchPaddles(c.gameObject.transform.parent.transform.parent.GetComponent<Paddle>().GetPaddleIdentifier());
-	}
-
-	// Switch the active paddles
-	private void SwitchPaddles(Paddle.PaddleIdentifier paddleId)
-	{
-		if (paddleId == Paddle.PaddleIdentifier.LEFT)
-		{
-			leftPaddle.GetComponent<Paddle>().DisablePaddle();
-			rightPaddle.GetComponent<Paddle>().EnablePaddle();
-		}
-		else
-		{
-			leftPaddle.GetComponent<Paddle>().EnablePaddle();
-			rightPaddle.GetComponent<Paddle>().DisablePaddle();
-		}
-	}
+	#region Difficulty
 
 	private void CheckDifficulty()
 	{
@@ -692,7 +887,7 @@ public class PaddleGame : MonoBehaviour
 	public void ChangeDifficulty(float difficulty)
 	{
 		// TODO reimplement
-		return; 
+		return;
 		if (difficulty == globalControl.difficulty)
 		{
 			// no chnage, returning
@@ -700,19 +895,6 @@ public class PaddleGame : MonoBehaviour
 		}
 
 		trialDifficultyChanged = dataHandler.GetTrialData().Count;
-	}
-
-	private void EvaluationCompleted()
-	{
-		difficultyEvaluationIndex++;
-		if (difficultyEvaluationIndex >= difficultyEvaluationOrder.Count)
-		{
-			// evaluations completed
-		}
-		else
-		{
-			difficultyEvaluation = difficultyEvaluationOrder[difficultyEvaluationIndex];
-		}
 	}
 
 	private float GetDifficultyChange(bool higher)
@@ -739,44 +921,19 @@ public class PaddleGame : MonoBehaviour
 		return -1;
 	}
 
-
-
 	/// <summary>
 	/// may return a value to additionally increase or decrease current difficulty step based on overall performance. 
 	/// </summary>
 	/// <returns></returns>
 	private float GetOverallDifficultyModifier()
 	{
-		foreach(var trialSetData in trialSetDatas)
+		foreach (var trialSetData in trialSetDatas)
 		{
 			// evaluate the set
 		}
 
 		// create modifier
 		return 0;
-	}
-
-	void CheckEndCondition()
-	{
-
-		if (CheckScoreCondition())
-		{
-			EvaluateDifficultyResult(true);
-		}
-		
-		if (globalControl.GetTimeLimitSeconds() == 0)
-		{
-			return;
-		}
-
-		if (globalControl.GetTimeElapsed() > globalControl.GetTimeLimitSeconds())
-		{
-#if !UNITY_EDITOR
-			Debug.Log("Time limit of " + globalControl.GetTimeLimitSeconds() + " seconds has passed. Quitting");
-#endif
-			// Application.Quit();
-			EvaluateDifficultyResult(false);
-		}
 	}
 
 	void EvaluateDifficultyResult(bool successfulCompletion)
@@ -837,101 +994,114 @@ public class PaddleGame : MonoBehaviour
 		return -1;
 	}
 
-	bool CheckScoreCondition()
+	private void SetDifficulty(float difficultyNew)
 	{
-		int successTrials = 0, targetConsecutiveBounces = 0, targetAccurateBounces = 0;
-		if (difficultyEvaluation == DifficultyEvaluation.BASE)
-		{
-			successTrials = 7;
-			targetConsecutiveBounces = 5;
-		}
-		else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
-		{
-			successTrials = 7;
-			targetConsecutiveBounces = 5;
-			targetAccurateBounces = 5;
+		difficulty = difficultyNew;
+		float difficultyScalar = Mathf.InverseLerp(difficultyMin, difficultyMax, difficulty);
 
-		}
-		else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
-		{
-			successTrials = 7;
-			targetConsecutiveBounces = 5;
-		}
+		float ballSpeedNew = Mathf.Lerp(ballSpeedMin, ballSpeedMax, difficultyScalar);
+		int bouncinessNew = (int)Math.Round(Mathf.Lerp(ballBounceMin, ballBounceMax, difficultyScalar), 0);
+		float targetRadiusNew = Mathf.Lerp(targetRadiusMin, targetRadiusMax, difficultyScalar);
 
-		if (GetTrialEvaluationTrue(successTrials, successLastTrials, targetConsecutiveBounces, targetAccurateBounces))
+		globalControl.timescale = ballSpeedNew;
+		Time.timeScale = ballSpeedNew;
+
+		globalControl.expCondition = (ExpCondition)bouncinessNew;
+		expCondition = globalControl.expCondition;
+
+		globalControl.targetRadius = targetRadiusNew;
+		targetRadius = targetRadiusNew;
+	}
+
+	#endregion // Difficulty
+
+	#region Exploration Mode
+
+	public void SwapActivePaddle()
+	{
+		SteamVR_Behaviour_Pose paddlePose = GameObject.Find("Paddle").GetComponent<SteamVR_Behaviour_Pose>();
+		useLeft = !useLeft;
+
+		if (useLeft)
 		{
-			return true;
+			paddlePose.inputSource = SteamVR_Input_Sources.LeftHand;
 		}
 		else
 		{
-			return false;
+			paddlePose.inputSource = SteamVR_Input_Sources.RightHand;
 		}
 	}
 
-	bool GetTrialEvaluationTrue(int successTrials, int lastTrials, int targetConsecutiveBounces, int targetAccurateBounces)
+	// Toggles the timescale to make the game slower 
+	public void ToggleTimescale()
 	{
-		var data = trialSetDatas[difficultyEvaluation];
-		if(data.Count >= lastTrials)
+		slowtime = !slowtime;
+
+		if (slowtime)
 		{
-			int succeededTrials = 0;
-			for (int i = data.Count - lastTrials; i < data.Count; i++)
-			{
-				if(data[i].bounces >= targetConsecutiveBounces && data[i].accurateBounces >= targetAccurateBounces)
-				{
-					succeededTrials++;
-				}
-			}
-
-			if (succeededTrials >= successTrials)
-			{
-				return true;
-			}
+			Time.timeScale = globalControl.timescale; // 0.7f;
 		}
-
-		return false;
-	}
-
-	private void PopulateScoreEffects()
-	{
-		// enter score effects in order of the score needed to trigger them
-		scoreEffects.Add(new ScoreEffects(25, effectController.embers, null));
-		scoreEffects.Add(new ScoreEffects(50, effectController.fire, null));
-		scoreEffects.Add(new ScoreEffects(75, effectController.blueEmbers, null, new List<Effect>() { effectController.embers }));
-		scoreEffects.Add(new ScoreEffects(100, effectController.blueFire, null, new List<Effect>() { effectController.fire }));
-
-
-		int highestScore = 0;
-		for(int i = 0; i < scoreEffects.Count; i++)
+		else
 		{
-			if (scoreEffects[i].score > highestScore)
+			Time.timeScale = 1.0f;
+		}
+	}
+
+	// If 6 of the last 10 bounces were successful, update ExplorationMode physics 
+	// bool parameter is whether last bounce was success 
+	public void ModifyPhysicsOnSuccess(bool bounceSuccess)
+	{
+		if (globalControl.explorationMode != GlobalControl.ExplorationMode.FORCED)
+		{
+			return;
+		}
+
+		explorationModeBuffer.Add(bounceSuccess);
+
+		int successes = 0;
+
+		bool[] temp = explorationModeBuffer.GetArray();
+		for (int i = 0; i < explorationModeBuffer.length(); i++)
+		{
+			if (temp[i])
 			{
-				highestScore = scoreEffects[i].score;
-			}
-			else
-			{
-				// could create a sorting algorithm but it's a bit more work to deal with the custom class. user input in the correct order not that hard though. 
-				Debug.LogErrorFormat("ERROR! Invalid Score order entered, must be in ascending order. Entry {0} had score {1}, lower than the minimum {2}", i, scoreEffects[i], highestScore);
+				successes++;
 			}
 		}
 
-		scoreEffectTarget = 0;
+		if (successes >= EXPLORATION_SUCCESS_THRESHOLD)
+		{
+			// Change game physics
+			GetComponent<ExplorationMode>().ModifyBouncePhysics();
+			GetComponent<ExplorationMode>().IndicatePhysicsChange();
+
+			// Reset counter
+			explorationModeBuffer = new CircularBuffer<bool>(EXPLORATION_MAX_BOUNCES);
+			return;
+		}
 	}
 
-	private float GetHmdHeight()
+	// In order to prevent bugs, wait a little bit for the paddles to switch
+	IEnumerator WaitToSwitchPaddles(Collision c)
 	{
-		return hmd.transform.position.y;
+		yield return new WaitForSeconds(0.1f);
+		// We need the paddle identifier. This is the second parent of the collider in the heirarchy.
+		SwitchPaddles(c.gameObject.transform.parent.transform.parent.GetComponent<Paddle>().GetPaddleIdentifier());
 	}
 
-	// Returns true if the ball is within the target line boundaries.
-	public bool GetHeightInsideTargetWindow(float height)
+	// Switch the active paddles
+	private void SwitchPaddles(Paddle.PaddleIdentifier paddleId)
 	{
-		if (!globalControl.targetHeightEnabled) return false;
-
-		float targetHeight = targetLine.transform.position.y;
-		float lowerLimit = targetHeight - targetRadius;
-		float upperLimit = targetHeight + targetRadius;
-
-		return (height > lowerLimit) && (height < upperLimit);
+		if (paddleId == Paddle.PaddleIdentifier.LEFT)
+		{
+			leftPaddle.GetComponent<Paddle>().DisablePaddle();
+			rightPaddle.GetComponent<Paddle>().EnablePaddle();
+		}
+		else
+		{
+			leftPaddle.GetComponent<Paddle>().EnablePaddle();
+			rightPaddle.GetComponent<Paddle>().DisablePaddle();
+		}
 	}
 
 	// Finds the currently active paddle (in the case of two paddles)
@@ -946,4 +1116,7 @@ public class PaddleGame : MonoBehaviour
 			return rightPaddle;
 		}
 	}
+
+	#endregion // Exploration Mode
+
 }

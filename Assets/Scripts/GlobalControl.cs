@@ -64,8 +64,8 @@ public class GlobalControl : MonoBehaviour
     // Will hide the target height and alter behaviors so they are affected by consecutive hits only
     public bool targetHeightEnabled = true;
 
-    // scalar affecting various metrics increasing randomness and general difficulty
-    public float difficulty = 1;
+    // value affecting various metrics increasing randomness and general difficulty
+    public int difficulty = 1;
 
     // Play video at the start
     public bool playVideo = false;
@@ -84,10 +84,10 @@ public class GlobalControl : MonoBehaviour
     public int difficultyChangedSuspension = 10;
 
     // the change in difficulty when shifting
-    public float difficultyInterval = 1f;
+    // public int difficultyInterval = 1f;
 
     // low and high ends for difficulty scale
-    public float difficultyMin = 1, difficultyMax = 4;
+    public int difficultyMin = 1, difficultyMax = 10;
 
     public DifficultyEvaluation difficultyEvaluation = DifficultyEvaluation.BASE;
 
@@ -156,4 +156,9 @@ public class GlobalControl : MonoBehaviour
     {
         return timeElapsed;
     }
+
+    public void ResetTimeElapsed()
+	{
+        timeElapsed = 0;
+	}
 }

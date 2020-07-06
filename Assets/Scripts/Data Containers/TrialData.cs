@@ -1,11 +1,13 @@
 ﻿public class TrialData
 {
-	public float bounces;
-	public float accurateBounces;
+	public int bounces;
+	public int accurateBounces;
+	public float duration;
 
-	public TrialData(float bouncesVar, float accurateBouncesVar)
+	public TrialData(int bouncesVar, int accurateBouncesVar, float durationVar)
 	{
 		bounces = bouncesVar;
 		accurateBounces = accurateBouncesVar;
+		duration = durationVar;
 	}
 }

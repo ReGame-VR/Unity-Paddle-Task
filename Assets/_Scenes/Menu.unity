@@ -10826,9 +10826,9 @@ MonoBehaviour:
   recordingData: 0
   difficultyEvaluationTrials: 10
   difficultyChangedSuspension: 10
-  difficultyInterval: 1
   difficultyMin: 1
-  difficultyMax: 4
+  difficultyMax: 10
+  difficultyEvaluation: 0
 --- !u!4 &1434758229
 Transform:
   m_ObjectHideFlags: 0
@@ -11730,9 +11730,9 @@ RectTransform:
   - {fileID: 1860449379}
   - {fileID: 1360494849}
   - {fileID: 1943016123}
-  - {fileID: 1835575840}
-  - {fileID: 980828238}
   - {fileID: 1878849404}
+  - {fileID: 980828238}
+  - {fileID: 1835575840}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -13871,7 +13871,7 @@ RectTransform:
   - {fileID: 1683081205}
   - {fileID: 1460945077}
   m_Father: {fileID: 1554919722}
-  m_RootOrder: 3
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -13972,6 +13972,8 @@ MonoBehaviour:
     - m_Text: Aquisition
       m_Image: {fileID: 0}
     - m_Text: Transfer
+      m_Image: {fileID: 0}
+    - m_Text: Showcase
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
@@ -14576,7 +14578,7 @@ RectTransform:
   m_Children:
   - {fileID: 1028193284}
   m_Father: {fileID: 1554919722}
-  m_RootOrder: 5
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}

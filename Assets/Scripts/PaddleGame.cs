@@ -69,6 +69,9 @@ public class PaddleGame : MonoBehaviour
 	AudioClip feedbackExample;
 
 	[SerializeField]
+	AudioSource feedbackSource;
+
+	[SerializeField]
 	TextMeshPro difficultyDisplay;
 
 	// Current number of bounces that the player has acheieved in this trial
@@ -131,8 +134,8 @@ public class PaddleGame : MonoBehaviour
 
 	private List<float> bounceHeightList = new List<float>();
 
-	int difficultyEvaluationTrials = GlobalControl.Instance.difficultyEvaluationTrials;
-	int difficultyChangedSuspension = GlobalControl.Instance.difficultyChangedSuspension;
+	int difficultyEvaluationTrials;
+	int difficultyChangedSuspension;
 	int trialDifficultyChanged = 0;
 	// int successLastTrials = 10;
 
@@ -193,7 +196,8 @@ public class PaddleGame : MonoBehaviour
 	private List<int> performanceDifficulties = new List<int>();
 	float trialDuration = 0;
 
-	AudioSource feedbackSource;
+	int difficultyExampleValue = 2;
+	float difficultyExampleTime = 15f;
 
 	GlobalControl globalControl;
 	DataHandler dataHandler;
@@ -202,6 +206,9 @@ public class PaddleGame : MonoBehaviour
 	{
 		globalControl = GlobalControl.Instance;
 		dataHandler = GetComponent<DataHandler>();
+
+		difficultyEvaluationTrials = globalControl.difficultyEvaluationTrials;
+		difficultyChangedSuspension = globalControl.difficultyChangedSuspension;
 
 		Instantiate(globalControl.environments[globalControl.environmentOption]);
 
@@ -227,57 +234,6 @@ public class PaddleGame : MonoBehaviour
 		InitializeTrialConditions();
 
 		Initialize();
-	}
-
-	private void Initialize()
-	{
-		// Initialize Condition and Visit types
-		condition = globalControl.condition;
-		expCondition = globalControl.expCondition;
-		session = globalControl.session;
-		maxTrialTime = globalControl.maxTrialTime;
-		hoverTime = globalControl.ballResetHoverSeconds;
-		degreesOfFreedom = globalControl.degreesOfFreedom;
-		ballResetHoverSeconds = globalControl.ballResetHoverSeconds;
-		difficultyEvaluation = globalControl.difficultyEvaluation;
-
-		if (globalControl.recordingData)
-		{
-			StartRecording();
-		}
-
-		// int difficulty = 0;
-		//if (globalControl.difficultyEvaluation == DifficultyEvaluation.BASE)
-		//{
-		//	difficulty = GetDifficulty()
-		//}
-		//else if (globalControl.difficultyEvaluation == DifficultyEvaluation.CUSTOM)
-		//{
-
-		//}
-
-
-		if (globalControl.targetHeightEnabled == false) targetLine.SetActive(false);
-
-		effectController.dissolve.effectTime = ballRespawnSeconds;
-		effectController.respawn.effectTime = hoverTime;
-
-		PopulateScoreEffects();
-
-		if (globalControl.session == Session.ACQUISITION)
-		{
-			difficultyEvaluation = difficultyEvaluationOrder[difficultyEvaluationIndex];
-			difficulty = GetDifficulty(difficultyEvaluationOrder[difficultyEvaluationIndex]);
-			difficultyDisplay.text = difficulty.ToString();
-		}
-		else
-		{
-			difficulty = globalControl.difficulty;
-		}
-
-		SetDifficulty(difficulty);
-
-		globalControl.ResetTimeElapsed();
 	}
 
 	void Update()
@@ -338,8 +294,64 @@ public class PaddleGame : MonoBehaviour
 		// This is to ensure that the final trial is recorded.
 		ResetTrial();
 	}
-	
+
 	#region Initialization
+
+	private void Initialize()
+	{
+		// Initialize Condition and Visit types
+		condition = globalControl.condition;
+		expCondition = globalControl.expCondition;
+		session = globalControl.session;
+		maxTrialTime = globalControl.maxTrialTime;
+		hoverTime = globalControl.ballResetHoverSeconds;
+		degreesOfFreedom = globalControl.degreesOfFreedom;
+		ballResetHoverSeconds = globalControl.ballResetHoverSeconds;
+		difficultyEvaluation = globalControl.difficultyEvaluation;
+
+		if (globalControl.recordingData && globalControl.session != Session.SHOWCASE)
+		{
+			StartRecording();
+		}
+
+		// int difficulty = 0;
+		//if (globalControl.difficultyEvaluation == DifficultyEvaluation.BASE)
+		//{
+		//	difficulty = GetDifficulty()
+		//}
+		//else if (globalControl.difficultyEvaluation == DifficultyEvaluation.CUSTOM)
+		//{
+
+		//}
+
+
+		if (globalControl.targetHeightEnabled == false) targetLine.SetActive(false);
+
+		effectController.dissolve.effectTime = ballRespawnSeconds;
+		effectController.respawn.effectTime = hoverTime;
+
+		PopulateScoreEffects();
+
+		if (globalControl.session == Session.ACQUISITION)
+		{
+			difficultyEvaluation = difficultyEvaluationOrder[difficultyEvaluationIndex];
+			difficulty = GetDifficulty(difficultyEvaluationOrder[difficultyEvaluationIndex]);
+			difficultyDisplay.text = difficulty.ToString();
+		}
+		else if (globalControl.session == Session.SHOWCASE)
+		{
+			difficulty = 2;
+			StartShowcase();
+		}
+		else
+		{
+			difficulty = globalControl.difficulty;
+		}
+
+		SetDifficulty(difficulty);
+
+		globalControl.ResetTimeElapsed();
+	}
 
 	// Sets Target Line height based on HMD eye level and target position preference
 	public void SetTargetLineHeight()
@@ -385,7 +397,7 @@ public class PaddleGame : MonoBehaviour
 
 	private void PopulateScoreEffects()
 	{
-		// enter score effects in order of the score needed to trigger them
+		// enter score effects in ascending order of the score needed to trigger them
 		scoreEffects.Add(new ScoreEffect(25, effectController.embers, null));
 		scoreEffects.Add(new ScoreEffect(50, effectController.fire, null));
 		scoreEffects.Add(new ScoreEffect(75, effectController.blueEmbers, null, new List<Effect>() { effectController.embers }));
@@ -401,7 +413,7 @@ public class PaddleGame : MonoBehaviour
 			}
 			else
 			{
-				// could create a sorting algorithm but it's a bit more work to deal with the custom class. user input in the correct order not that hard though. 
+				// could create a sorting algorithm but it's a bit more work to deal with the custom class. dev input in the correct order will be sufficient
 				Debug.LogErrorFormat("ERROR! Invalid Score order entered, must be in ascending order. Entry {0} had score {1}, lower than the minimum {2}", i, scoreEffects[i], highestScore);
 			}
 		}
@@ -411,26 +423,6 @@ public class PaddleGame : MonoBehaviour
 
 	void InitializeTrialConditions()
 	{
-		//int successTrials = 0, targetConsecutiveBounces = 0, targetAccurateBounces = 0;
-		//if (difficultyEvaluation == DifficultyEvaluation.BASE)
-		//{
-		//	successTrials = 7;
-		//	targetConsecutiveBounces = 5;
-		//}
-		//else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
-		//{
-		//	successTrials = 7;
-		//	targetConsecutiveBounces = 5;
-		//	targetAccurateBounces = 5;
-
-		//}
-		//else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
-		//{
-		//	successTrials = 7;
-		//	targetConsecutiveBounces = 5;
-		//}
-
-
 		// difficulty conditions
 		baseTrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
 		{
@@ -459,6 +451,32 @@ public class PaddleGame : MonoBehaviour
 
 		// feedback conditions
 		trialConditions.Add(new TrialCondition(5, 5, true, feedbackExample, (TrialData trialData) => { if (trialData.bounces <= 0) { return true; } return false; }));
+	}
+
+	void StartShowcase()
+	{
+		StartCoroutine(StartDifficultyDelayed(difficultyExampleTime));
+	}
+
+	IEnumerator StartDifficultyDelayed(float delay)
+	{
+		
+
+		yield return new WaitForSeconds(delay);
+
+
+		// reset ball, change difficulty level, possible audio announcement.
+		if (difficulty >= 10)
+		{
+			// finish up the difficulty showcase, quit application
+		}
+		else
+		{
+			difficulty += 2;
+			StartCoroutine(StartDifficultyDelayed(difficultyExampleTime));
+		}
+
+		ball.GetComponent<Ball>().ResetBall();
 	}
 
 	#endregion // Initialization
@@ -1113,8 +1131,6 @@ public class PaddleGame : MonoBehaviour
 
 		globalControl.targetRadius = targetRadiusNew;
 		targetRadius = targetRadiusNew;
-
-
 
 		// record defficulty change
 	}

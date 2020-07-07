@@ -3,7 +3,7 @@ using UnityEngine;
 
 
 public enum Condition { REGULAR, ENHANCED, REDUCED, TARGETLINE };
-public enum Session { BASELINE, ACQUISITION, RETENTION, TRANSFER };
+public enum Session { BASELINE, ACQUISITION, RETENTION, TRANSFER, SHOWCASE };
 public enum TargetHeight { DEFAULT, LOWERED, RAISED };
 public enum ExpCondition { RANDOM = 0, HEAVIEST = 1, HEAVIER = 2, NORMAL = 3, LIGHTER = 4, LIGHTEST = 5 };
 public enum DifficultyEvaluation { BASE, MODERATE, MAXIMAL, CUSTOM };
@@ -90,6 +90,7 @@ public class GlobalControl : MonoBehaviour
     public int difficultyMin = 1, difficultyMax = 10;
 
     public DifficultyEvaluation difficultyEvaluation = DifficultyEvaluation.BASE;
+
 
     /// <summary>
     /// Assign instance to this, or destroy it if Instance already exits and is not this instance.

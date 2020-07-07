@@ -177,18 +177,23 @@ public class MenuController : MonoBehaviour {
         {
             GlobalControl.Instance.session = Session.BASELINE;
         }
-        if (arg0 == 1)
+        else if (arg0 == 1)
         {
             GlobalControl.Instance.session = Session.ACQUISITION;
         }
-        if (arg0 == 2)
+        else if (arg0 == 2)
         {
             GlobalControl.Instance.session = Session.RETENTION;
         }
-        if (arg0 == 3)
+        else if (arg0 == 3)
         {
             GlobalControl.Instance.session = Session.TRANSFER;
         }
+        else if (arg0 == 4)
+        {
+            GlobalControl.Instance.session = Session.SHOWCASE;
+        }
+
 
         GetComponent<MenuPlayerPrefs>().SaveSession(arg0);
     }

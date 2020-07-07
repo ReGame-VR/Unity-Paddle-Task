@@ -16,7 +16,7 @@ public class GlobalPauseHandler : MonoBehaviour
         }
     }
 
-    private void Pause()
+    public void Pause()
     {
         GlobalControl.Instance.paused = true;
 
@@ -24,7 +24,7 @@ public class GlobalPauseHandler : MonoBehaviour
         GameObject.Find("Ball").GetComponent<Kinematics>().TriggerPause();
     }
 
-    private void Resume()
+    public void Resume()
     {
         GlobalControl.Instance.paused = false;
 

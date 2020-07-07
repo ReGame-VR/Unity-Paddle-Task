@@ -28,7 +28,7 @@ public class InputManager : MonoBehaviour
         // Re-calibrate target line height
         if (Input.GetKeyDown(KeyCode.C))
         {
-            GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().SetTargetLineHeight();
+            GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().SetTargetLineHeight(GlobalControl.Instance.targetLineHeightOffset);
         }
 
         // Swap which controller should be used 

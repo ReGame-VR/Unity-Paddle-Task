@@ -91,6 +91,8 @@ public class GlobalControl : MonoBehaviour
 
     public DifficultyEvaluation difficultyEvaluation = DifficultyEvaluation.BASE;
 
+    [System.NonSerialized]
+    public float targetLineHeightOffset = 0;
 
     /// <summary>
     /// Assign instance to this, or destroy it if Instance already exits and is not this instance.

@@ -101,6 +101,9 @@ public class MenuController : MonoBehaviour {
 
         switch (arg0)
         {
+            case 0:
+                GlobalControl.Instance.condition = Condition.REGULAR;
+                break;
             case 1:
                 GlobalControl.Instance.condition = Condition.ENHANCED;
                 break;
@@ -110,6 +113,7 @@ public class MenuController : MonoBehaviour {
             case 3:
                 GlobalControl.Instance.condition = Condition.TARGETLINE;
                 break;
+
             default:
                 GlobalControl.Instance.condition = Condition.REGULAR;
                 break;

@@ -10,100 +10,6 @@ using UnityEngine.Networking;
 /// </summary>
 public class DataHandler : MonoBehaviour
 {
-    /// <summary>
-    /// A class that stores info on each trial relevant to data recording. Every field is
-    /// public readonly, so can always be accessed, but can only be assigned once in the
-    /// constructor.
-    /// </summary>
-    public class TrialData
-    {
-        public readonly float degreesOfFreedom;
-        public readonly float time;
-        public readonly int trialNum;
-        public readonly int numBounces;
-        public readonly int numAccurateBounces;
-
-        public TrialData(float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces)
-        {
-            this.degreesOfFreedom = degreesOfFreedom;
-            this.time = time;
-            this.trialNum = trialNum;
-            this.numBounces = numBounces;
-            this.numAccurateBounces = numAccurateBounces;
-        }
-    }
-
-    public class BounceData
-    {
-        public readonly float degreesOfFreedom;
-        public readonly float time;
-        public readonly Vector3 bounceModification;
-        public readonly int trialNum;
-        public readonly int bounceNum;
-        public readonly int bounceNumTotal;
-        public readonly float apexTargetError;
-        public readonly bool success;
-        public readonly Vector3 paddleVelocity;
-        public readonly Vector3 paddleAccel;
-
-        public BounceData(float degreesOfFreedom, float time, Vector3 bouncemod, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel)
-        {
-            this.degreesOfFreedom = degreesOfFreedom;
-            this.time = time;
-            this.bounceModification = bouncemod;
-            this.trialNum = trialNum;
-            this.bounceNum = bounceNum;
-            this.bounceNumTotal = bounceNumTotal;
-            this.apexTargetError = apexTargetError;
-            this.success = success;
-            this.paddleVelocity = paddleVelocity;
-            this.paddleAccel = paddleAccel;
-        }
-
-    }
-
-    public class ContinuousData
-    {
-        public readonly float degreesOfFreedom;
-        public readonly float time;
-        public readonly Vector3 bounceModification;
-        public readonly bool paused;
-        public readonly Vector3 ballPos;
-        public readonly Vector3 paddleVelocity;
-        public readonly Vector3 paddleAccel;
-
-        public ContinuousData(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel)
-        {
-            this.degreesOfFreedom = degreesOfFreedom;
-            this.time = time;
-            this.bounceModification = bouncemod;
-            this.paused = paused;
-            this.ballPos = ballPos;
-            this.paddleVelocity = paddleVelocity;
-            this.paddleAccel = paddleAccel;
-        }
-    }
-
-    public class HeaderData
-    {
-        public readonly Condition condition;
-        public readonly ExpCondition expCondition;
-        public readonly Session session;
-        public readonly int maxTrialTimeMin;
-        public readonly float hoverTime;
-        public readonly float targetRadius;
-
-        public HeaderData(Condition c, ExpCondition ec, Session s, int maxtime, float htime, float tradius)
-        {
-            this.condition = c;
-            this.expCondition = ec;
-            this.session = s;
-            this.maxTrialTimeMin = maxtime;
-            this.hoverTime = htime;
-            this.targetRadius = tradius;
-        }
-    }
-
     // stores the data for writing to file at end of task
     Dictionary<DifficultyEvaluation, List<TrialData>> trialData = new Dictionary<DifficultyEvaluation, List<TrialData>>()
     {
@@ -129,6 +35,14 @@ public class DataHandler : MonoBehaviour
         { DifficultyEvaluation.CUSTOM, new List<ContinuousData>() },
 
     };
+    Dictionary<DifficultyEvaluation, List<DifficultyData>> difficultyData = new Dictionary<DifficultyEvaluation, List<DifficultyData>>()
+    {
+        { DifficultyEvaluation.BASE, new List<DifficultyData>() },
+        { DifficultyEvaluation.MODERATE, new List<DifficultyData>() },
+        { DifficultyEvaluation.MAXIMAL, new List<DifficultyData>() },
+        { DifficultyEvaluation.CUSTOM, new List<DifficultyData>() },
+
+    };
     HeaderData headerData;
 
     private string pid = GlobalControl.Instance.participantID;
@@ -143,9 +57,13 @@ public class DataHandler : MonoBehaviour
         // make pid folder unique
         pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + System.DateTime.Now.Millisecond.ToString() + "_" + pid;
 
-        WriteTrialFile();
-        WriteBounceFile();
-        WriteContinuousFile();
+        if (GlobalControl.Instance.recordingData)
+		{
+            WriteTrialFile();
+            WriteBounceFile();
+            WriteContinuousFile();
+            WriteDifficultyFile();
+		}
     }
 
     public List<TrialData> GetTrialData(DifficultyEvaluation difficultyEvaluation) 
@@ -159,9 +77,9 @@ public class DataHandler : MonoBehaviour
     }
 
     // Records trial data into the data list
-    public void recordTrial(float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces, DifficultyEvaluation difficultyEvaluation)
+    public void recordTrial(float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces, DifficultyEvaluation difficultyEvaluation, int difficulty)
     {
-        trialData[difficultyEvaluation].Add(new TrialData(degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces));
+        trialData[difficultyEvaluation].Add(new TrialData(degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces, difficulty));
     }
 
     // Records bounce data into the data list
@@ -176,11 +94,15 @@ public class DataHandler : MonoBehaviour
         continuousData[difficultyEvaluation].Add(new ContinuousData(degreesOfFreedom, time, bouncemod, paused, ballPos, paddleVelocity, paddleAccel));
     }
 
+    public void recordDifficulty(float ballSpeed, bool targetLineActive, float targetLineHeightOffset, float targetLineWidth, float time, DifficultyEvaluation difficultyEvaluation)
+	{
+        difficultyData[difficultyEvaluation].Add(new DifficultyData(ballSpeed, targetLineActive, targetLineHeightOffset, targetLineWidth, time));
+	}
+
     public void recordHeaderInfo(Condition c, ExpCondition ec, Session s, int maxtime, float htime, float tradius)
     {
         headerData = new HeaderData(c, ec, s, maxtime, htime, tradius);
     }
-
 
     private void WriteHeaderInfo(CsvFileWriter writer)
     {
@@ -389,6 +311,52 @@ public class DataHandler : MonoBehaviour
                 }
             }
 		}
+    }
+
+    /// <summary>
+    /// Writes the Difficulty file to a CSV
+    /// </summary>
+    private void WriteDifficultyFile()
+    {
+        // Write all entries in data list to file
+        string directory = "Data/" + pid;
+        Directory.CreateDirectory(@directory);
+        foreach (var difficultyDataKVP in difficultyData)
+        {
+            using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + difficultyDataKVP.Key.ToString() + "_" + pid + "Difficulty.csv"))
+            {
+                Debug.Log("Writing bounce data to file");
+
+                // write session data
+                WriteHeaderInfo(writer);
+
+                // write header
+                CsvRow header = new CsvRow();
+                header.Add("Participant ID");
+                header.Add("Timestamp");
+                header.Add("Ball Speed");
+                header.Add("Target Line Active");
+                header.Add("Target Line Height Offset");
+                header.Add("Target Line Width");
+
+                writer.WriteRow(header);
+
+                // write each line of data
+                foreach (DifficultyData d in difficultyDataKVP.Value)
+                {
+                    CsvRow row = new CsvRow();
+
+                    row.Add(pid);
+                    row.Add(d.time.ToString());
+                    row.Add(d.ballSpeed.ToString());
+                    row.Add(d.targetLineActive.ToString());
+                    row.Add(d.targetLineHeightOffset.ToString());
+                    row.Add(d.targetLineWidth.ToString());
+
+                    writer.WriteRow(row);
+                }
+            }
+        }
     }
 
     // utility functions --------------------------------------------

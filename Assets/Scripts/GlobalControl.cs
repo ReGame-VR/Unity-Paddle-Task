@@ -80,9 +80,6 @@ public class GlobalControl : MonoBehaviour
     // How many trials should be used for difficulty evaluation
     public int difficultyEvaluationTrials = 10;
 
-    // How many trials should the user get to get used to the new difficulty before evaluation starts again
-    public int difficultyChangedSuspension = 10;
-
     // the change in difficulty when shifting
     // public int difficultyInterval = 1f;
 
@@ -113,33 +110,6 @@ public class GlobalControl : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        Testing();
-    }
-
-    private void Testing()
-	{
-        //int count = 10;
-        //if (count >= difficultyEvaluationTrials)
-        //{
-        //    int bounces = 0, accurateBounces = 0;
-        //    float slopeNumerator = 0f, slopeDenominator = 0f;
-        //    float slope;
-
-        //    for (int i = count - difficultyEvaluationTrials; i < count; i++)
-        //    {
-        //        bounces += i + 1;
-        //        // accurateBounces += trialData[i].numAccurateBounces;
-
-        //        slopeNumerator += (i + 1) * .5f;
-        //        slopeDenominator += i + 1;
-        //    }
-
-        //    float averageBounces = (float)bounces / (float)difficultyEvaluationTrials;
-        //    float averageAccurateBounces = (float)accurateBounces / (float)difficultyEvaluationTrials;
-        //    slope = slopeNumerator / slopeDenominator;
-        //    Debug.LogFormat("evaluated slope to be {0}", slope.ToString("F4"));
-        //}
     }
 
     private void Update()

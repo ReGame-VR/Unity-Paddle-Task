@@ -9,7 +9,7 @@ public class TrialCondition
 	public AudioClip conditionFeedback;
 	public int trialEvaluationCooldown = 0;
 	
-	public delegate bool CheckTrial(TrialData trialData);
+	public delegate int CheckTrial(TrialData trialData);
 	public CheckTrial checkTrialCondition;
 
 	public TrialCondition(int trialEvaluationTargetVar, int trialEvaluationSetVar, bool sequentialVar, AudioClip conditionFeedbackVar, CheckTrial checkTrialConditionVar)

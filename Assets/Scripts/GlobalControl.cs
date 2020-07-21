@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// using NUnit.Framework.Internal;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -49,7 +51,20 @@ public class GlobalControl : MonoBehaviour
     // Time limit in minutes after beginning, after which the game will end
     public int maxTrialTime = 0;
 
+    // Time limit in minutes after beginning, after which the game will end
+    public int maxBaselineTrialTime = 10;
+
+    // Time limit in minutes after beginning, after which the game will end
+    public int maxModerate1TrialTime = 10;
+
+    // Time limit in minutes after beginning, after which the game will end
+    public int maxMaximalTrialTime = 10;
+
+    // Time limit in minutes after beginning, after which the game will end
+    public int maxModerate2TrialTime = 10;
+
     // Time elapsed while game is not paused, in seconds 
+    [NonSerialized]
     public float timeElapsed = 0;
 
     // Duration for which ball should be held before dropping upon reset
@@ -88,7 +103,7 @@ public class GlobalControl : MonoBehaviour
 
     public DifficultyEvaluation difficultyEvaluation = DifficultyEvaluation.BASE;
 
-    [System.NonSerialized]
+    [NonSerialized]
     public float targetLineHeightOffset = 0;
 
     /// <summary>
@@ -110,7 +125,16 @@ public class GlobalControl : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+#if UNITY_EDITOR
+        Test();
+#endif
     }
+
+    void Test()
+	{
+
+	}
 
     private void Update()
     {

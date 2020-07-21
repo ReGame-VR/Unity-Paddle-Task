@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Collections.ObjectModel;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class PaddleGame : MonoBehaviour
 {
@@ -73,6 +74,9 @@ public class PaddleGame : MonoBehaviour
 
 	[SerializeField]
 	TextMeshPro difficultyDisplay;
+
+	[SerializeField]
+	TextMeshPro highestBouncesDisplay;
 
 	// Current number of bounces that the player has acheieved in this trial
 	private int numBounces = 0;
@@ -199,7 +203,9 @@ public class PaddleGame : MonoBehaviour
 	float trialDuration = 0;
 
 	int difficultyExampleValue = 2;
-	float difficultyExampleTime = 15f;
+	float difficultyExampleTime = 30f;
+
+	int highestBounces, highestAccurateBounces;
 
 	GlobalControl globalControl;
 	DataHandler dataHandler;
@@ -246,7 +252,11 @@ public class PaddleGame : MonoBehaviour
 		if(globalControl.session == Session.SHOWCASE)
 		{
 			globalControl.recordingData = false;
+			globalControl.maxTrialTime = 0;
 		}
+
+		PopulateScoreEffects();
+
 
 		InitializeTrialConditions();
 
@@ -255,6 +265,12 @@ public class PaddleGame : MonoBehaviour
 
 	void Update()
 	{
+		if(Time.timeScale == 0)
+		{
+			// no processing until unpaused
+			return;
+		}
+
 		// Data handler. Record continuous ball & paddle info
 		GatherContinuousData();
 
@@ -296,6 +312,14 @@ public class PaddleGame : MonoBehaviour
 			BallBounced(null);
 			Debug.Log("Score increased");
 		}
+		if (Input.GetKeyDown(KeyCode.Q))
+		{
+			QuitTask();
+		}
+		if (Input.GetKeyDown(KeyCode.P))
+		{
+			globalControl.timeElapsed += 60;
+		}
 
 		if (globalControl.recordingData)
 		{
@@ -303,10 +327,24 @@ public class PaddleGame : MonoBehaviour
 		}
 	}
 
-	void OnApplicationQuit()
+	// void OnApplicationQuit()
+	//{
+	//	// This is to ensure that the final trial is recorded.
+	//	ResetTrial();
+	//}
+
+	void QuitTask()
 	{
 		// This is to ensure that the final trial is recorded.
 		ResetTrial();
+
+		dataHandler.WriteDataToFiles();
+
+		// clean DDoL objects and return to the start scene
+		Destroy(GlobalControl.Instance.gameObject);
+		Destroy(gameObject);
+
+		SceneManager.LoadScene(0);
 	}
 
 	#region Initialization
@@ -344,13 +382,15 @@ public class PaddleGame : MonoBehaviour
 		effectController.dissolve.effectTime = ballRespawnSeconds;
 		effectController.respawn.effectTime = hoverTime;
 
-		PopulateScoreEffects();
+		curScore = 0;
 
-		if (globalControl.session == Session.ACQUISITION)
+		if (globalControl.session == Session.BASELINE)
 		{
 			difficultyEvaluation = difficultyEvaluationOrder[difficultyEvaluationIndex];
 			difficulty = GetDifficulty(difficultyEvaluationOrder[difficultyEvaluationIndex]);
-			Debug.Log("difficulty display: " + difficulty.ToString());
+#if UNITY_EDITOR
+			// difficulty = 10;
+#endif
 			difficultyDisplay.text = difficulty.ToString();
 		}
 		else if (globalControl.session == Session.SHOWCASE)
@@ -365,7 +405,18 @@ public class PaddleGame : MonoBehaviour
 
 		SetDifficulty(difficulty);
 
+		// difficulty shifts timescale, so pause it again
+		Time.timeScale = 0;
+
 		globalControl.ResetTimeElapsed();
+
+
+		pauseHandler.Pause();
+
+		highestBounces = 0;
+		highestAccurateBounces = 0;
+		UpdateHighestBounceDisplay();
+		feedbackCanvas.UpdateScoreText(curScore, numBounces);
 	}
 
 	// Sets Target Line height based on HMD eye level and target position preference
@@ -381,6 +432,15 @@ public class PaddleGame : MonoBehaviour
 
 		// Update Exploration Mode height calibration
 		GetComponent<ExplorationMode>().CalibrateEyeLevel(targetLine.transform.position.y);
+
+		var kinematics = ball.GetComponent<Kinematics>();
+		if (kinematics)
+		{
+			kinematics.storedPosition = Ball.spawnPosition(targetLine);
+		}
+		ball.transform.position = Ball.spawnPosition(targetLine);
+
+		// Debug.LogFormat("set line pos {0} and ball position {1}", targetLine.transform.position.ToString("F2"), ball.transform.position.ToString("F2"));
 	}
 
 	private float ApplyInstanceTargetHeightPref(float y)
@@ -433,7 +493,11 @@ public class PaddleGame : MonoBehaviour
 		// difficulty conditions
 		baseTrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
 		{
+#if UNITY_EDITOR
+			if (false)
+#else
 			if (trialData.numBounces >= targetConditionBounces[DifficultyEvaluation.BASE])
+#endif
 			{
 				return trialData.numBounces / targetConditionBounces[DifficultyEvaluation.BASE];
 			}
@@ -464,22 +528,32 @@ public class PaddleGame : MonoBehaviour
 
 	void StartShowcase()
 	{
-		StartCoroutine(StartDifficultyDelayed(difficultyExampleTime));
+		StartCoroutine(StartDifficultyDelayed(difficultyExampleTime, true));
 	}
 
-	IEnumerator StartDifficultyDelayed(float delay)
+	IEnumerator StartDifficultyDelayed(float delay, bool initial = false)
 	{
-		yield return new WaitForSeconds(delay);
+		if (initial)
+		{
+			// wait until after the pause is lifted, when timescale is 0
+			yield return new WaitForSeconds(.1f);
+		}
+		yield return new WaitForSecondsRealtime(delay);
 
 		// reset ball, change difficulty level, possible audio announcement.
 		if (difficulty >= 10)
 		{
 			// finish up the difficulty showcase, quit application
-			Application.Quit();
+			// Application.Quit();
+			QuitTask();
 		}
 		else
 		{
 			SetDifficulty(difficulty + 2);
+			if (difficulty == 10)
+			{
+				yield return new WaitForSecondsRealtime(delay);
+			}
 			StartCoroutine(StartDifficultyDelayed(difficultyExampleTime));
 		}
 
@@ -611,6 +685,7 @@ public class PaddleGame : MonoBehaviour
 		if (trialNum < 1 || numBounces < 1)
 		{
 			trialNum++;
+			CheckEndCondition();
 			return;
 		}
 
@@ -632,7 +707,16 @@ public class PaddleGame : MonoBehaviour
 			SetDifficulty(difficulty);
 		}
 
+		if (numBounces > highestBounces)
+		{
+			highestBounces = numBounces;
+		}
+		if (numAccurateBounces > highestAccurateBounces)
+		{
+			highestAccurateBounces = numAccurateBounces;
+		}
 
+		UpdateHighestBounceDisplay();
 
 		trialNum++;
 		numBounces = 0;
@@ -733,16 +817,18 @@ public class PaddleGame : MonoBehaviour
 			CheckTrialConditions(fromBounce);
 		}
 
-		if (globalControl.GetTimeLimitSeconds() == 0)
+		if (difficultyEvaluation == DifficultyEvaluation.CUSTOM && globalControl.GetTimeLimitSeconds() == 0)
 		{
 			return;
 		}
 
-		if (globalControl.GetTimeElapsed() > globalControl.GetTimeLimitSeconds())
+		if (globalControl.GetTimeElapsed() > GetMaxDifficultyTrialTime(difficultyEvaluation) /*globalControl.GetTimeLimitSeconds()*/)
 		{
 #if !UNITY_EDITOR
 			Debug.Log("Time limit of " + globalControl.GetTimeLimitSeconds() + " seconds has passed. Quitting");
 #endif
+
+			Debug.LogFormat("time elapsed {0} greater than max trial time {1}", globalControl.GetTimeElapsed(), GetMaxDifficultyTrialTime(difficultyEvaluation));
 			// Application.Quit();
 			EvaluateDifficultyResult(false);
 		}
@@ -852,6 +938,21 @@ public class PaddleGame : MonoBehaviour
 		return false;
 	}
 
+	void UpdateHighestBounceDisplay()
+	{
+		string bounceType = "bounces";
+		string bounces = highestBounces.ToString(); ;
+
+		if (targetLine.activeInHierarchy)
+		{
+			bounceType = "successful bounces";
+			bounces = highestAccurateBounces.ToString();
+		}
+
+		highestBouncesDisplay.text = String.Format("Try to beat {0} {1} in a row!", bounces, bounceType);
+
+	}
+
 	//bool GetTrialEvaluationTrue(int successTrials, int lastTrials, int targetConsecutiveBounces, int targetAccurateBounces)
 	//{
 	//	var data = trialSetDatas[difficultyEvaluation];
@@ -908,6 +1009,36 @@ public class PaddleGame : MonoBehaviour
 		}
 
 		return null;
+	}
+
+	public int GetMaxDifficultyTrialTime(DifficultyEvaluation difficultyEvaluation)
+	{
+		int trialTime = -1;
+		if (difficultyEvaluation == DifficultyEvaluation.BASE)
+		{
+			trialTime = globalControl.maxBaselineTrialTime;
+		}
+		else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
+		{
+			if(difficultyEvaluationIndex == difficultyEvaluationOrder.IndexOf(DifficultyEvaluation.MODERATE))
+			{
+				trialTime = globalControl.maxModerate1TrialTime;
+			}
+			else if (difficultyEvaluationIndex == difficultyEvaluationOrder.LastIndexOf(DifficultyEvaluation.MODERATE))
+			{
+				trialTime = globalControl.maxModerate2TrialTime;
+			}
+		}
+		else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
+		{
+			trialTime = globalControl.maxMaximalTrialTime;
+		}
+		else if (difficultyEvaluation == DifficultyEvaluation.CUSTOM)
+		{
+			trialTime = globalControl.maxTrialTime;
+		}
+
+		return trialTime != -1 ? trialTime * 60 : trialTime;
 	}
 
 	#region Gathering and recording data
@@ -1029,6 +1160,9 @@ public class PaddleGame : MonoBehaviour
 		}
 		else if (evaluation == DifficultyEvaluation.BASE)
 		{
+#if UNITY_EDITOR
+			// return 10;
+#endif
 			return 1;
 		}
 		else
@@ -1057,25 +1191,45 @@ public class PaddleGame : MonoBehaviour
 		var difficultyScalar = GetPerformanceBasedDifficultyScalar(successfulCompletion);
 		int difficulty = 0;
 
+		if(session == Session.ACQUISITION || session == Session.SHOWCASE)
+		{
+			// over once end time is reached.
+			// Application.Quit();
+			QuitTask();
+			return;
+		}
+
+		
+		// each are evaluating for the next difficultyEvaluation
 		if (difficultyEvaluation == DifficultyEvaluation.BASE)
 		{
-			difficulty = Mathf.RoundToInt(Mathf.InverseLerp(2, 5, difficultyScalar));
+			difficulty = Mathf.RoundToInt(Mathf.Lerp(2, 5, difficultyScalar));
 		}
 		else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
 		{
-			difficulty = Mathf.RoundToInt(Mathf.InverseLerp(2, 5, difficultyScalar));
+			difficulty = Mathf.RoundToInt(Mathf.Lerp(6, 10, difficultyScalar));
 		}
 		else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
 		{
-			difficulty = Mathf.RoundToInt(Mathf.InverseLerp(2, 5, difficultyScalar));
+			difficulty = Mathf.RoundToInt(Mathf.Lerp(2, 5, difficultyScalar));
+		}
+
+		if (difficulty < 0 || difficulty > 10)
+		{
+			// invalid, get more data
+			return;
 		}
 
 		performanceDifficulties.Add(difficulty);
 
 		difficultyEvaluationIndex++;
+
+		difficultyEvaluation = difficultyEvaluationOrder[difficultyEvaluationIndex];
 		difficultyEvaluationTrials = GetDifficultyCondition(difficultyEvaluationOrder[difficultyEvaluationIndex]).trialEvaluationTarget;
 
 		SetDifficulty(difficulty);
+
+		Initialize();
 
 		// await input for next difficulty evaluation
 		pauseHandler.Pause();
@@ -1090,10 +1244,10 @@ public class PaddleGame : MonoBehaviour
 			// var trialData = dataHandler.GetTrialData(difficultyEvaluation);
 			//var trialSetData = 
 			// TrialSetData bestTrialSet = null;
-			var difficultyCondition = GetDifficultyCondition(difficultyEvaluation);
+			// var difficultyCondition = GetDifficultyCondition(difficultyEvaluation);
 
 			// evaluating time percentage of the way to end, 10 min
-			var timeScalar = 1 - (globalControl.GetTimeElapsed() / 600);
+			var timeScalar = 1 - (globalControl.GetTimeElapsed() / GetMaxDifficultyTrialTime(difficultyEvaluation));
 
 			// evaluating performance, average bounces and accurate bounces. 
 			// float duration = 0;
@@ -1112,12 +1266,12 @@ public class PaddleGame : MonoBehaviour
 			averageAccurateBounces = (float)accurateBounces / (float)datas.Count;
 
 			// average bounces
-			float averageBounceScalar = Mathf.Clamp(averageBounces / (float)targetConditionBounces[difficultyEvaluation], 0f, 2f);
+			float averageBounceScalar = Mathf.Clamp(averageBounces / (float)targetConditionBounces[difficultyEvaluation], 0f, 1.3f);
 			
 			// accurate bounces
-			float averageAccurateBounceScalar = globalControl.targetHeightEnabled ? Mathf.Clamp(averageAccurateBounces / targetConditionAccurateBounces[difficultyEvaluation], 0f, 2f) : 0;
+			float averageAccurateBounceScalar = globalControl.targetHeightEnabled ? Mathf.Clamp(averageAccurateBounces / targetConditionAccurateBounces[difficultyEvaluation], 0f, 1.3f) : 0;
 
-			return (averageBounceScalar + averageAccurateBounceScalar + timeScalar) / (globalControl.targetHeightEnabled ? 3f : 2f);
+			return Mathf.Clamp01((averageBounceScalar + averageAccurateBounceScalar + timeScalar) / (globalControl.targetHeightEnabled ? 3f : 2f));
 		}
 
 		return -1;
@@ -1138,6 +1292,13 @@ public class PaddleGame : MonoBehaviour
 
 	private void SetDifficulty(int difficultyNew)
 	{
+		if (difficultyNew < 0 || difficultyNew > 10)
+		{
+			Debug.LogError("Issue setting difficulty, not in expected range: " + difficultyNew);
+			
+			return;
+		}
+
 		difficulty = difficultyNew;
 		// float difficultyScalar = Mathf.InverseLerp(difficultyMin, difficultyMax, difficulty);
 
@@ -1164,7 +1325,7 @@ public class PaddleGame : MonoBehaviour
 		SetTargetLineHeight(targetLineHeightOffset);
 
 
-		float targetRadiusNew = globalControl.targetHeightEnabled ? GetTargetLineWidthDifficulty(difficulty) : 0; // Mathf.Lerp(targetRadiusMin, targetRadiusMax, difficultyScalar);
+		float targetRadiusNew = globalControl.targetHeightEnabled ? GetTargetLineWidthDifficulty(difficulty) / 2f : 0; // Mathf.Lerp(targetRadiusMin, targetRadiusMax, difficultyScalar);
 
 		globalControl.timescale = ballSpeedNew;
 		Time.timeScale = ballSpeedNew;
@@ -1174,7 +1335,8 @@ public class PaddleGame : MonoBehaviour
 
 		globalControl.targetRadius = targetRadiusNew;
 		targetRadius = targetRadiusNew;
-		Debug.Log("difficulty display: " + difficulty.ToString());
+		targetLine.transform.localScale = new Vector3(targetLine.transform.localScale.x, targetRadius * 2f, targetLine.transform.localScale.z);
+
 		difficultyDisplay.text = difficulty.ToString();
 
 		// record difficulty values change
@@ -1186,7 +1348,8 @@ public class PaddleGame : MonoBehaviour
 		if (performanceDifficulties.Count >= difficultyEvaluationOrder.Count)
 		{
 			// all difficulties recored
-			Application.Quit();
+			// Application.Quit();
+			QuitTask();
 		}
 	}
 
@@ -1200,14 +1363,14 @@ public class PaddleGame : MonoBehaviour
 			case 1: return .3f;
 #endif
 			case 2: return .4f;
-			case 3: return .5f;
-			case 4: return .6f;
-			case 5: return .7f;
-			case 6: return .8f;
-			case 7: return 1f;
-			case 8: return 1.2f;
-			case 9: return UnityEngine.Random.Range(1.2f - .2f, 1.2f + .2f);
-			case 10: return UnityEngine.Random.Range(1.2f - .3f, 1.2f + .3f);
+			case 3: return .45f;
+			case 4: return .5f;
+			case 5: return .55f;
+			case 6: return .6f;
+			case 7: return .7f;
+			case 8: return .9f;
+			case 9: return UnityEngine.Random.Range(.95f, .95f + .1f);
+			case 10: return UnityEngine.Random.Range(.95f, .95f + .15f);
 			default: return 1f;
 		}
 	}
@@ -1242,9 +1405,9 @@ public class PaddleGame : MonoBehaviour
 			case 6: return 0f;
 			case 7: return 0f;
 			case 8: return 0f;
-			case 9: return UnityEngine.Random.Range(1f - .02f, 1f + .02f);
-			case 10: return UnityEngine.Random.Range(1f - .02f, 1f + .02f);
-			default: return 1f;
+			case 9: return UnityEngine.Random.Range(-.02f, .02f);
+			case 10: return UnityEngine.Random.Range(-.02f, -.02f);
+			default: return 0f;
 		}
 	}
 
@@ -1252,17 +1415,17 @@ public class PaddleGame : MonoBehaviour
 	{
 		switch (difficulty)
 		{
-			case 1: return .1f;
-			case 2: return .2f;
-			case 3: return .3f;
-			case 4: return .4f;
-			case 5: return .5f;
-			case 6: return .6f;
-			case 7: return .8f;
-			case 8: return 1f;
-			case 9: return UnityEngine.Random.Range(1f - .2f, 1f + .2f);
-			case 10: return UnityEngine.Random.Range(1f - .3f, 1f + .3f);
-			default: return 1f;
+			case 1: return 0f;
+			case 2: return 0f;
+			case 3: return 0f;
+			case 4: return 0f;
+			case 5: return .04f;
+			case 6: return .04f;
+			case 7: return .0375f;
+			case 8: return .035f;
+			case 9: return .0325f;
+			case 10: return .03f;
+			default: return .04f;
 		}
 	}
 

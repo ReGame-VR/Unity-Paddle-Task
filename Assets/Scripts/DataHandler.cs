@@ -50,9 +50,9 @@ public class DataHandler : MonoBehaviour
     bool isExplorationMode = (GlobalControl.Instance.condition == Condition.ENHANCED);
 
     /// <summary>
-    /// Write all data to a file
+    /// Write all data to files
     /// </summary>
-    void OnDisable()
+    public void WriteDataToFiles()
     {
         // make pid folder unique
         pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + System.DateTime.Now.Millisecond.ToString() + "_" + pid;

@@ -12,6 +12,8 @@ using System;
 /// </summary>
 public class MenuController : MonoBehaviour {
 
+    public GameObject maxTrialTimeObject, maxDifficultyTrialTimeObject;
+
     /// <summary>
     /// Disable VR for menu scene and hide warning text until needed.
     /// </summary>
@@ -25,7 +27,18 @@ public class MenuController : MonoBehaviour {
 
         // Load saved preferences
         GetComponent<MenuPlayerPrefs>().LoadAllPreferences();
+
+        UpdateConditionalUIObjects();
     }
+
+    void UpdateConditionalUIObjects()
+	{
+        bool baseline = GlobalControl.Instance.session == Session.BASELINE;
+		maxTrialTimeObject.SetActive(!baseline);
+        maxDifficultyTrialTimeObject.SetActive(baseline);
+		
+        
+	}
 
     /// <summary>
     /// Records an alphanumeric participant ID. Hit enter to record. May be entered multiple times
@@ -55,9 +68,45 @@ public class MenuController : MonoBehaviour {
     /// <param name="arg0"></param>
     public void RecordMaxTrials(int arg0)
     {
-        TMP_Dropdown d = GameObject.Find("Max Trial Time Dropdown").GetComponent<TMP_Dropdown>();
-        d.value = arg0;
-        GlobalControl.Instance.maxTrialTime = arg0;
+        if (maxTrialTimeObject.activeInHierarchy)
+        {
+            TMP_Dropdown d = GameObject.Find("Max Trial Time Dropdown").GetComponent<TMP_Dropdown>();
+            d.value = arg0;
+            GlobalControl.Instance.maxTrialTime = arg0;
+        }
+    }
+
+    public void RecordMaxTrialsBaseline(int arg0)
+	{
+        RecordDifficultyMaxTrials(arg0, GameObject.Find("Max Baseline Trial Time Dropdown").GetComponent<TMP_Dropdown>());
+        GlobalControl.Instance.maxBaselineTrialTime = arg0 != 0 ? arg0 : 10;
+	}
+
+    public void RecordMaxTrialsModerate1(int arg0)
+    {
+        RecordDifficultyMaxTrials(arg0, GameObject.Find("Max Moderate1 Trial Time Dropdown").GetComponent<TMP_Dropdown>());
+        GlobalControl.Instance.maxModerate1TrialTime = arg0 != 0 ? arg0 : 10;
+    }
+
+    public void RecordMaxTrialsMaximal(int arg0)
+    {
+        RecordDifficultyMaxTrials(arg0, GameObject.Find("Max Maximal Trial Time Dropdown").GetComponent<TMP_Dropdown>());
+        GlobalControl.Instance.maxMaximalTrialTime = arg0 != 0 ? arg0 : 10;
+    }
+
+    public void RecordMaxTrialsModerate2(int arg0)
+    {
+        RecordDifficultyMaxTrials(arg0, GameObject.Find("Max Moderate2 Trial Time Dropdown").GetComponent<TMP_Dropdown>());
+        GlobalControl.Instance.maxModerate2TrialTime = arg0 != 0 ? arg0 : 10;
+    }
+
+    public void RecordDifficultyMaxTrials(int arg0, TMP_Dropdown trialsDropdown)
+	{
+        if (maxDifficultyTrialTimeObject.activeInHierarchy)
+        {
+            trialsDropdown.value = arg0;
+        }
+
         GetComponent<MenuPlayerPrefs>().SaveMaxTrials(arg0);
     }
 
@@ -200,6 +249,7 @@ public class MenuController : MonoBehaviour {
 
 
         GetComponent<MenuPlayerPrefs>().SaveSession(arg0);
+        UpdateConditionalUIObjects();
     }
 
     // Records the Target Line height preference from the dropdown menu

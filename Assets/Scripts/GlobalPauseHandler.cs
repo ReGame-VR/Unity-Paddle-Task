@@ -19,6 +19,7 @@ public class GlobalPauseHandler : MonoBehaviour
     public void Pause()
     {
         GlobalControl.Instance.paused = true;
+        Time.timeScale = 0;
 
         // Trigger Ball physics pause listener
         GameObject.Find("Ball").GetComponent<Kinematics>().TriggerPause();
@@ -27,7 +28,7 @@ public class GlobalPauseHandler : MonoBehaviour
     public void Resume()
     {
         GlobalControl.Instance.paused = false;
-
+        Time.timeScale = GlobalControl.Instance.timescale;
         // Trigger Ball physics resume listener
         GameObject.Find("Ball").GetComponent<Kinematics>().TriggerResume();
     }

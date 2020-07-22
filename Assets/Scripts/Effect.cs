@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// contains necessary effect information and setup. can have a shader and a set of particle effects
+/// </summary>
 public class Effect : MonoBehaviour
 {
 	public float effectTime = 4;

@@ -88,21 +88,19 @@ public class GlobalControl : MonoBehaviour
     // Selected enviornment
     public int environmentOption = 0;
 
+    // all environment prefabs
     public List<GameObject> environments = new List<GameObject>();
 
+    // sometimes data should not be recorded, tracked here.
     public bool recordingData = true;
 
     // How many trials should be used for difficulty evaluation
     public int difficultyEvaluationTrials = 10;
 
-    // the change in difficulty when shifting
-    // public int difficultyInterval = 1f;
-
     // low and high ends for difficulty scale
     public int difficultyMin = 1, difficultyMax = 10;
-
-    public DifficultyEvaluation difficultyEvaluation = DifficultyEvaluation.BASE;
-
+    
+    // some conditions affect this offset
     [NonSerialized]
     public float targetLineHeightOffset = 0;
 
@@ -125,16 +123,7 @@ public class GlobalControl : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-#if UNITY_EDITOR
-        Test();
-#endif
     }
-
-    void Test()
-	{
-
-	}
 
     private void Update()
     {

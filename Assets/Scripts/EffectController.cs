@@ -4,9 +4,11 @@ using System.Dynamic;
 using UnityEngine;
 using UnityEngine.Experimental.AI;
 
+/// <summary>
+/// facilitate management of effects. handles setting shader and particla effects. 
+/// </summary>
 public class EffectController : MonoBehaviour
 {
-	// public GameObject ground;
 	public Effect dissolve, respawn, /*sparks,*/ fire, blueFire, embers, blueEmbers;
 
 	public Effect effectTarget;
@@ -15,9 +17,6 @@ public class EffectController : MonoBehaviour
 
 	float respawnTimer = 5f;
 
-	//  private List<Effect> activeParticleEffects = new List<Effect>();
-
-	// public List<Effect> ActiveParticleEffects { get { return activeParticleEffects; } }
 
 	void Start()
 	{
@@ -29,14 +28,12 @@ public class EffectController : MonoBehaviour
 		embers?.gameObject.SetActive(false);
 		blueEmbers?.gameObject.SetActive(false);
 
-		// rigidbody = GetComponent<Rigidbody>();
-		// rigidbody.useGravity = false;
-
 		Initialize();
 	}
 
 	void Update()
 	{
+		// leaving for testing
 		//if (Input.GetKeyDown(KeyCode.Y))
 		//{
 		//	// StartEffect(sparks);
@@ -111,11 +108,6 @@ public class EffectController : MonoBehaviour
 
 	public void StartShaderEffect(Effect effect)
 	{
-		//if (activeShaderEffect != null)
-		//{
-		//    activeShaderEffect.gameObject.SetActive(false);
-		//}
-
 		if (activeShaderEffect == null || activeShaderEffect != effect)
 		{
 			activeShaderEffect = effect;
@@ -133,14 +125,9 @@ public class EffectController : MonoBehaviour
 		EffectParticle effectParticle = effectTarget.GetEffectParticle(effect);
 		if (effectParticle == null)
 		{
-			// effectParticle.particleParent.gameObject.SetActive(true);
-			// effectTarget.effectParticles.Add(effect);
 			Debug.Log("particle effect not found");
 			return;
 		}
-		//else
-		//{
-		//}
 
 		var particleParent = effectParticle.particleParent;
 		particleParent.gameObject.SetActive(true);
@@ -155,7 +142,6 @@ public class EffectController : MonoBehaviour
 			return;
 		}
 
-		// effect.effectParticles.Remove(effectParticle);
 		effectParticle.particleParent.gameObject.SetActive(false);
 	}
 
@@ -165,27 +151,5 @@ public class EffectController : MonoBehaviour
 		{
 			particle.particleParent.SetActive(false);
 		}
-
-		// effectTarget.effectParticles.Clear();
-
 	}
-
-	//private void OnCollisionEnter(Collision collision)
-	//{
-	//	if (collision.transform.gameObject == ground)
-	//	{
-	//           StartEffect(dissolve);
-	//           rigidbody.useGravity = false;
-	//           StartCoroutine(Respawn(respawnTimer));
-	//	}
-	//}
-
-	//   IEnumerator Respawn(float timer)
-	//{
-	//       yield return new WaitForSeconds(timer);
-	//       transform.position = transform.parent.position + new Vector3(0, 2, 0);
-	//       StartEffect(respawn);
-	//       yield return new WaitForSeconds(respawn.effectTime);
-	//       rigidbody.useGravity = true;
-	//}
 }

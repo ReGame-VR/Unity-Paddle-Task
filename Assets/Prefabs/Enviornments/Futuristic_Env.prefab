@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 684842116218577293}
   m_Layer: 0
-  m_Name: Futuristic_Environment
+  m_Name: Futuristic_Env
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2095,6 +2095,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 3c11987e8e538d847b379ff48777596c, type: 3}
       propertyPath: m_Name
       value: Pillar 01 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 3c11987e8e538d847b379ff48777596c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 3c11987e8e538d847b379ff48777596c, type: 3}
       propertyPath: m_LocalPosition.x

@@ -70,6 +70,12 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField]
 	TextMeshPro highestBouncesDisplay;
 
+	/// <summary>
+	/// list of the audio clips played at the beginning of difficulties in some cases
+	/// </summary>
+	[SerializeField]
+	List<DifficultyAudioClip> difficultyAudioClips;
+
 	// Current number of bounces that the player has acheieved in this trial
 	private int numBounces = 0;
 	private int numAccurateBounces = 0;
@@ -1109,7 +1115,7 @@ public class PaddleGame : MonoBehaviour
 		return -1;
 	}
 
-	private void SetDifficulty(int difficultyNew)
+	public void SetDifficulty(int difficultyNew)
 	{
 		if (difficultyNew < 0 || difficultyNew > 10)
 		{

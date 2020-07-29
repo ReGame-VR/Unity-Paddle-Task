@@ -15035,7 +15035,6 @@ MonoBehaviour:
   difficultyEvaluationTrials: 10
   difficultyMin: 1
   difficultyMax: 10
-  difficultyEvaluation: 0
 --- !u!4 &1434758229
 Transform:
   m_ObjectHideFlags: 0

@@ -62,7 +62,7 @@ public class PaddleGame : MonoBehaviour
 	AudioClip feedbackExample;
 
 	[SerializeField]
-	AudioSource feedbackSource;
+	AudioSource feedbackSource, difficultySource;
 
 	[SerializeField]
 	TextMeshPro difficultyDisplay;
@@ -228,17 +228,19 @@ public class PaddleGame : MonoBehaviour
 			leftPaddle.GetComponent<Paddle>().SetPaddleIdentifier(Paddle.PaddleIdentifier.LEFT);
 		}
 
+		PopulateScoreEffects();
+
+		InitializeTrialConditions();
+
 		if(globalControl.session == Session.SHOWCASE)
 		{
 			globalControl.recordingData = false;
 			globalControl.maxTrialTime = 0;
 		}
-
-		PopulateScoreEffects();
-
-		InitializeTrialConditions();
-
-		Initialize();
+		else
+		{
+			Initialize();
+		}
 	}
 
 	void Update()
@@ -324,7 +326,7 @@ public class PaddleGame : MonoBehaviour
 
 	#region Initialization
 
-	private void Initialize()
+	public void Initialize()
 	{
 		// Initialize Condition and Visit types
 		condition = globalControl.condition;
@@ -380,6 +382,8 @@ public class PaddleGame : MonoBehaviour
 		highestAccurateBounces = 0;
 		UpdateHighestBounceDisplay();
 		feedbackCanvas.UpdateScoreText(curScore, numBounces);
+
+		Debug.Log("Initialized");
 	}
 
 	// Sets Target Line height based on HMD eye level and target position preference
@@ -508,6 +512,14 @@ public class PaddleGame : MonoBehaviour
 			// wait until after the pause is lifted, when timescale is 0
 			yield return new WaitForSeconds(.1f);
 		}
+
+		var audioClip = GetDifficiultyAudioClip(difficulty);
+		if (audioClip != null)
+		{
+			difficultySource.PlayOneShot(audioClip);
+		}
+		Debug.Log("playing difficulty audio " + (audioClip != null ? audioClip.name : "null"));
+
 		yield return new WaitForSecondsRealtime(delay);
 
 		// reset ball, change difficulty level, possible audio announcement.
@@ -933,6 +945,18 @@ public class PaddleGame : MonoBehaviour
 		return trialTime != -1 ? trialTime * 60 : trialTime;
 	}
 
+	private AudioClip GetDifficiultyAudioClip(int difficulty)
+	{
+		foreach(var difficultyAudioClip in difficultyAudioClips)
+		{
+			if(difficultyAudioClip.difficulty == difficulty)
+			{
+				return difficultyAudioClip.audioClip;
+			}
+		}
+		return null;
+	}
+
 	#region Gathering and recording data
 
 	public void StartRecording()
@@ -1122,6 +1146,10 @@ public class PaddleGame : MonoBehaviour
 			Debug.LogError("Issue setting difficulty, not in expected range: " + difficultyNew);
 			
 			return;
+		}
+		else
+		{
+			Debug.Log("Setting Difficulty: " + difficultyNew);
 		}
 
 		difficulty = difficultyNew;

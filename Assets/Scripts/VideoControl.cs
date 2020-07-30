@@ -20,8 +20,9 @@ public class VideoControl : MonoBehaviour
     
 
     VideoClip video;
-    Coroutine playbackFinished;
+    // Coroutine playbackFinished;
     GlobalControl globalControl;
+    GlobalPauseHandler globalPauseHandler;
     float playedTime = 0f;
 
     void Start()
@@ -40,14 +41,16 @@ public class VideoControl : MonoBehaviour
 
         if (GlobalControl.Instance.playVideo)
 		{
-            GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>().TogglePause();
+            globalPauseHandler = GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>();
+            globalPauseHandler.Pause();
 
 #if UNITY_EDITOR
             if (editorTesting)
 		    {
                 float appStartDelay = (float)video.length + postVideoDelay;
                 appStartDelay = 10f;
-                playbackFinished = StartCoroutine(PlaybackFinished(appStartDelay));
+                // playbackFinished = 
+                StartCoroutine(PlaybackFinished(appStartDelay));
 		    }
 #else
         editorTesting = false;
@@ -69,18 +72,18 @@ public class VideoControl : MonoBehaviour
             float total = 0;
             for (int i = 0; i < videoDatas.Count; i++)
             {
-                total += (float)videoDatas[i].videoClip.length;
-                float duration = (float)videoDatas[i].videoClip.length + videoDatas[i].postClipTime; 
                 StartCoroutine(PracticeTime(total, videoDatas[i]));
+                // total += (float)videoDatas[i].videoClip.length;
+                float duration = (float)videoDatas[i].videoClip.length + videoDatas[i].postClipTime; 
                 total += duration;
             }
 
-            if (!editorTesting)
-            {
-                playbackFinished = StartCoroutine(PlaybackFinished(total));
-            }
+            // if (!editorTesting)
+            // {
+                // playbackFinished = StartCoroutine(PlaybackFinished(total));
+            // }
 
-            player.Play();
+            // player.Play();
 		}
 		else
 		{
@@ -92,29 +95,38 @@ public class VideoControl : MonoBehaviour
 	{
         if (Input.GetKeyDown(KeyCode.V))
 		{
-            StopCoroutine(playbackFinished);
-            StartCoroutine(PlaybackFinished(0));
+            StopAllCoroutines();
+            // StopCoroutine(playbackFinished);
+            StartCoroutine(PlaybackFinished(0f));
 		}
 	}
 
     IEnumerator PlaybackFinished(float delaySeconds)
 	{
-        yield return new WaitForSeconds(delaySeconds);
+        yield return new WaitForSecondsRealtime(delaySeconds);
+        Debug.Log("playback finished");
         renderTarget.gameObject.SetActive(false);
         player.Stop();
-        GlobalControl.Instance.recordingData = true;
+        audioSource.Stop();
+        globalControl.recordingData = true;
+        globalControl.playVideo = false;
+        paddleGame.Initialize();
         paddleGame.StartRecording();
 	}
 
     IEnumerator PracticeTime(float start, VideoData videoData)
 	{
-        yield return new WaitForSeconds(start);
+        yield return new WaitForSecondsRealtime(start);
         player.clip = videoData.videoClip;
-        yield return new WaitForSeconds((float)videoData.videoClip.length);
-        paddleGame.SetDifficulty(videoData.difficulty);
-        // unpause game?
-        player.Pause();
-        yield return new WaitForSeconds(videoData.postClipTime);
         player.Play();
-	}
+        audioSource.PlayOneShot(videoData.audioClip);
+        Debug.Log("playing video " + player.clip.name);
+        yield return new WaitForSecondsRealtime((float)videoData.videoClip.length);
+        paddleGame.SetDifficulty(videoData.difficulty);
+        player.Pause();
+        globalPauseHandler.Resume();
+        yield return new WaitForSecondsRealtime(videoData.postClipTime);
+        // player.Play();
+        globalPauseHandler.Pause();
+    }
 }

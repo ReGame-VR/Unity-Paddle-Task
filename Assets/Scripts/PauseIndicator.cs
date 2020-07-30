@@ -5,10 +5,17 @@ using UnityEngine;
 public class PauseIndicator : MonoBehaviour
 {
     public GameObject quad;
+    public bool visibleOverride, visibleOverrideValue;
+
 
     void Update()
     {
-        if (GlobalControl.Instance.paused/* && !GlobalControl.Instance.recordingData*/)
+
+		if (visibleOverride)
+		{
+            quad.SetActive(visibleOverrideValue);
+		}
+        else if (GlobalControl.Instance.paused/* && !GlobalControl.Instance.recordingData*/)
         {
             quad.SetActive(true);
         }

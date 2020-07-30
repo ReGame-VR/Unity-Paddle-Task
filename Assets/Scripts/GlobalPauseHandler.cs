@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GlobalPauseHandler : MonoBehaviour
 {
+    public PauseIndicator pauseIndicator;
+
     public void TogglePause()
     {
         if (GlobalControl.Instance.paused == true)
@@ -34,5 +36,19 @@ public class GlobalPauseHandler : MonoBehaviour
         GameObject.Find("Ball").GetComponent<Kinematics>().TriggerResume();
         Debug.Log("Resume");
     }
+
+    public void SetIndicatorVisibility(bool visible)
+	{
+		if (visible)
+		{
+            pauseIndicator.visibleOverride = true;
+            pauseIndicator.visibleOverrideValue = true;
+		}
+		else
+		{
+            pauseIndicator.visibleOverride = true;
+            pauseIndicator.visibleOverrideValue = false;
+		}
+	}
 }
 

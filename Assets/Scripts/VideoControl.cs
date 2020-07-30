@@ -43,6 +43,8 @@ public class VideoControl : MonoBehaviour
 		{
             globalPauseHandler = GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>();
             globalPauseHandler.Pause();
+            globalPauseHandler.SetIndicatorVisibility(false);
+
 
 #if UNITY_EDITOR
             if (editorTesting)
@@ -78,10 +80,11 @@ public class VideoControl : MonoBehaviour
                 total += duration;
             }
 
-            // if (!editorTesting)
-            // {
-                // playbackFinished = StartCoroutine(PlaybackFinished(total));
-            // }
+            if (!editorTesting)
+            {
+                // playbackFinished = 
+                StartCoroutine(PlaybackFinished(total + .2f));
+            }
 
             // player.Play();
 		}
@@ -112,6 +115,7 @@ public class VideoControl : MonoBehaviour
         globalControl.playVideo = false;
         paddleGame.Initialize();
         paddleGame.StartRecording();
+        globalPauseHandler.pauseIndicator.visibleOverride = false;
 	}
 
     IEnumerator PracticeTime(float start, VideoData videoData)

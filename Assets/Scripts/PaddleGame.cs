@@ -236,11 +236,11 @@ public class PaddleGame : MonoBehaviour
 		{
 			globalControl.recordingData = false;
 			globalControl.maxTrialTime = 0;
+
+
 		}
-		else
-		{
-			Initialize();
-		}
+	
+		Initialize();
 	}
 
 	void Update()
@@ -776,6 +776,11 @@ public class PaddleGame : MonoBehaviour
 	/// </summary>
 	void CheckEndCondition(bool fromBounce = false)
 	{
+		if(session == Session.SHOWCASE)
+		{
+			return;
+		}
+
 		if (CheckScoreCondition())
 		{
 			EvaluateDifficultyResult(true);
@@ -1151,6 +1156,12 @@ public class PaddleGame : MonoBehaviour
 		{
 			Debug.Log("Setting Difficulty: " + difficultyNew);
 		}
+
+		numBounces = 0;
+		numAccurateBounces = 0;
+		curScore = 0f;
+		scoreEffectTarget = 0;
+		maxScoreEffectReached = false;
 
 		difficulty = difficultyNew;
 

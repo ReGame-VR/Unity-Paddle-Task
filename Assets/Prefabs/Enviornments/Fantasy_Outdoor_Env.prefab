@@ -250,7 +250,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2157644680667516558}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 06568020c269d864091799da57265074, type: 3}
@@ -377,7 +377,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2157660642153849682}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 7fca3e2a17fef684d97fb6711dafeaf7, type: 3}
@@ -504,7 +504,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2158010774927745824}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 367f71f3d6da0aa4ca5ac3eed44b5c5e, type: 3}
@@ -14177,7 +14177,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7124700453992201088
 Transform:
   m_ObjectHideFlags: 0
@@ -14606,8 +14606,9 @@ GameObject:
   - component: {fileID: 7099414155653226312}
   - component: {fileID: 7106812775035122416}
   - component: {fileID: 7161997452955446734}
+  - component: {fileID: 2897128582236722984}
   m_Layer: 0
-  m_Name: Mesh1
+  m_Name: water
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14687,6 +14688,23 @@ MonoBehaviour:
   WaveSpeed: -0.3
   WaveHeight: 0.48
   WavePattern: 0.62
+  EdgeBlend: 1
+  ForceFlatShading: 1
+--- !u!114 &2897128582236722984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7131242461715848380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9f71b8e0e95566498b02651f7f747c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WaveSpeed: 0
+  WaveHeight: 0
+  WavePattern: 0.1
   EdgeBlend: 1
   ForceFlatShading: 1
 --- !u!1 &7131243899231090494

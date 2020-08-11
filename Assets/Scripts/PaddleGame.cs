@@ -70,6 +70,9 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField]
 	TextMeshPro highestBouncesDisplay;
 
+	[SerializeField]
+	TextMeshPro highestAccurateBouncesDisplay;
+
 	/// <summary>
 	/// list of the audio clips played at the beginning of difficulties in some cases
 	/// </summary>
@@ -872,17 +875,18 @@ public class PaddleGame : MonoBehaviour
 
 	void UpdateHighestBounceDisplay()
 	{
-		string bounceType = "bounces";
-		string bounces = highestBounces.ToString(); ;
-
+		string bounces = highestBounces.ToString();
+		highestBouncesDisplay.text = String.Format("Try to beat {0} bounces in a row!", bounces);
+	
 		if (targetLine.activeInHierarchy)
 		{
-			bounceType = "successful bounces";
-			bounces = highestAccurateBounces.ToString();
+			string accurateBounces = highestAccurateBounces.ToString();
+			highestAccurateBouncesDisplay.text = String.Format("Try to beat {0} target hits!", accurateBounces);
 		}
-
-		highestBouncesDisplay.text = String.Format("Try to beat {0} {1} in a row!", bounces, bounceType);
-
+		else
+		{
+			highestAccurateBouncesDisplay.text = "";
+		}
 	}
 
 	private float GetHmdHeight()

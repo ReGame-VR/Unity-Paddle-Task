@@ -110,9 +110,9 @@ public class DataHandler : MonoBehaviour
         c.Add("Condition");
         c.Add(headerData.condition.ToString());
 
-        CsvRow ec = new CsvRow();
-        c.Add("Physics Modification");
-        c.Add(headerData.expCondition.ToString());
+        //CsvRow ec = new CsvRow();
+        //c.Add("Physics Modification");
+        //c.Add(headerData.expCondition.ToString());
 
         CsvRow s = new CsvRow();
         s.Add("Session");
@@ -204,7 +204,7 @@ public class DataHandler : MonoBehaviour
                 header.Add("Participant ID");
                 header.Add("Timestamp");
                 header.Add("Trial #");
-                header.Add("Enhanced Y-velocity offset"); // bounce modification 
+                // header.Add("Enhanced Y-velocity offset"); // bounce modification 
                 header.Add("# of Bounces");
                 header.Add("Total # of Bounces");
                 header.Add("Bounce Error");
@@ -229,7 +229,7 @@ public class DataHandler : MonoBehaviour
                     row.Add(pid);
                     row.Add(d.time.ToString());
                     row.Add(d.trialNum.ToString());
-                    row.Add(DhWriteYBounceMod(d.bounceModification));
+                    // row.Add(DhWriteYBounceMod(d.bounceModification));
                     row.Add(d.bounceNum.ToString());
                     row.Add(d.bounceNumTotal.ToString());
                     row.Add(d.apexTargetError.ToString());

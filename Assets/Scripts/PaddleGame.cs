@@ -876,12 +876,12 @@ public class PaddleGame : MonoBehaviour
 	void UpdateHighestBounceDisplay()
 	{
 		string bounces = highestBounces.ToString();
-		highestBouncesDisplay.text = String.Format("Try to beat {0} bounces in a row!", bounces);
+		highestBouncesDisplay.text = String.Format("{0} bounces in a row!", bounces);
 	
 		if (targetLine.activeInHierarchy)
 		{
 			string accurateBounces = highestAccurateBounces.ToString();
-			highestAccurateBouncesDisplay.text = String.Format("Try to beat {0} target hits!", accurateBounces);
+			highestAccurateBouncesDisplay.text = String.Format("{0} target hits!", accurateBounces);
 		}
 		else
 		{

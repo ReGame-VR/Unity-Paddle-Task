@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DifficultyData : MonoBehaviour
+public class DifficultyData
 {
 	public readonly float ballSpeed;
 	public readonly bool targetLineActive;

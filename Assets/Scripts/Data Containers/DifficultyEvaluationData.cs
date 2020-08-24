@@ -12,5 +12,4 @@ public class DifficultyEvaluationData<T>
 		this.difficultyEvaluation = difficultyEvaluation;
 		this.datas = datas;
 	}
-
 }

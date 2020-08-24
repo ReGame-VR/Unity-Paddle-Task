@@ -244,6 +244,19 @@ public class PaddleGame : MonoBehaviour
 		}
 	
 		Initialize();
+
+		SetDifficulty(difficulty);
+		// difficulty shifts timescale, so pause it again
+		Time.timeScale = 0;
+
+		globalControl.ResetTimeElapsed();
+
+		pauseHandler.Pause();
+
+
+		// countdown for first drop
+		// ResetTrial();
+		// inRespawnMode = true;
 	}
 
 	void Update()
@@ -269,6 +282,7 @@ public class PaddleGame : MonoBehaviour
 		// Reset ball if it drops 
 		HoverOnReset();
 
+#if UNITY_EDITOR
 		// add time adjust jl controls for demonstrations
 		if (Input.GetKeyDown(KeyCode.N))
 		{
@@ -310,10 +324,11 @@ public class PaddleGame : MonoBehaviour
 		{
 			if(session == Session.BASELINE)
 			{
-				numBounces += targetConditionBounces[difficultyEvaluation];
-				numAccurateBounces += targetConditionBounces[difficultyEvaluation];
+				numBounces += targetConditionBounces[difficultyEvaluation] * 7;
+				numAccurateBounces += targetConditionBounces[difficultyEvaluation] * 7;
 			}
 		}
+#endif
 
 		if (globalControl.recordingData)
 		{
@@ -327,7 +342,7 @@ public class PaddleGame : MonoBehaviour
 	void QuitTask()
 	{
 		// This is to ensure that the final trial is recorded.
-		ResetTrial();
+		ResetTrial(true);
 
 		dataHandler.WriteDataToFiles();
 
@@ -387,13 +402,10 @@ public class PaddleGame : MonoBehaviour
 			dataHandler.InitializeDifficultyEvaluationData(DifficultyEvaluation.CUSTOM);
 		}
 
-		SetDifficulty(difficulty);
-
 		// difficulty shifts timescale, so pause it again
 		Time.timeScale = 0;
 
 		globalControl.ResetTimeElapsed();
-
 
 		pauseHandler.Pause();
 
@@ -402,6 +414,9 @@ public class PaddleGame : MonoBehaviour
 		UpdateHighestBounceDisplay();
 		feedbackCanvas.UpdateScoreText(curScore, numBounces);
 
+		// ensure drop time on first drop
+		inHoverMode = true;
+		effectController.StopAllParticleEffects();
 
 		Debug.Log("Initialized");
 	}
@@ -499,7 +514,7 @@ public class PaddleGame : MonoBehaviour
 			if (trialData.numBounces >= targetConditionBounces[DifficultyEvaluation.MODERATE] && (!globalControl.targetHeightEnabled || trialData.numAccurateBounces >= targetConditionAccurateBounces[DifficultyEvaluation.MODERATE])) 
 			{
 				int bounces = trialData.numBounces / targetConditionBounces[DifficultyEvaluation.MODERATE];
-				int accurateBounces = targetConditionAccurateBounces[DifficultyEvaluation.MODERATE];
+				int accurateBounces = trialData.numAccurateBounces / targetConditionAccurateBounces[DifficultyEvaluation.MODERATE];
 				return !globalControl.targetHeightEnabled ? bounces : accurateBounces; 
 			} 
 			return 0; 
@@ -508,7 +523,7 @@ public class PaddleGame : MonoBehaviour
 		{
 			if (trialData.numBounces >= targetConditionBounces[DifficultyEvaluation.MAXIMAL])
 			{
-				return trialData.numBounces / targetConditionBounces[DifficultyEvaluation.MAXIMAL];
+				return trialData.numAccurateBounces / targetConditionBounces[DifficultyEvaluation.MAXIMAL];
 			}
 			return 0; 
 		});
@@ -680,15 +695,15 @@ public class PaddleGame : MonoBehaviour
 	}
 
 	// The ball was reset after hitting the ground. Reset bounce and score.
-	public void ResetTrial()
+	public void ResetTrial(bool final = false)
 	{
 		// Don't run this code the first time the ball is reset or when there are 0 bounces
-		if (trialNum < 1 /*|| numBounces < 1*/)
-		{
-			trialNum++;
-			CheckEndCondition();
-			return;
-		}
+		//if (trialNum < 1 /*|| numBounces < 1*/)
+		//{
+		//	trialNum++;
+		//	CheckEndCondition();
+		//	return;
+		//}
 
 		// Record data for final bounce in trial
 		GatherBounceData();
@@ -702,7 +717,7 @@ public class PaddleGame : MonoBehaviour
 
 		}
 
-		if (trialNum != 0 && trialNum % 10 == 0)
+		if (!final && trialNum != 0 && trialNum % 10 == 0)
 		{
 			// some difficulty effects are regenerated every 10 trials
 			SetDifficulty(difficulty);
@@ -726,8 +741,11 @@ public class PaddleGame : MonoBehaviour
 		scoreEffectTarget = 0;
 		maxScoreEffectReached = false;
 
-		// Check if game should end or evaluation set change
-		CheckEndCondition();
+		if (!final)
+		{
+			// Check if game should end or evaluation set change
+			CheckEndCondition();
+		}
 	}
 
 	#endregion // Reset
@@ -801,7 +819,7 @@ public class PaddleGame : MonoBehaviour
 			return;
 		}
 
-		if (CheckScoreCondition())
+ 		if (CheckScoreCondition())
 		{
 			EvaluateDifficultyResult(true);
 		}
@@ -837,7 +855,7 @@ public class PaddleGame : MonoBehaviour
 	bool CheckScoreCondition()
 	{
 		TrialCondition difficultyCondition = GetDifficultyCondition(difficultyEvaluation);
-		return CheckCondition(difficultyCondition);
+   		return CheckCondition(difficultyCondition);
 	}
 
 	/// <summary>
@@ -864,7 +882,8 @@ public class PaddleGame : MonoBehaviour
 
 		int trueCount = 0;
 
-		for(int i = datas.Count - 1; i > datas.Count - (trialCondition.trialEvaluationsSet < datas.Count ? trialCondition.trialEvaluationsSet : datas.Count) && i > 0; i--)
+		// check for true conditions in recent data  
+ 		for(int i = datas.Count - 1; i >= datas.Count - (trialCondition.trialEvaluationsSet < datas.Count ? trialCondition.trialEvaluationsSet : datas.Count) && i >= 0; i--)
 		{
 			int trueInTrial = trialCondition.checkTrialCondition(datas[i]);
 			if (trueInTrial > 0)
@@ -1080,6 +1099,11 @@ public class PaddleGame : MonoBehaviour
 	/// <param name="successfulCompletion"></param>
 	void EvaluateDifficultyResult(bool successfulCompletion)
 	{
+		if(difficultyEvaluationIndex + 1 == difficultyEvaluationOrder.Count)
+		{
+			Debug.Log("Last evaluation start");
+		}
+
 		var difficultyScalar = GetPerformanceBasedDifficultyScalar(successfulCompletion);
 		int difficulty = 0;
 
@@ -1112,14 +1136,16 @@ public class PaddleGame : MonoBehaviour
 
 		performanceDifficulties.Add(difficulty);
 
-		difficultyEvaluationIndex++;
+		// reset cooldown, condition may be used again
+		GetDifficultyCondition(difficultyEvaluation).trialEvaluationCooldown = 0;
 
-		if (difficultyEvaluationIndex == difficultyEvaluationOrder.Count)
+		if (difficultyEvaluationIndex + 1 == difficultyEvaluationOrder.Count)
 		{
 			QuitTask();
 			return;
 		}
 
+		difficultyEvaluationIndex++;
 		difficultyEvaluation = difficultyEvaluationOrder[difficultyEvaluationIndex];
 		difficultyEvaluationTrials = GetDifficultyCondition(difficultyEvaluationOrder[difficultyEvaluationIndex]).trialEvaluationTarget;
 
@@ -1229,7 +1255,7 @@ public class PaddleGame : MonoBehaviour
 		// record difficulty values change
 		if (globalControl.recordingData)
 		{
-			dataHandler.recordDifficulty(ballSpeedNew, targetLineHeightEnabled, targetLineHeightOffset, targetRadiusNew, Time.time, difficultyEvaluation);
+			dataHandler.recordDifficulty(ballSpeedNew, targetLineHeightEnabled, targetLineHeightOffset, targetRadiusNew, Time.time, difficulty);
 		}
 
 		if (performanceDifficulties.Count > difficultyEvaluationOrder.Count)

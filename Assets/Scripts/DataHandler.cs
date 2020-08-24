@@ -128,9 +128,9 @@ public class DataHandler : MonoBehaviour
 		continuousDatas[difficultyEvaluationIndex].datas.Add(new ContinuousData(degreesOfFreedom, time, bouncemod, paused, ballPos, paddleVelocity, paddleAccel));
 	}
 
-	public void recordDifficulty(float ballSpeed, bool targetLineActive, float targetLineHeightOffset, float targetLineWidth, float time, DifficultyEvaluation difficultyEvaluation)
+	public void recordDifficulty(float ballSpeed, bool targetLineActive, float targetLineHeightOffset, float targetLineWidth, float time, int difficulty)
 	{
-		difficultyDatas[difficultyEvaluationIndex].datas.Add(new DifficultyData(ballSpeed, targetLineActive, targetLineHeightOffset, targetLineWidth, time));
+		difficultyDatas[difficultyEvaluationIndex].datas.Add(new DifficultyData(ballSpeed, targetLineActive, targetLineHeightOffset, targetLineWidth, time, difficulty));
 	}
 
 	public void recordHeaderInfo(Condition c, ExpCondition ec, Session s, int maxtime, float htime, float tradius)
@@ -237,7 +237,7 @@ public class DataHandler : MonoBehaviour
 			var evaluation = GetEvaluationsIteration(bounceData.difficultyEvaluation);
 			if (bounceData.datas.Count <= 0) continue;
 
-			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + bounceData.ToString() + "_" + evaluation.ToString() + "_" + pid + "Bounce.csv"))
+			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + bounceData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Bounce.csv"))
 			{
 				Debug.Log("Writing bounce data to file");
 
@@ -373,34 +373,40 @@ public class DataHandler : MonoBehaviour
 		// Write all entries in data list to file
 		string directory = "Data/" + pid;
 		Directory.CreateDirectory(@directory);
-		foreach (var difficultyData in difficultyDatas)
+
+		if (difficultyDatas.Count <= 0) return;
+
+		using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + "DifficultyData_" + pid + ".csv"))
 		{
-			var evaluation = GetEvaluationsIteration(difficultyData.difficultyEvaluation);
-			if (difficultyData.datas.Count <= 0) continue;
+			Debug.Log("Writing diffiuclty data to file");
 
-			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + difficultyData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Difficulty.csv"))
+			// write session data
+			WriteHeaderInfo(writer);
+
+			// write header
+			CsvRow header = new CsvRow();
+			header.Add("Difficulty Evaluation");
+			header.Add("Difficulty");
+			header.Add("Participant ID");
+			header.Add("Timestamp");
+			header.Add("Ball Speed");
+			header.Add("Target Line Active");
+			header.Add("Target Line Height Offset");
+			header.Add("Target Line Width");
+
+			writer.WriteRow(header);
+
+			foreach (var difficultyData in difficultyDatas)
 			{
-				Debug.Log("Writing bounce data to file");
-
-				// write session data
-				WriteHeaderInfo(writer);
-
-				// write header
-				CsvRow header = new CsvRow();
-				header.Add("Participant ID");
-				header.Add("Timestamp");
-				header.Add("Ball Speed");
-				header.Add("Target Line Active");
-				header.Add("Target Line Height Offset");
-				header.Add("Target Line Width");
-
-				writer.WriteRow(header);
+				// var evaluation = GetEvaluationsIteration(difficultyData.difficultyEvaluation);
 
 				// write each line of data
 				foreach (DifficultyData d in difficultyData.datas)
 				{
 					CsvRow row = new CsvRow();
 
+					row.Add(difficultyData.difficultyEvaluation.ToString());
+					row.Add(d.difficulty.ToString());
 					row.Add(pid);
 					row.Add(d.time.ToString());
 					row.Add(d.ballSpeed.ToString());
@@ -412,7 +418,7 @@ public class DataHandler : MonoBehaviour
 				}
 			}
 		}
-		ResetEvaluationsIteration();
+		// ResetEvaluationsIteration();
 	}
 
 	// utility functions --------------------------------------------

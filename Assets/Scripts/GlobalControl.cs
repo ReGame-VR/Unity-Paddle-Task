@@ -129,8 +129,14 @@ public class GlobalControl : MonoBehaviour
     {
         if (!paused)
         {
-            timeElapsed += Time.deltaTime;
+            timeElapsed += (Time.deltaTime * (1/Time.timeScale));
+            Debug.Log("not paused: " + timeElapsed);
+
         }
+        else
+		{
+            Debug.Log("paused: " + Time.time);
+		}
     }
     
     public float GetTimeLimitSeconds()

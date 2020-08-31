@@ -334,6 +334,16 @@ public class PaddleGame : MonoBehaviour
 		{
 			trialDuration += Time.deltaTime;
 		}
+
+		if (globalControl.GetTimeElapsed() > GetMaxDifficultyTrialTime(difficultyEvaluation) /*globalControl.GetTimeLimitSeconds()*/)
+		{
+#if !UNITY_EDITOR
+			Debug.Log("Time limit of " + globalControl.GetTimeLimitSeconds() + " seconds has passed. Quitting");
+#endif
+
+			Debug.LogFormat("time elapsed {0} greater than max trial time {1}", globalControl.GetTimeElapsed(), GetMaxDifficultyTrialTime(difficultyEvaluation));
+			EvaluateDifficultyResult(false);
+		}
 	}
 
 	/// <summary>
@@ -832,16 +842,6 @@ public class PaddleGame : MonoBehaviour
 		{
 			return;
 		}
-
-		if (globalControl.GetTimeElapsed() > GetMaxDifficultyTrialTime(difficultyEvaluation) /*globalControl.GetTimeLimitSeconds()*/)
-		{
-#if !UNITY_EDITOR
-			Debug.Log("Time limit of " + globalControl.GetTimeLimitSeconds() + " seconds has passed. Quitting");
-#endif
-
-			Debug.LogFormat("time elapsed {0} greater than max trial time {1}", globalControl.GetTimeElapsed(), GetMaxDifficultyTrialTime(difficultyEvaluation));
-			EvaluateDifficultyResult(false);
-		}
 	}
 
 	void CheckTrialConditions(bool fromBounce = false)
@@ -1271,7 +1271,7 @@ public class PaddleGame : MonoBehaviour
 		{
 #if UNITY_EDITOR
 			// testing at .3 too time consuming
-			case 1: return .8f;
+			case 1: return .3f;
 #else
 			case 1: return .3f;
 #endif

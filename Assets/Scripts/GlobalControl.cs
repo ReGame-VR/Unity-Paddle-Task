@@ -130,12 +130,12 @@ public class GlobalControl : MonoBehaviour
         if (!paused)
         {
             timeElapsed += (Time.deltaTime * (1/Time.timeScale));
-            Debug.Log("not paused: " + timeElapsed);
+            // Debug.Log("not paused: " + timeElapsed);
 
         }
         else
 		{
-            Debug.Log("paused: " + Time.time);
+            // Debug.Log("paused: " + Time.time);
 		}
     }
     

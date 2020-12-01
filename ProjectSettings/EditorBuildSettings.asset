@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/_Scenes/Paddle 2.unity
     guid: 702ffd67ce1b8dc4686eeb43fffdf1f4
+  - enabled: 0
+    path: Assets/_Scenes/Oculus_Test.unity
+    guid: 731d4f5b73ab521428c1cff0082ab301
   m_configObjects: {}

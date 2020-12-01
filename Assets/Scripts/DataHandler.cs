@@ -42,7 +42,7 @@ public class DataHandler : MonoBehaviour
 
 	HeaderData headerData;
 
-	private string pid = GlobalControl.Instance.participantID;
+	private string pid;
 
 	bool isExplorationMode = (GlobalControl.Instance.condition == Condition.ENHANCED);
 
@@ -50,6 +50,7 @@ public class DataHandler : MonoBehaviour
 
 	Dictionary<DifficultyEvaluation, int> evaluationsCount = new Dictionary<DifficultyEvaluation, int>();
 
+	public bool dataWritten = false;
 
 	public void InitializeDifficultyEvaluationData(DifficultyEvaluation difficultyEvaluation)
 	{
@@ -88,8 +89,16 @@ public class DataHandler : MonoBehaviour
 	/// </summary>
 	public void WriteDataToFiles()
 	{
+		if (dataWritten)
+		{
+			Debug.Log("Data already written, skipping...");
+			return;
+		}
+
+		dataWritten = true;
 		// make pid folder unique
-		pid = System.DateTime.Today.Month.ToString() + "-" + System.DateTime.Today.Day.ToString() + "-" + System.DateTime.Now.Millisecond.ToString() + "_" + pid;
+		System.DateTime now = System.DateTime.Now;
+		pid = GlobalControl.Instance.participantID + "_" + now.Month.ToString() + "-" + now.Day.ToString() + "-" + now.Year + "_" + now.Hour + "-" + now.Minute + "-" + now.Second; // + "_" + pid;
 
 		if (GlobalControl.Instance.recordingData)
 		{

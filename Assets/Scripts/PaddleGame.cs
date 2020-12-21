@@ -295,7 +295,7 @@ public class PaddleGame : MonoBehaviour
 		// Reset ball if it drops 
 		HoverOnReset();
 
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
 		// add time adjust jl controls for demonstrations
 		if (Input.GetKeyDown(KeyCode.N))
 		{
@@ -341,7 +341,7 @@ public class PaddleGame : MonoBehaviour
 				numAccurateBounces += targetConditionBounces[difficultyEvaluation] * 7;
 			}
 		}
-#endif
+// #endif
 
 		if (globalControl.recordingData)
 		{
@@ -1071,7 +1071,10 @@ public class PaddleGame : MonoBehaviour
 		if (apexSuccess)
 		{
 			curScore += 10;
-			numAccurateBounces++;
+			if (GetTargetLineActiveDifficulty(difficulty))
+			{
+				numAccurateBounces++;
+			}
 
 			// IndicateSuccessBall(); // temporariliy disabled while testing apex coroutines in Ball
 		}

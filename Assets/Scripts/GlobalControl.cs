@@ -137,6 +137,11 @@ public class GlobalControl : MonoBehaviour
 		{
             // Debug.Log("paused: " + Time.time);
 		}
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            Application.Quit();
+        }
     }
     
     public float GetTimeLimitSeconds()

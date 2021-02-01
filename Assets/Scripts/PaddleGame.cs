@@ -394,6 +394,12 @@ public class PaddleGame : MonoBehaviour
 
 	public void Initialize()
 	{
+		if (globalControl.playVideo)
+		{
+			// Wait for end of video playback to initialize
+			return;
+		}
+
 		dataHandler.dataWritten = false;
 		// Initialize Condition and Visit types
 		condition = globalControl.condition;
@@ -438,14 +444,14 @@ public class PaddleGame : MonoBehaviour
 			difficulty = globalControl.difficulty;
 			trialData.Add(new DifficultyEvaluationData<TrialData>(DifficultyEvaluation.CUSTOM, new List<TrialData>()));
 			dataHandler.InitializeDifficultyEvaluationData(DifficultyEvaluation.CUSTOM);
+			pauseHandler.Pause();
+			// difficulty shifts timescale, so pause it again
+			Time.timeScale = 0;
 		}
 
-		// difficulty shifts timescale, so pause it again
-		Time.timeScale = 0;
 
 		globalControl.ResetTimeElapsed();
 
-		pauseHandler.Pause();
 
 		highestBounces = 0;
 		highestAccurateBounces = 0;
@@ -579,6 +585,8 @@ public class PaddleGame : MonoBehaviour
 	/// </summary>
 	void StartShowcase()
 	{
+		pauseHandler.Resume();
+		SetDifficulty(difficulty);
 		StartCoroutine(StartDifficultyDelayed(difficultyExampleTime, true));
 	}
 
@@ -608,11 +616,11 @@ public class PaddleGame : MonoBehaviour
 		else
 		{
 			SetDifficulty(difficulty + 2);
-			if (difficulty == 10)
-			{
-				yield return new WaitForSecondsRealtime(delay);
-			}
 			StartCoroutine(StartDifficultyDelayed(difficultyExampleTime));
+			if (difficulty > 10) // OG ==
+			{
+				// yield return new WaitForSecondsRealtime(delay);
+			}
 		}
 
 		ball.GetComponent<Ball>().ResetBall();

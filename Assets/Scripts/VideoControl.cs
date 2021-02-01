@@ -19,7 +19,7 @@ public class VideoControl : MonoBehaviour
     public List<VideoData> videoDatas = new List<VideoData>();
     
 
-    VideoClip video;
+    // VideoClip video;
     // Coroutine playbackFinished;
     GlobalControl globalControl;
     GlobalPauseHandler globalPauseHandler;
@@ -49,10 +49,14 @@ public class VideoControl : MonoBehaviour
 #if UNITY_EDITOR
             if (editorTesting)
 		    {
-                float appStartDelay = (float)video.length + postVideoDelay;
-                appStartDelay = 10f;
-                // playbackFinished = 
-                StartCoroutine(PlaybackFinished(appStartDelay));
+    //            foreach(VideoData videoData in videoDatas)
+				//{
+    //                videoData.
+				//}
+    //            float appStartDelay = (float)video.length + postVideoDelay;
+    //            appStartDelay = 10f;
+    //            // playbackFinished = 
+    //            StartCoroutine(PlaybackFinished(appStartDelay));
 		    }
 #else
         editorTesting = false;
@@ -111,22 +115,27 @@ public class VideoControl : MonoBehaviour
         renderTarget.gameObject.SetActive(false);
         player.Stop();
         audioSource.Stop();
-        globalControl.recordingData = true;
+        // paddleGame.SetDifficulty(1);
         globalControl.playVideo = false;
+        globalPauseHandler.Pause();
+        if (globalControl.session != Session.SHOWCASE)
+        {
+            globalControl.recordingData = true;
+            paddleGame.StartRecording();
+        }
         paddleGame.Initialize();
-        paddleGame.StartRecording();
         globalPauseHandler.pauseIndicator.visibleOverride = false;
 	}
 
     IEnumerator PracticeTime(float start, VideoData videoData)
 	{
         yield return new WaitForSecondsRealtime(start);
+        paddleGame.SetDifficulty(videoData.difficulty);
         player.clip = videoData.videoClip;
         player.Play();
         audioSource.PlayOneShot(videoData.audioClip);
         Debug.Log("playing video " + player.clip.name);
         yield return new WaitForSecondsRealtime((float)videoData.videoClip.length);
-        paddleGame.SetDifficulty(videoData.difficulty);
         player.Pause();
         globalPauseHandler.Resume();
         yield return new WaitForSecondsRealtime(videoData.postClipTime);

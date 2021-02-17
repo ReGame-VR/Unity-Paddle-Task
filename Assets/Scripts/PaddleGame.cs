@@ -9,11 +9,14 @@ using System;
 using System.Linq;
 using System.Collections.ObjectModel;
 using TMPro;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine.SceneManagement;
 
 public class PaddleGame : MonoBehaviour
 {	
 	private const int difficultyMin = 1, difficultyMax = 10;
+	private float _trialTimer;
+	private bool _isInTrial;
 
 	[Tooltip("The head mounted display")]
 	[SerializeField]
@@ -120,6 +123,7 @@ public class PaddleGame : MonoBehaviour
 	private DifficultyEvaluation difficultyEvaluation;
 	private int maxTrialTime;
 	private float hoverTime;
+	private float elapsedTime;
 
 	// Variables to keep track of resetting the ball after dropping to the ground
 	GameObject paddle;
@@ -270,6 +274,12 @@ public class PaddleGame : MonoBehaviour
 
 	void Update()
 	{
+		if (_isInTrial && !globalControl.paused)
+		{
+			_trialTimer += Time.unscaledDeltaTime;
+			print(_trialTimer);
+		}
+		
 		if(Time.timeScale == 0)
 		{
 			// no processing until unpaused
@@ -646,11 +656,15 @@ public class PaddleGame : MonoBehaviour
 			// Check if ball is on ground
 			if (!inRespawnMode && ball.transform.position.y < ball.transform.localScale.y)
 			{
-				// inHoverMode = true;
-				inRespawnMode = true;
-				StartCoroutine(Respawning());
-				// Reset trial
 				ResetTrial();
+			}
+			
+			if ((SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any)) && !_isInTrial)
+			{
+				// inHoverMode = true;
+				_isInTrial = true;
+				_trialTimer = 0;
+				StartCoroutine(Respawning());
 			}
 		}
 		else // if hovering
@@ -679,6 +693,7 @@ public class PaddleGame : MonoBehaviour
 	IEnumerator Respawning()
 	{
 		Debug.Log("Respawning started " + Time.timeScale);
+		inRespawnMode = true;
 		Time.timeScale = 1f;
 		effectController.StopAllParticleEffects();
 		effectController.StartEffect(effectController.dissolve);
@@ -759,15 +774,20 @@ public class PaddleGame : MonoBehaviour
 		//	return;
 		//}
 
+		if (!_isInTrial)
+			return;
+		
+		_isInTrial = false;
+
 		// Record data for final bounce in trial
 		GatherBounceData();
 
 		if (globalControl.recordingData)
 		{
 			// Record Trial Data from last trial
-			dataHandler.recordTrial(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces, difficultyEvaluation, difficulty);
+			dataHandler.recordTrial(degreesOfFreedom, Time.time, _trialTimer, trialNum, numBounces, numAccurateBounces, difficultyEvaluation, difficulty);
 			// CheckDifficulty();
-			trialData[difficultyEvaluationIndex].datas.Add(new TrialData(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces, difficulty));
+			trialData[difficultyEvaluationIndex].datas.Add(new TrialData(degreesOfFreedom, Time.time, _trialTimer, trialNum, numBounces, numAccurateBounces, difficulty));
 
 		}
 
@@ -916,7 +936,7 @@ public class PaddleGame : MonoBehaviour
 		if (fromBounce)
 		{
 			// add data from current set in progress
-			datas.Add(new TrialData(degreesOfFreedom, Time.time, trialNum, numBounces, numAccurateBounces, difficulty));
+			datas.Add(new TrialData(degreesOfFreedom, Time.time, _trialTimer, trialNum, numBounces, numAccurateBounces, difficulty));
 		}
 
 		if (trialCondition.trialEvaluationCooldown > 0)

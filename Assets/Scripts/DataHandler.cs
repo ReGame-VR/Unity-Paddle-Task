@@ -120,9 +120,9 @@ public class DataHandler : MonoBehaviour
 	//}
 
 	// Records trial data into the data list
-	public void recordTrial(float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces, DifficultyEvaluation difficultyEvaluation, int difficulty)
+	public void recordTrial(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, DifficultyEvaluation difficultyEvaluation, int difficulty)
 	{
-		trialDatas[difficultyEvaluationIndex].datas.Add(new TrialData(degreesOfFreedom, time, trialNum, numBounces, numAccurateBounces, difficulty));
+		trialDatas[difficultyEvaluationIndex].datas.Add(new TrialData(degreesOfFreedom, time, trialTime, trialNum, numBounces, numAccurateBounces, difficulty));
 	}
 
 	// Records bounce data into the data list
@@ -208,6 +208,7 @@ public class DataHandler : MonoBehaviour
 				CsvRow header = new CsvRow();
 				header.Add("Participant ID");
 				header.Add("Time");
+				header.Add("Trial Time");
 				header.Add("Trial #");
 				header.Add("# of Consecutive Bounces");
 				header.Add("# of Accurate Bounces");
@@ -221,6 +222,7 @@ public class DataHandler : MonoBehaviour
 
 					row.Add(pid);
 					row.Add(d.time.ToString());
+					row.Add(d.trialTime.ToString("0.00"));
 					row.Add(d.trialNum.ToString());
 					row.Add(d.numBounces.ToString());
 					row.Add(d.numAccurateBounces.ToString());

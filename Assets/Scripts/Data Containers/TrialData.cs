@@ -7,15 +7,17 @@ public class TrialData
 {
     public readonly float degreesOfFreedom;
     public readonly float time;
+    public readonly float trialTime;
     public readonly int trialNum;
     public readonly int numBounces;
     public readonly int numAccurateBounces;
     public readonly int difficulty;
 
-    public TrialData(float degreesOfFreedom, float time, int trialNum, int numBounces, int numAccurateBounces, int difficulty)
+    public TrialData(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, int difficulty)
     {
         this.degreesOfFreedom = degreesOfFreedom;
         this.time = time;
+        this.trialTime = trialTime;
         this.trialNum = trialNum;
         this.numBounces = numBounces;
         this.numAccurateBounces = numAccurateBounces;

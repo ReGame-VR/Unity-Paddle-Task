@@ -41,6 +41,10 @@
       "requirement": "mandatory"
     },
     {
+      "name": "/actions/default/in/",
+      "type": "boolean"
+    },
+    {
       "name": "/actions/default/out/Haptic",
       "type": "vibration"
     },
@@ -67,6 +71,10 @@
     {
       "name": "/actions/buggy/in/Reset",
       "type": "boolean"
+    },
+    {
+      "name": "/actions/Trigger_Press/in/SpawnBall",
+      "type": "boolean"
     }
   ],
   "action_sets": [
@@ -80,6 +88,14 @@
     },
     {
       "name": "/actions/buggy",
+      "usage": "single"
+    },
+    {
+      "name": "/actions/Trigger_Press",
+      "usage": "single"
+    },
+    {
+      "name": "/actions/NewSet",
       "usage": "single"
     }
   ],

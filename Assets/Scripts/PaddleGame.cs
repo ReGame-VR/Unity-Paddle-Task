@@ -654,16 +654,18 @@ public class PaddleGame : MonoBehaviour
 			timeToDropQuad.SetActive(false);
 
 			// Check if ball is on ground
-			if (!inRespawnMode && ball.transform.position.y < ball.transform.localScale.y)
+			if (!inRespawnMode && ball.transform.position.y < ball.transform.localScale.y && !_isInTrial)
 			{
 				ResetTrial();
-			}
-			
-			if ((SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any)) && !_isInTrial)
-			{
-				// inHoverMode = true;
 				_isInTrial = true;
 				_trialTimer = 0;
+			}
+			
+			if (SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any))
+			{
+				//inHoverMode = true;
+				_isInTrial = false;
+				Debug.Log("Should be logging.");
 				StartCoroutine(Respawning());
 			}
 		}
@@ -686,7 +688,7 @@ public class PaddleGame : MonoBehaviour
 			ball.transform.rotation = Quaternion.identity;
 
 			Time.timeScale = 1f;
-			// Debug.Log("Entering hover mode");
+			//Debug.Log("Entering hover mode");
 		}
 	}
 
@@ -774,10 +776,10 @@ public class PaddleGame : MonoBehaviour
 		//	return;
 		//}
 
-		if (!_isInTrial)
-			return;
+		//if (!_isInTrial)
+		//	return;
 		
-		_isInTrial = false;
+		//_isInTrial = false;
 
 		// Record data for final bounce in trial
 		GatherBounceData();

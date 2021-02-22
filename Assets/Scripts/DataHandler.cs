@@ -208,7 +208,7 @@ public class DataHandler : MonoBehaviour
 				CsvRow header = new CsvRow();
 				header.Add("Participant ID");
 				header.Add("Time");
-				header.Add("Trial Time");
+				header.Add("Time Between Trials");
 				header.Add("Trial #");
 				header.Add("# of Consecutive Bounces");
 				header.Add("# of Accurate Bounces");

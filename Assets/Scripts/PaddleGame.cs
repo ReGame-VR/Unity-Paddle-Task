@@ -277,7 +277,6 @@ public class PaddleGame : MonoBehaviour
 		if (_isInTrial && !globalControl.paused)
 		{
 			_trialTimer += Time.unscaledDeltaTime;
-			print(_trialTimer);
 		}
 		
 		if(Time.timeScale == 0)
@@ -1201,7 +1200,7 @@ public class PaddleGame : MonoBehaviour
 		if (difficulty < 0 || difficulty > 10)
 		{
 			// invalid, get more data
-			Debug.LogError("Invalid difficulty result! attempting to gather more data...");
+			Debug.LogError($"Invalid difficulty result={difficulty}! attempting to gather more data...");
 			return;
 		}
 

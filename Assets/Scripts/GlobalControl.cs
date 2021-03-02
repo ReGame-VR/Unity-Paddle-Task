@@ -64,7 +64,6 @@ public class GlobalControl : MonoBehaviour
     public int maxModerate2TrialTime = 10;
 
     // Time elapsed while game is not paused, in seconds 
-    [NonSerialized]
     public float timeElapsed = 0;
 
     // Duration for which ball should be held before dropping upon reset
@@ -129,9 +128,14 @@ public class GlobalControl : MonoBehaviour
     {
         if (!paused)
         {
+            if (Time.timeScale == 0)
+            {
+                Debug.Log($"{nameof(Time.timeScale)}={Time.timeScale}");
+                return;
+            }
+            
             timeElapsed += (Time.deltaTime * (1/Time.timeScale));
             // Debug.Log("not paused: " + timeElapsed);
-
         }
         else
 		{

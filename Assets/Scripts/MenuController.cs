@@ -6,6 +6,7 @@ using UnityEngine.VR;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using System.Reflection;
 
 /// <summary>
 /// Holds functions for responding to and recording preferences on menu.

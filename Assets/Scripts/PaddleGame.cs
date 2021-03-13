@@ -99,6 +99,10 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField]
 	private GlobalPauseHandler pauseHandler;
 
+	[SerializeField]
+	private QuestionareHandler questionsHandler;
+
+
 	// If 3 of the last 10 bounces were successful, update the exploration mode physics 
 	private const int EXPLORATION_MAX_BOUNCES = 10;
 	private const int EXPLORATION_SUCCESS_THRESHOLD = 6;
@@ -392,11 +396,14 @@ public class PaddleGame : MonoBehaviour
 
 		dataHandler.WriteDataToFiles();
 
-		// clean DDoL objects and return to the start scene
-		Destroy(GlobalControl.Instance.gameObject);
-		Destroy(gameObject);
+		ball.SetActive(false);
+		questionsHandler.AfterQuestion();
 
-		SceneManager.LoadScene(0);
+		// clean DDoL objects and return to the start scene
+		//Destroy(GlobalControl.Instance.gameObject);
+		//Destroy(gameObject);
+
+		//SceneManager.LoadScene(0);
 	}
 
 	#region Initialization
@@ -454,6 +461,9 @@ public class PaddleGame : MonoBehaviour
 			trialData.Add(new DifficultyEvaluationData<TrialData>(DifficultyEvaluation.CUSTOM, new List<TrialData>()));
 			dataHandler.InitializeDifficultyEvaluationData(DifficultyEvaluation.CUSTOM);
 			pauseHandler.Pause();
+
+			// enable questions
+			//questionsHandler.BeforeQuestions();
 			// difficulty shifts timescale, so pause it again
 			Time.timeScale = 0;
 		}

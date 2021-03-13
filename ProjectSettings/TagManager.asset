@@ -6,6 +6,13 @@ TagManager:
   tags:
   - Paddle
   - Ball
+  - lb_perchTarget
+  - lb_groundTarget
+  - Line
+  - Podium
+  - LevelText
+  - InfoPanel
+  - Effect
   layers:
   - Default
   - TransparentFX

@@ -40,6 +40,9 @@ public class DataHandler : MonoBehaviour
 	//	{ DifficultyEvaluation.CUSTOM, new List<DifficultyData>() },
 	//};
 
+	// record eye data
+	List<DifficultyEvaluationData<EyeData>> eyeDatas = new List<DifficultyEvaluationData<EyeData>>();
+
 	HeaderData headerData;
 
 	private string pid;
@@ -58,6 +61,9 @@ public class DataHandler : MonoBehaviour
 		bounceDatas.Add(new DifficultyEvaluationData<BounceData>(difficultyEvaluation, new List<BounceData>()));
 		continuousDatas.Add(new DifficultyEvaluationData<ContinuousData>(difficultyEvaluation, new List<ContinuousData>()));
 		difficultyDatas.Add(new DifficultyEvaluationData<DifficultyData>(difficultyEvaluation, new List<DifficultyData>()));
+		// record eye data
+		eyeDatas.Add(new DifficultyEvaluationData<EyeData>(difficultyEvaluation, new List<EyeData>()));
+
 		difficultyEvaluationIndex++;
 	}
 
@@ -106,6 +112,8 @@ public class DataHandler : MonoBehaviour
 			WriteBounceFile();
 			WriteContinuousFile();
 			WriteDifficultyFile();
+			// record eye
+			WriteEyeFile();
 		}
 	}
 
@@ -145,6 +153,12 @@ public class DataHandler : MonoBehaviour
 	public void recordHeaderInfo(Condition c, ExpCondition ec, Session s, int maxtime, float htime, float tradius)
 	{
 		headerData = new HeaderData(c, ec, s, maxtime, htime, tradius);
+	}
+
+	// record eye data
+	public void recordEye(float time, bool paused, Vector3 gaze, Vector3 origin, Vector3 direction, int gazedObj)
+	{
+		eyeDatas[difficultyEvaluationIndex].datas.Add(new EyeData(time, paused, gaze, origin, direction, gazedObj));
 	}
 
 	private void WriteHeaderInfo(CsvFileWriter writer)
@@ -432,9 +446,71 @@ public class DataHandler : MonoBehaviour
 		// ResetEvaluationsIteration();
 	}
 
-	// utility functions --------------------------------------------
+	// record eye data
+	private void WriteEyeFile()
+	{
+		// Write all entries in data list to file
+		string directory = "Data/" + pid;
+		Directory.CreateDirectory(@directory);
+		foreach (var eyeData in eyeDatas)
+		{
+			var evaluation = GetEvaluationsIteration(eyeData.difficultyEvaluation);
+			if (eyeData.datas.Count <= 0) continue;
 
-	string DhWriteYBounceMod(Vector3 bm)
+
+			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + eyeData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Eye.csv"))
+			{
+				Debug.Log("Writing continuous data to file");
+
+				// write session data
+				WriteHeaderInfo(writer);
+
+				// write header
+				CsvRow header = new CsvRow();
+				header.Add("Participant ID");
+				header.Add("Timestamp");
+				header.Add("Paused?");
+				header.Add("Gaze X");
+				header.Add("Gaze Y");
+				header.Add("Gaze Z");
+				header.Add("Origin X");
+				header.Add("Origin Y");
+				header.Add("Origin Z");
+				header.Add("Direction X");
+				header.Add("Direction Y");
+				header.Add("Direction Z");
+				header.Add("GazedObj");
+
+				writer.WriteRow(header);
+
+				// write each line of data
+				foreach (EyeData d in eyeData.datas)
+				{
+					CsvRow row = new CsvRow();
+
+					row.Add(pid);
+					row.Add(d.time.ToString());
+					row.Add(d.paused ? "PAUSED" : "");
+					row.Add(d.gaze.x.ToString());
+					row.Add(d.gaze.y.ToString());
+					row.Add(d.gaze.z.ToString());
+					row.Add(d.origin.x.ToString());
+					row.Add(d.origin.y.ToString());
+					row.Add(d.origin.z.ToString());
+					row.Add(d.direction.x.ToString());
+					row.Add(d.direction.y.ToString());
+					row.Add(d.direction.z.ToString());
+					row.Add(d.gazedObj.ToString());
+
+					writer.WriteRow(row);
+				}
+			}
+		}
+	}
+
+		// utility functions --------------------------------------------
+
+		string DhWriteYBounceMod(Vector3 bm)
 	{
 		return isExplorationMode ? bm.y.ToString() : "NORMAL";
 	}

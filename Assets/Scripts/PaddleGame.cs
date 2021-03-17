@@ -863,7 +863,8 @@ public class PaddleGame : MonoBehaviour
 			if (scoreEffectTarget + 1 >= scoreEffects.Count)
 			{
 				maxScoreEffectReached = true;
-				Debug.LogFormat("max effect score reached, score is {0} and score target was {1}", curScore, scoreEffects[scoreEffectTarget].score);
+				Debug.Log($"max effect score reached, score is {curScore} and score target was {scoreEffects[scoreEffectTarget].score}");
+				//Debug.LogFormat("max effect score reached, score is {0} and score target was {1}", curScore, scoreEffects[scoreEffectTarget].score);
 			}
 			else
 			{
@@ -1174,7 +1175,7 @@ public class PaddleGame : MonoBehaviour
 		}
 
 		var difficultyScalar = GetPerformanceBasedDifficultyScalar(successfulCompletion);
-		int difficulty = 0;
+		var tempDifficulty = 0;
 
 		if(session == Session.ACQUISITION || session == Session.SHOWCASE)
 		{
@@ -1183,28 +1184,30 @@ public class PaddleGame : MonoBehaviour
 			return;
 		}
 
+		Debug.Log($"{nameof(tempDifficulty)}={tempDifficulty} {nameof(difficultyScalar)}={difficultyScalar}");
+
 		// each are evaluating for the next difficultyEvaluation
 		if (difficultyEvaluation == DifficultyEvaluation.BASE)
 		{
-			difficulty = Mathf.RoundToInt(Mathf.Lerp(2, 5, difficultyScalar));
+			tempDifficulty = Mathf.RoundToInt(Mathf.Lerp(2, 5, difficultyScalar));
 		}
 		else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
 		{
-			difficulty = Mathf.RoundToInt(Mathf.Lerp(6, 10, difficultyScalar));
+			tempDifficulty = Mathf.RoundToInt(Mathf.Lerp(6, 10, difficultyScalar));
+
 		}
 		else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
 		{
-			difficulty = Mathf.RoundToInt(Mathf.Lerp(2, 5, difficultyScalar));
+			tempDifficulty = Mathf.RoundToInt(Mathf.Lerp(2, 5, difficultyScalar));
 		}
 
-		if (difficulty < 0 || difficulty > 10)
+		if (tempDifficulty < 0 || tempDifficulty > 10)
 		{
-			// invalid, get more data
-			Debug.LogError($"Invalid difficulty result={difficulty}! attempting to gather more data...");
-			return;
+			Debug.Log($"{nameof(tempDifficulty)}={tempDifficulty}");
+			tempDifficulty = Mathf.Clamp(tempDifficulty, 0, 10);
 		}
 
-		performanceDifficulties.Add(difficulty);
+		performanceDifficulties.Add(tempDifficulty);
 
 		// reset cooldown, condition may be used again
 		GetDifficultyCondition(difficultyEvaluation).trialEvaluationCooldown = 0;
@@ -1220,7 +1223,7 @@ public class PaddleGame : MonoBehaviour
 		difficultyEvaluationTrials = GetDifficultyCondition(difficultyEvaluationOrder[difficultyEvaluationIndex]).trialEvaluationTarget;
 		Debug.LogFormat("Increased Difficulty Evaluation to {0} with new difficulty evaluation difficulty evaluation: ", difficultyEvaluationIndex, difficultyEvaluation.ToString());
 
-		SetDifficulty(difficulty);
+		SetDifficulty(tempDifficulty);
 
 		Initialize();
 
@@ -1240,7 +1243,9 @@ public class PaddleGame : MonoBehaviour
 			var datas = trialData[difficultyEvaluationIndex].datas;
 
 			// evaluating time percentage of the way to end, 10 min
-			var timeScalar = 1 - (globalControl.GetTimeElapsed() / GetMaxDifficultyTrialTime(difficultyEvaluation));
+			var maxDifficultyTrialTime = GetMaxDifficultyTrialTime(difficultyEvaluation);
+			Debug.Log($"{nameof(maxDifficultyTrialTime)}={maxDifficultyTrialTime}");
+			var timeScalar = 1 - (globalControl.GetTimeElapsed() / maxDifficultyTrialTime);
 
 			// evaluating performance, average bounces and accurate bounces. 
 			int bounces = 0, accurateBounces = 0;
@@ -1253,14 +1258,16 @@ public class PaddleGame : MonoBehaviour
 				accurateBounces += trial.numAccurateBounces;
 			}
 
-			averageBounces = (float)bounces / (float)datas.Count;
-			averageAccurateBounces = (float)accurateBounces / (float)datas.Count;
+			var tempCount = datas.Count <= 0 ? 1 : datas.Count;
+			averageBounces = (float)bounces / (float)tempCount;
+			averageAccurateBounces = (float)accurateBounces / (float)tempCount;
 
 			// average bounces
 			float averageBounceScalar = Mathf.Clamp(averageBounces / (float)targetConditionBounces[difficultyEvaluation], 0f, 1.3f);
 			
 			// accurate bounces
 			float averageAccurateBounceScalar = globalControl.targetHeightEnabled ? Mathf.Clamp(averageAccurateBounces / targetConditionAccurateBounces[difficultyEvaluation], 0f, 1.3f) : 0;
+			Debug.Log($"{nameof(averageBounces)}={averageBounces} {nameof(averageAccurateBounces)}={averageAccurateBounces} {nameof(averageBounceScalar)}={averageBounceScalar} {nameof(averageAccurateBounceScalar)}={averageAccurateBounceScalar}");
 
 			// Mostly for testing case
 			if (averageBounceScalar == 0 && averageAccurateBounceScalar == 0)
@@ -1269,10 +1276,12 @@ public class PaddleGame : MonoBehaviour
 			}
 			else
 			{
-				return Mathf.Clamp01((averageBounceScalar + averageAccurateBounceScalar + timeScalar) / (globalControl.targetHeightEnabled ? 3f : 2f));
+				var tempTargetHeight = globalControl.targetHeightEnabled ? 3f : 2f;
+				Debug.Log($"{nameof(tempTargetHeight)}={tempTargetHeight}");
+				return Mathf.Clamp01((averageBounceScalar + averageAccurateBounceScalar + timeScalar) / (tempTargetHeight));
 			}
 		}
-
+		
 		return -1;
 	}
 

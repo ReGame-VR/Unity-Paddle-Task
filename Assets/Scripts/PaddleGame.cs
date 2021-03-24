@@ -370,7 +370,14 @@ public class PaddleGame : MonoBehaviour
 		}
 		#endregion
 
-		if (globalControl.GetTimeElapsed() > GetMaxDifficultyTrialTime(difficultyEvaluation) /*globalControl.GetTimeLimitSeconds()*/)
+		//GetMaxDifficultyTime is returning 600 seconds!!! Created new method called SetTrialTime() that takes the maxTrialTime * 60.
+		//To fix this issue GetMaxDifficultyTrialTime() needs to be fixed because this is just a bandaid and will most likely only work for 
+		//aquisition setting. Debug statements below show the issue.
+		Debug.Log("Time Elapsed: " + globalControl.GetTimeElapsed());
+		Debug.Log("Max Time: " + GetMaxDifficultyTrialTime(difficultyEvaluation));
+		
+		//if (globalControl.GetTimeElapsed() > GetMaxDifficultyTrialTime(difficultyEvaluation))
+		if (globalControl.GetTimeElapsed() > SetTrialTime())
 		{
 #if !UNITY_EDITOR
 			Debug.Log("Time limit of " + globalControl.GetTimeLimitSeconds() + " seconds has passed. Quitting");
@@ -1036,6 +1043,13 @@ public class PaddleGame : MonoBehaviour
 		return null;
 	}
 
+	public int SetTrialTime()
+	{
+		int trialTime = 0;
+		trialTime = globalControl.maxTrialTime * 60;
+		return trialTime;
+	}
+
 	public int GetMaxDifficultyTrialTime(DifficultyEvaluation difficultyEvaluation)
 	{
 		int trialTime = -1;
@@ -1207,12 +1221,12 @@ public class PaddleGame : MonoBehaviour
 			difficulty = Mathf.RoundToInt(Mathf.Lerp(2, 5, difficultyScalar));
 		}
 
-		if (difficulty < 0 || difficulty > 10)
+		/*if (difficulty < 0 || difficulty > 10)
 		{
 			// invalid, get more data
 			Debug.LogError($"Invalid difficulty result={difficulty}! attempting to gather more data...");
 			return;
-		}
+		}*/
 
 		performanceDifficulties.Add(difficulty);
 
@@ -1291,7 +1305,7 @@ public class PaddleGame : MonoBehaviour
 		bool difficultyChanged = difficulty != difficultyNew;
 		if (difficultyNew < 0 || difficultyNew > 10)
 		{
-			Debug.LogError("Issue setting difficulty, not in expected range: " + difficultyNew);
+			//Debug.LogError("Issue setting difficulty, not in expected range: " + difficultyNew);
 			
 			return;
 		}

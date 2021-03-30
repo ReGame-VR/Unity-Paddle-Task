@@ -17,8 +17,8 @@ public class QuestionareHandler : MonoBehaviour
 
     public void Start()
     {
-        beforeQuestions.transform.position = new Vector3(0f, hmd.transform.position.y, 0.8f);
-        afterQuestions.transform.position = new Vector3(0f, hmd.transform.position.y, 0.8f);
+        beforeQuestions.transform.position = new Vector3(0f, hmd.transform.position.y, 1f);
+        afterQuestions.transform.position = new Vector3(0f, hmd.transform.position.y, 1f);
 
         //beforeQuestions.SetActive(false);
         afterQuestions.SetActive(false);

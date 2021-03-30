@@ -104,7 +104,7 @@ public class DataHandler : MonoBehaviour
 		dataWritten = true;
 		// make pid folder unique
 		System.DateTime now = System.DateTime.Now;
-		pid = GlobalControl.Instance.participantID + "_" + now.Month.ToString() + "-" + now.Day.ToString() + "-" + now.Year + "_" + now.Hour + "-" + now.Minute + "-" + now.Second; // + "_" + pid;
+		pid = GlobalControl.Instance.participantID + "_" + "Level" + GlobalControl.Instance.difficulty.ToString() + "_" + now.Month.ToString() + "-" + now.Day.ToString() + "-" + "_" + now.Hour + "-" + now.Minute + "-" + now.Second; // + "_" + pid;
 
 		if (GlobalControl.Instance.recordingData)
 		{
@@ -211,7 +211,8 @@ public class DataHandler : MonoBehaviour
 
 			if (trialData.datas.Count <= 0) continue;
 
-			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + trialData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Trial.csv"))
+			//using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + trialData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Trial.csv"))
+			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + pid + "Trial.csv"))
 			{
 				Debug.Log("Writing trial data to file");
 
@@ -262,7 +263,8 @@ public class DataHandler : MonoBehaviour
 			var evaluation = GetEvaluationsIteration(bounceData.difficultyEvaluation);
 			if (bounceData.datas.Count <= 0) continue;
 
-			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + bounceData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Bounce.csv"))
+			//using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + bounceData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Bounce.csv"))
+			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + pid + "Bounce.csv"))
 			{
 				Debug.Log("Writing bounce data to file");
 
@@ -335,7 +337,8 @@ public class DataHandler : MonoBehaviour
 			if (continuousData.datas.Count <= 0) continue;
 
 
-			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + continuousData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Continuous.csv"))
+			//using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + continuousData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Continuous.csv"))
+			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + pid + "Continuous.csv"))
 			{
 				Debug.Log("Writing continuous data to file");
 
@@ -401,7 +404,8 @@ public class DataHandler : MonoBehaviour
 
 		if (difficultyDatas.Count <= 0) return;
 
-		using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + "DifficultyData_" + pid + ".csv"))
+		//using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + "DifficultyData_" + pid + ".csv"))
+		using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + pid + ".csv"))
 		{
 			Debug.Log("Writing diffiuclty data to file");
 
@@ -458,7 +462,8 @@ public class DataHandler : MonoBehaviour
 			if (eyeData.datas.Count <= 0) continue;
 
 
-			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + eyeData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Eye.csv"))
+			//using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + eyeData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Eye.csv"))
+			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + pid + "Eye.csv"))
 			{
 				Debug.Log("Writing continuous data to file");
 

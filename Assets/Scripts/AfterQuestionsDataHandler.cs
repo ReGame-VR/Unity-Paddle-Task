@@ -27,6 +27,7 @@ public class AfterQuestionsDataHandler : MonoBehaviour, IPointerDownHandler
     public GameObject timeToDropDisplay;
     public GameObject pauseIndicator;
     public GameObject debugDisplay;
+    public GameObject targetLine;
     //public GameObject ball;
     //public GameObject ballEffect;
 
@@ -59,6 +60,7 @@ public class AfterQuestionsDataHandler : MonoBehaviour, IPointerDownHandler
         timeToDropDisplay.SetActive(false);
         pauseIndicator.SetActive(false);
         debugDisplay.SetActive(false);
+        targetLine.SetActive(false);
         //ballEffect.SetActive(false);
        // ball.GetComponent<MeshRenderer>().enabled = false;
         //ball.transform.GetChild(2).gameObject.SetActive(false);
@@ -112,7 +114,7 @@ public class AfterQuestionsDataHandler : MonoBehaviour, IPointerDownHandler
         timeToDropDisplay.SetActive(true);
         pauseIndicator.SetActive(true);
         debugDisplay.SetActive(true);
-
+        targetLine.SetActive(true);
         //ball.GetComponent<MeshRenderer>().enabled = true;
         //ballEffect.SetActive(true);
     }

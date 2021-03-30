@@ -25,6 +25,7 @@ public class BeforeQuestionsDataHandler : MonoBehaviour, IPointerDownHandler
     public GameObject debugDisplay;
     public GameObject ball;
     public GameObject ballEffect;
+    public GameObject targetLine;
 
     private string pid;
     private string filepath;
@@ -55,6 +56,7 @@ public class BeforeQuestionsDataHandler : MonoBehaviour, IPointerDownHandler
             pointer.SetActive(true);
             controllerModel.SetActive(true);
             paddle.SetActive(false);
+            targetLine.SetActive(false);
 
 
             timeToDropDisplay.SetActive(false);
@@ -124,6 +126,7 @@ public class BeforeQuestionsDataHandler : MonoBehaviour, IPointerDownHandler
         pauseIndicator.SetActive(true);
         debugDisplay.SetActive(true);
         ball.GetComponent<MeshRenderer>().enabled = true;
+        targetLine.SetActive(true);
         //ballEffect.SetActive(true);
     }
     /*
